@@ -1,0 +1,94 @@
+#  Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS, L3S, LJLL, MENSI
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/
+#
+# -* Makefile *- 
+#
+# Author : Lioka RAZAFINDRAZAKA (CEA)
+# Date : 2006/06/30
+#
+
+# source path
+top_srcdir=@top_srcdir@
+top_builddir=.
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/bin:@top_srcdir@/resources:./bin:@top_srcdir@/idl
+
+
+@COMMENCE@
+
+SUBDIRS = idl src adm_local
+
+RESOURCES_FILES = \
+    HexoticPlugin.xml \
+    HexoticPLUGIN.xml \
+    mesh_algo_Hexotic.png \
+    mesh_hypo_Hexotic.png \
+    mesh_tree_algo_Hexotic.png \
+    mesh_tree_hypo_Hexotic.png \
+    Hexotic.png
+
+BIN_SCRIPT = VERSION
+
+# copy header files in common directory ------------
+
+ifeq ($(HAVE_SSTREAM),yes)
+  include_list=include/salome/SALOMEconfig.h
+else
+  include_list=include/salome/SALOMEconfig.h include/salome/sstream
+endif
+
+inc: idl $(include_list)
+
+include/salome/SALOMEconfig.h: salome_adm/unix/SALOMEconfig.ref
+	-$(RM) $@
+	$(LN_S) ../../$< $@
+
+# test if SALOMEconfig.h has changed (contents)
+salome_adm/unix/SALOMEconfig.ref: salome_adm/unix/SALOMEconfig.h
+	@if ! [ -a $@ ]; then \
+	  cp -p -f $< $@;        \
+	fi;		      \
+	if ! cmp $< $@; then  \
+	  cp -p -f $< $@;        \
+	fi;		      \
+
+include/salome/sstream: salome_adm/unix/sstream
+	-$(RM) $@
+	$(LN_S) ../../$< $@
+
+# install script in $(bindir) :
+install-bin: $(BIN_SCRIPT)
+	$(INSTALL) -d  $(bindir)
+	if test $(BIN_SCRIPT)X != X; then 			\
+		$(INSTALL_PROGRAM) $^ $(bindir);		\
+	fi
+
+# CLEAN --------------------
+
+distclean: distclean-other
+
+distclean-other:
+	-$(RM) salome_adm/unix/*~ salome_adm/unix/*% salome_adm/unix/*.bak salome_adm/unix/*.new salome_adm/unix/*.old
+	-$(RM) salome_adm/unix/make_* 
+	-$(RM) salome_adm/unix/depend salome_adm/unix/SALOMEconfig.h 
+	-$(RM) config.cache config.log config.status 
+
+@MODULE@
+
+install: install-bin

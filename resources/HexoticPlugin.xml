@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='us-ascii'?>
+<!DOCTYPE meshers PUBLIC "" "desktop.dtd">
+
+<!--  GUI customization for Hexotic Plugin  -->
+
+<meshers>
+
+<meshers-group name="Hexotic"
+               resources="HexoticPlugin"
+               server-lib="libHexoticEngine.so"
+               gui-lib="libHexoticPluginGUI.so">
+  <hypotheses>
+    <hypothesis type="Hexotic_Parameters"
+		label-id="Hexotic Parameters"
+		icon-id="mesh_hypo_Hexotic.png"
+		dim="3"/>
+  </hypotheses>
+  <algorithms>
+    <algorithm type="Hexotic_3D"
+               label-id="Hexotic"
+               icon-id="mesh_algo_Hexotic.png"
+               hypos="Hexotic_Parameters"
+               input="TRIA,QUAD"
+               dim="3"/>
+  </algorithms>
+</meshers-group>
+
+</meshers>

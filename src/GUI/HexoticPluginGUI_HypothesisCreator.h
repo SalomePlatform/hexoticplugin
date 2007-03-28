@@ -1,0 +1,81 @@
+//  HexoticPlugin GUI: GUI for plugged-in mesher HexoticPlugin
+//
+//  Copyright (C) 2003  CEA
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+//  See http://www.salome-platform.org or email : webmaster.salome@opencascade.org
+//
+//
+//
+//  File   : HexoticPluginGUI_HypothesisCreator.h
+// Author  : Lioka RAZAFINDRAZAKA (CEA)
+//  Module : HexoticPlugin
+//  $Header: 
+
+#ifndef HexoticPLUGINGUI_HypothesisCreator_HeaderFile
+#define HexoticPLUGINGUI_HypothesisCreator_HeaderFile
+
+#include <SMESHGUI_Hypotheses.h>
+
+class QtxIntSpinBox;
+class QtxDblSpinBox;
+class QCheckBox;
+class QLineEdit;
+
+typedef struct
+{
+  QString  myName;
+  int      myHexesMinLevel, myHexesMaxLevel;
+  bool     myHexoticQuadrangles;
+} HexoticHypothesisData;
+
+/*!
+ * \brief Class for creation of Hexotic hypotheses
+*/
+class HexoticPluginGUI_HypothesisCreator : public SMESHGUI_GenericHypothesisCreator
+{
+  Q_OBJECT
+
+public:
+  HexoticPluginGUI_HypothesisCreator( const QString& );
+  virtual ~HexoticPluginGUI_HypothesisCreator();
+
+  virtual bool checkParams() const;
+
+protected:
+  virtual QFrame*  buildFrame    ();
+  virtual void     retrieveParams() const;
+  virtual QString  storeParams   () const;
+  
+  virtual QString  caption() const;
+  virtual QPixmap  icon() const;
+  virtual QString  type() const;
+
+private:
+  bool readParamsFromHypo( HexoticHypothesisData& ) const;
+  bool readParamsFromWidgets( HexoticHypothesisData& ) const;
+  bool storeParamsToHypo( const HexoticHypothesisData& ) const;
+
+private:
+ QLineEdit*       myName;
+ QtxIntSpinBox*   myHexesMinLevel;
+ QtxIntSpinBox*   myHexesMaxLevel;
+ QCheckBox*       myHexoticQuadrangles;
+
+ bool myIs3D;
+};
+
+#endif

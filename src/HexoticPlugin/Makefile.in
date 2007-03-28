@@ -1,0 +1,54 @@
+#  Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS, L3S, LJLL, MENSI
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+#  See http://www.salome-platform.org/
+#
+# -* Makefile *- 
+#
+# Author : Lioka RAZAFINDRAZAKA (CEA)
+# Module : HexoticPLUGIN
+# Date : 2006/06/30
+#
+#
+
+# source path
+top_srcdir=@top_srcdir@
+top_builddir=../..
+srcdir=@srcdir@
+VPATH=.:@srcdir@:@top_srcdir@/idl:$(top_builddir)/idl:${KERNEL_ROOT_DIR}/idl/salome:${GUI_ROOT_DIR}/idl/salome:${GEOM_ROOT_DIR}/idl/salome:${SMESH_ROOT_DIR}/idl/salome:${MED_ROOT_DIR}/idl/salome
+
+@COMMENCE@
+
+LIB_SRC = \
+        HexoticPlugin_Hexotic.cxx \
+        HexoticPlugin_Hexotic_i.cxx \
+        HexoticPlugin_Hypothesis.cxx \
+        HexoticPlugin_Hypothesis_i.cxx \
+        HexoticPlugin_i.cxx
+
+LIB_SERVER_IDL = HexoticPlugin_Algorithm.idl
+
+LIB_CLIENT_IDL = \
+        SALOME_Component.idl \
+        SALOME_Comm.idl \
+        GEOM_Gen.idl \
+        MED.idl
+
+# Libraries targets
+LIB = libHexoticEngine.la
+
+@CONCLUDE@
