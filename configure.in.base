@@ -16,7 +16,7 @@
 #
 
 AC_INIT(src)
-AC_CONFIG_AUX_DIR(${KERNEL_ROOT_DIR}/salome_adm/unix/config_files)
+AC_CONFIG_AUX_DIR(${KERNEL_ROOT_DIR}/salome_adm/unix/config_files/DEPRECATED)
 AC_CANONICAL_HOST
 
 PACKAGE=salome

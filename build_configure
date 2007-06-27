@@ -244,6 +244,7 @@ else
 fi
 
 aclocal -I adm_local/unix/config_files -I ${KERNEL_ROOT_DIR}/salome_adm/unix/config_files \
+                                       -I ${KERNEL_ROOT_DIR}/salome_adm/unix/config_files/DEPRECATED \
                                        -I ${GUI_ROOT_DIR}/adm_local/unix/config_files \
                                        -I ${MED_ROOT_DIR}/adm_local/unix/config_files \
                                        -I ${GEOM_ROOT_DIR}/adm_local/unix/config_files \
