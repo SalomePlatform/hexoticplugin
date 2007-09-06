@@ -54,6 +54,8 @@ using namespace std;
 #include <SMESH_ControlsDef.hxx>
 
 #include <list>
+#include <cstdlib>
+#include <iostream>
 
 //=============================================================================
 /*!
@@ -258,56 +260,11 @@ static bool writeHexoticFile (ofstream &                      theFile,
 }
 
 //=======================================================================
-//function : getInt
-//purpose  : 
-//=======================================================================
-
-static bool getInt( int & theValue, char * & theLine )
-{
-  char *ptr;
-  theValue = strtol( theLine, &ptr, 10 );
-  if ( ptr == theLine ||
-      // there must not be neither '.' nor ',' nor 'E' ...
-      (*ptr != ' ' && *ptr != '\n' && *ptr != '\0'))
-    return false;
-
-  DUMP( "  " << theValue );
-  theLine = ptr;
-  return true;
-}
-
-//=======================================================================
-//function : getDouble
-//purpose  : 
-//=======================================================================
-
-static bool getDouble( double & theValue, char * & theLine )
-{
-  char *ptr;
-  theValue = strtod( theLine, &ptr );
-  if ( ptr == theLine )
-    return false;
-
-  DUMP( "   " << theValue );
-  theLine = ptr;
-  return true;
-}
-  
-//=======================================================================
-//function : readLine
-//purpose  : 
-//=======================================================================
-
-#define HexoticPlugin_BUFLENGTH 256
-#define HexoticPlugin_ReadLine(aPtr,aBuf,aFile,aLineNb) \
-{  aPtr = fgets( aBuf, HexoticPlugin_BUFLENGTH - 2, aFile ); aLineNb++; DUMP(endl); }
-
-//=======================================================================
 //function : readResult
 //purpose  : 
 //=======================================================================
 
-static bool readResult(FILE *                           theFile,
+static bool readResult(string                           theFile,
                        SMESHDS_Mesh *                   theMesh,
                        const TopoDS_Shape &             theShape,
                        map <int,const SMDS_MeshNode*> & theHexoticIdToNodeMap,
@@ -318,112 +275,139 @@ static bool readResult(FILE *                           theFile,
   // Read generated elements and nodes
   // ---------------------------------
 
-  cout << "Reading Hexotic output file : " << Hexotic_Out << endl;
-  cout << endl;
+  MESSAGE("Read " << theFile << " file");
+  ifstream fileRes(theFile.c_str());
+  ASSERT(fileRes);
 
-  char aBuffer[ HexoticPlugin_BUFLENGTH ];
-  char * aPtr;
-  int aLineNb = 0;
+  string token;
   int shapeID = theMesh->ShapeToIndex( theShape );
-
-  int line = 1, EndOfFile = 0, nbElem = 0, nField = 10, nbRef = 0, aHexoticNodeID = 0;
-  char * theField;
-
-  char * tabField [nField];
+  int EndOfFile = 0, nbElem = 0, nField = 10, nbRef = 0, aHexoticNodeID = 0;
+  string theField;
   int    tabRef [nField];
+  map <string,int> mapField;
 
-  tabField[0] = "MeshVersionFormatted";    tabRef[0] = 0;
-  tabField[1] = "Dimension";               tabRef[1] = 0;
-  tabField[2] = "Vertices";                tabRef[2] = 3;
-  tabField[3] = "Edges";                   tabRef[3] = 2;
-  tabField[4] = "Triangles";               tabRef[4] = 3;
-  tabField[5] = "Quadrilaterals";          tabRef[5] = 4;
-  tabField[6] = "Hexahedra";               tabRef[6] = 8;
-  tabField[7] = "Corners";                 tabRef[7] = 1;
-  tabField[8] = "Ridges";                  tabRef[0] = 1;
-  tabField[9] = "End";                     tabRef[0] = 0;
+  mapField["MeshVersionFormatted"] = 0; tabRef[0] = 0;
+  mapField["Dimension"]            = 1; tabRef[1] = 0;
+  mapField["Vertices"]             = 2; tabRef[2] = 3;
+  mapField["Edges"]                = 3; tabRef[3] = 2;
+  mapField["Triangles"]            = 4; tabRef[4] = 3;
+  mapField["Quadrilaterals"]       = 5; tabRef[5] = 4;
+  mapField["Hexahedra"]            = 6; tabRef[6] = 8;
+  mapField["Corners"]              = 7; tabRef[7] = 1;
+  mapField["Ridges"]               = 8; tabRef[8] = 1;
+  mapField["End"]                  = 9; tabRef[9] = 0;
 
   nodeRefNumber += theMesh->NbNodes();
 
   SMDS_NodeIteratorPtr itOnHexoticInputNode = theMesh->nodesIterator();
   while ( itOnHexoticInputNode->more() )
     theMesh->RemoveNode( itOnHexoticInputNode->next() );
-
+  
   while ( EndOfFile == 0  ) {
-    HexoticPlugin_ReadLine( aPtr, aBuffer, theFile, aLineNb );
-    for ( int iField = 0; iField < nField; iField++ ) {
-      stringstream theMessage;
-      theField = tabField[iField];
-      if ( strncmp(aPtr, theField, strlen(theField)) == 0 ) {
-        if ( strcmp(theField, "End") == 0 ) {
-          EndOfFile = 1;
-          theMessage << "End of Hexotic output file has been reached";
+    int dummy;
+    fileRes >> token;
+
+    if (mapField.count(token)) {
+      nField = mapField[token];
+      nbRef  = tabRef[nField];
+    }
+    else {
+      nField = -1;
+      nbRef = 0;
+    }
+
+    nbElem = 0;
+    if ((nField < 9) && (nField >=0))
+      fileRes >> nbElem;
+
+    switch (nField) {
+      case 0: { // "MeshVersionFormatted"
+        MESSAGE(token << " " << nbElem);
+        break;
         }
-        else {
-          HexoticPlugin_ReadLine( aPtr, aBuffer, theFile, aLineNb );
-          line++;
-          getInt( nbElem, aPtr );
+      case 1: { // "Dimension"
+        MESSAGE("Mesh dimension " << nbElem << "D");
+        break;
+        }
+      case 2: { // "Vertices"
+        MESSAGE("Read " << nbElem << " vertices");
+        int aHexoticID;
+        double coord[nbRef];
+        SMDS_MeshNode * aHexoticNode;
 
-          if ( strcmp(theField, "MeshVersionFormatted") == 0 )
-            theMessage << "Hexotic mesh descriptor : " << theField << " " << nbElem;
-          else if ( strcmp(theField, "Dimension") == 0 )
-            theMessage << "Hexotic mesh of " << nbElem << "D dimension";
-          else if ( strcmp(theField, "Vertices")       == 0 ||
-                    strcmp(theField, "Edges")          == 0 ||
-                    strcmp(theField, "Quadrilaterals") == 0 ||
-                    strcmp(theField, "Hexahedra")      == 0 ) {
-            nbRef = tabRef[iField];
-            HexoticPlugin_ReadLine( aPtr, aBuffer, theFile, aLineNb );           // read blank line
-
-            if ( strcmp(theField, "Vertices") == 0 ) {
-              int aHexoticID;
-              double coord[nbRef];
-              SMDS_MeshNode * aHexoticNode;
-
-              for ( int iElem = 0; iElem < nbElem; iElem++ ) {
-                aHexoticID = iElem + 1 + nodeRefNumber;
-                HexoticPlugin_ReadLine( aPtr, aBuffer, theFile, aLineNb );   // read file lines
-                for ( int iCoord = 0; iCoord < 3; iCoord++ )
-                  getDouble ( coord[ iCoord ], aPtr );
-                aHexoticNode = theMesh->AddNode(coord[0], coord[1], coord[2]);
-                theMesh->SetNodeInVolume( aHexoticNode, shapeID );
-                theHexoticIdToNodeMap[ aHexoticID ] = aHexoticNode;
-              }
-            }
-            else {
-              const SMDS_MeshNode * node[nbRef];
-              SMDS_MeshElement* aHexoticElement;
-              map <int,const SMDS_MeshNode*>::iterator itOnHexoticNode;
-
-              for ( int iElem = 0; iElem < nbElem; iElem++ ) {
-                HexoticPlugin_ReadLine( aPtr, aBuffer, theFile, aLineNb );   // read file lines
-                for ( int iRef = 0; iRef < nbRef; iRef++ ) {
-                  getInt ( aHexoticNodeID, aPtr );                         // read nbRef aHexoticNodeID
-                  aHexoticNodeID += nodeRefNumber;
-                  itOnHexoticNode = theHexoticIdToNodeMap.find( aHexoticNodeID );
-                  node[ iRef ] = itOnHexoticNode->second;
-                }
-
-                if ( strcmp(theField, "Edges") == 0 )                        // create an element
-                  aHexoticElement = theMesh->AddEdge( node[0], node[1] );
-                else if ( strcmp(theField, "Quadrilaterals") == 0 )
-                  aHexoticElement = theMesh->AddFace( node[0], node[1], node[2], node[3] );
-                else if ( strcmp(theField, "Hexahedra") == 0 )
-                  aHexoticElement = theMesh->AddVolume( node[0], node[1], node[2], node[3], node[4], node[5], node[6], node[7] );
-
-                theMesh->SetMeshElementOnShape( aHexoticElement, shapeID );
-              }
-            }
-            theMessage << nbElem << " " << theField << " created";
+        for ( int iElem = 0; iElem < nbElem; iElem++ ) {
+          aHexoticID = iElem + 1 + nodeRefNumber;
+          for ( int iCoord = 0; iCoord < 3; iCoord++ )
+            fileRes >> coord[ iCoord ];
+          fileRes >> dummy;
+          aHexoticNode = theMesh->AddNode(coord[0], coord[1], coord[2]);
+          theMesh->SetNodeInVolume( aHexoticNode, shapeID );
+          theHexoticIdToNodeMap[ aHexoticID ] = aHexoticNode;
+        }
+        break;
+        }
+      case 3: // "Edges"
+      case 5: // "Quadrilaterals"
+      case 6: { // "Hexahedra"
+        MESSAGE("Read " << nbElem << " " << token);
+        const SMDS_MeshNode * node[nbRef];
+        SMDS_MeshElement* aHexoticElement;
+        map <int,const SMDS_MeshNode*>::iterator itOnHexoticNode;
+            
+        for ( int iElem = 0; iElem < nbElem; iElem++ ) {
+          for ( int iRef = 0; iRef < nbRef; iRef++ ) {
+            fileRes >> aHexoticNodeID;                          // read nbRef aHexoticNodeID
+            aHexoticNodeID += nodeRefNumber;
+            itOnHexoticNode = theHexoticIdToNodeMap.find( aHexoticNodeID );
+            node[ iRef ] = itOnHexoticNode->second;
           }
+          fileRes >> dummy;
+          switch (nField) {
+            case 3: { // "Edges"
+              aHexoticElement = theMesh->AddEdge( node[0], node[1] );
+              break;
+              }
+            case 5: { // "Quadrilaterals"
+              aHexoticElement = theMesh->AddFace( node[0], node[1], node[2], node[3] );
+              break;
+              }
+            case 6: { // "Hexahedra"
+              aHexoticElement =
+              theMesh->AddVolume( node[0], node[1], node[2], node[3], node[4], node[5], node[6], node[7] );
+              break;
+              }
+          }
+          theMesh->SetMeshElementOnShape( aHexoticElement, shapeID );
         }
-        if ( theMessage.str().size() != 0 ) {
-          cout << theMessage.str() << endl;
-          break;
+        break;
+        }
+      case 4: { // "Triangles"
+        // MESSAGE("No action on token " << token << ", " << nbElem << " to read ") ;
+        break;
+        }
+      case 7: { // "Corners"
+        // MESSAGE("No action on token " << token << ", " << nbElem << " to read ") ;
+        for ( int iElem = 0; iElem < nbElem; iElem++ )
+          fileRes >> dummy;
+        break;
+        }
+      case 8: { // "Ridges"
+        // MESSAGE("No action on token " << token << ", " << nbElem << " to read ") ;
+        for ( int iElem = 0; iElem < nbElem; iElem++ )
+          fileRes >> dummy;
+        break;
+        }
+      case 9: { // "End"
+        EndOfFile = 1;
+        MESSAGE("End of " << theFile << " file");
+        break;
+        }
+      default: {
+        MESSAGE("Unknown Token: " << token);
+        // ASSERT(0);
         }
       }
     }
-  }
   cout << endl;
   return true;
 }
@@ -446,7 +430,7 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
 //=======================================================================
 //function : getTmpDir
 //purpose  : 
-//=======================================================================
+//===========================================================MESSAGE("Hexotic mesh of " << nbElem << "D dimension");============
 
 static TCollection_AsciiString getTmpDir()
 {
@@ -482,6 +466,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
 {
   bool Ok;
   SMESHDS_Mesh* meshDS = theMesh.GetMeshDS();
+  TCollection_AsciiString hexahedraMessage;
 
   if (_iShape == 0 && _nbShape == 0) {
     cout << endl;
@@ -540,15 +525,19 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     // read a result
     // --------------
 
-    FILE * aResultFile = fopen( Hexotic_Out.ToCString(), "r" );
-    if (aResultFile) {
-      Ok = readResult( aResultFile, meshDS, theShape, aHexoticIdToNodeMap, Hexotic_Out, _nodeRefNumber );
-      fclose(aResultFile);
-      cout << "Hexotic output file read !" << endl;
-      cout << endl;
+    ifstream fileRes( Hexotic_Out.ToCString() );
+    if ( ! fileRes.fail() ) {
+      Ok = readResult( Hexotic_Out.ToCString(), meshDS, theShape, aHexoticIdToNodeMap, Hexotic_Out, _nodeRefNumber );
+      hexahedraMessage = "complete";
     }
-    else
+    else {
+      hexahedraMessage = "failed";
+      cout << endl;
+      cout << "Problem with Hexotic output file " << Hexotic_Out.ToCString() << endl;
       Ok = false;
+    }
+    cout << "Hexahedra meshing " << hexahedraMessage << endl;
+    cout << endl;
     _iShape=0;
   }
   return Ok;
