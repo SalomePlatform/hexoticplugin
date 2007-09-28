@@ -60,6 +60,15 @@ class HexoticPlugin_Hypothesis_i:
   void SetHexoticQuadrangles(CORBA::Boolean theVal);
   CORBA::Boolean GetHexoticQuadrangles();
 
+  void SetHexoticIgnoreRidges(CORBA::Boolean theVal);
+  CORBA::Boolean GetHexoticIgnoreRidges();
+  
+  void SetHexoticInvalidElements(CORBA::Boolean theVal);
+  CORBA::Boolean GetHexoticInvalidElements();
+  
+  void SetHexoticSharpAngleThreshold(CORBA::Long theVal);
+  CORBA::Long GetHexoticSharpAngleThreshold();
+
   // Get implementation
   ::HexoticPlugin_Hypothesis* GetImpl();
   

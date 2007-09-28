@@ -424,13 +424,16 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _hexesMinLevel = hyp->GetHexesMinLevel();
     _hexesMaxLevel = hyp->GetHexesMaxLevel();
     _hexoticQuadrangles = hyp->GetHexoticQuadrangles();
+    _hexoticIgnoreRidges = hyp->GetHexoticIgnoreRidges();
+    _hexoticInvalidElements = hyp->GetHexoticInvalidElements();
+    _hexoticSharpAngleThreshold = hyp->GetHexoticSharpAngleThreshold();
   }
 }
 
 //=======================================================================
 //function : getTmpDir
-//purpose  : 
-//===========================================================MESSAGE("Hexotic mesh of " << nbElem << "D dimension");============
+//purpose  :
+//=======================================================================
 
 static TCollection_AsciiString getTmpDir()
 {
@@ -488,26 +491,38 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     cout << "    " << _name << " Segments Min Level = " << _hexesMinLevel << endl;
     cout << "    " << _name << " Segments Max Level = " << _hexesMaxLevel << endl;
     cout << "    " << "Salome Quadrangles : " << (_hexoticQuadrangles ? "yes":"no") << endl;
+    cout << "    " << "Hexotic can ignore ridges : " << (_hexoticIgnoreRidges ? "yes":"no") << endl;
+    cout << "    " << "Hexotic authorize invalide elements : " << ( _hexoticInvalidElements ? "yes":"no") << endl;
+    cout << "    " << _name << " Sharp angle threshold = " << _hexoticSharpAngleThreshold << " degrees" << endl;
 
     TCollection_AsciiString aTmpDir = getTmpDir();
     TCollection_AsciiString Hexotic_In, Hexotic_Out;
     TCollection_AsciiString run_Hexotic( "hexotic" );
 
-    TCollection_AsciiString minl = " -minl ", maxl = " -maxl ";
+    TCollection_AsciiString minl = " -minl ", maxl = " -maxl ", angle = " -ra ";
     TCollection_AsciiString in   = " -in ",   out  = " -out ";
+    TCollection_AsciiString ignoreRidges = " -nr ", invalideElements = " -inv ";
 
-    TCollection_AsciiString minLevel, maxLevel;
+    TCollection_AsciiString minLevel, maxLevel, sharpAngle;
     minLevel = _hexesMinLevel;
     maxLevel = _hexesMaxLevel;
+    sharpAngle = _hexoticSharpAngleThreshold;
 
     map <int,int> aSmdsToHexoticIdMap;
     map <int,const SMDS_MeshNode*> aHexoticIdToNodeMap;
 
     Hexotic_In  = aTmpDir + "Hexotic_In.mesh";
     Hexotic_Out = aTmpDir + "Hexotic_Out.mesh";
-    run_Hexotic += minl + minLevel + maxl + maxLevel + in + Hexotic_In + out + Hexotic_Out;
 
-    // cout << "Hexotic command : " << run_Hexotic << endl;
+    if (_hexoticIgnoreRidges)
+      run_Hexotic +=  ignoreRidges;
+
+    if (_hexoticInvalidElements)
+      run_Hexotic +=  invalideElements;
+
+    run_Hexotic += angle + sharpAngle + minl + minLevel + maxl + maxLevel + in + Hexotic_In + out + Hexotic_Out;
+
+    cout << "Hexotic command : " << run_Hexotic << endl;
 
     OSD_File( Hexotic_In  ).Remove();
     OSD_File( Hexotic_Out ).Remove();

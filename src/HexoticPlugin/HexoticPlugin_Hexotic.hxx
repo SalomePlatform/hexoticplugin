@@ -58,12 +58,15 @@ public:
 protected:
   const HexoticPlugin_Hypothesis* _hypothesis;
 private:
-  int   _iShape;
-  int   _nbShape;
-  int   _nodeRefNumber;
-  int   _hexesMinLevel;
-  int   _hexesMaxLevel;
-  bool  _hexoticQuadrangles;
+  int  _iShape;
+  int  _nbShape;
+  int  _nodeRefNumber;
+  int  _hexesMinLevel;
+  int  _hexesMaxLevel;
+  bool _hexoticQuadrangles;
+  bool _hexoticIgnoreRidges;
+  bool _hexoticInvalidElements;
+  int  _hexoticSharpAngleThreshold;
 };
 
 #endif

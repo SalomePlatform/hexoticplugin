@@ -52,8 +52,16 @@ module HexoticPlugin
 
     void SetHexoticQuadrangles(in boolean value);
     boolean GetHexoticQuadrangles();
-  };
 
+    void SetHexoticIgnoreRidges(in boolean value);
+    boolean GetHexoticIgnoreRidges();
+
+    void SetHexoticInvalidElements(in boolean value);
+    boolean GetHexoticInvalidElements();
+   
+    void SetHexoticSharpAngleThreshold(in long value);
+    long GetHexoticSharpAngleThreshold();
+  };
 };
 
 #endif
