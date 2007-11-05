@@ -48,7 +48,7 @@ public:
   void SetParameters(const HexoticPlugin_Hypothesis* hyp);
 
   virtual bool Compute(SMESH_Mesh&         aMesh,
-		       const TopoDS_Shape& aShape);
+                       const TopoDS_Shape& aShape);
 
   ostream & SaveTo(ostream & save);
   istream & LoadFrom(istream & load);
