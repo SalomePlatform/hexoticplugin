@@ -133,37 +133,6 @@ bool HexoticPlugin_Hexotic::CheckHypothesis( SMESH_Mesh&                        
 }
 
 //=======================================================================
-//function : countFaces
-//purpose  : 
-//=======================================================================
-
-static int countFaces( SMESHDS_Mesh*                    the2DMesh,
-                       list< const SMDS_MeshElement* >& theListOfFaces,
-                       bool                             externalFaces )
-{
-  int nbFaces = 0;
-  TopExp_Explorer fExp( (the2DMesh->ShapeToMesh()), TopAbs_FACE );
-  SMESHDS_SubMesh* the2DSubMesh;
-  SMDS_ElemIteratorPtr itOnSmdsElement;
-
-  if ( externalFaces )
-    nbFaces = the2DMesh->NbFaces();
-  else {
-    for ( ; fExp.More(); fExp.Next() ) {
-      the2DSubMesh = the2DMesh->MeshElements( fExp.Current() );
-      if ( the2DSubMesh ) {
-        itOnSmdsElement = the2DSubMesh->GetElements();
-        while ( itOnSmdsElement->more() ) {
-          theListOfFaces.push_back( itOnSmdsElement->next() );
-          nbFaces++;
-        }
-      }
-    }
-  }
-  return nbFaces;
-}
-
-//=======================================================================
 //function : writeHexoticFile
 //purpose  : 
 //=======================================================================
@@ -176,12 +145,22 @@ static bool writeHexoticFile (ofstream &                      theFile,
   cout << endl;
   cout << "Creating Hexotic processed mesh file : " << Hexotic_In << endl;
 
-  bool onlyExternalFaces = true;
-//  bool onlyExternalFaces = false;
-  int nbVertices         = 0;
-  int nbTriangles        = 0;
-  const char* space      = "  ";
-  const int   dummyint   = 0;
+  int nbShape = 0;
+
+  TopExp_Explorer expface(theMesh->ShapeToMesh(), TopAbs_FACE);
+  for ( ; expface.More(); expface.Next() )
+    nbShape++;
+
+  int tabID[nbShape];
+  TopoDS_Shape tabShape[nbShape], aShape;
+  int shapeID;
+  bool if_ID;
+
+  int nbVertices    = 0;
+  int nbTriangles   = 0;
+  const char* space = "  ";
+  int dummy_1D      = 0;
+  int dummy_2D;
 
   int aSmdsNodeID = 1;
   const SMDS_MeshNode* aNode;
@@ -190,10 +169,9 @@ static bool writeHexoticFile (ofstream &                      theFile,
   list< const SMDS_MeshElement* > faces;
   list< const SMDS_MeshElement* >::iterator itListFace;
   const SMDS_MeshElement* aFace;
+  SMESHDS_SubMesh* theSubMesh;
   map<int,int>::const_iterator itOnSmdsNode;
-  SMDS_ElemIteratorPtr itOnSmdsElement;
-  SMDS_ElemIteratorPtr itOnFaceNode;
-  SMDS_FaceIteratorPtr itOnSmdsFace;
+  SMDS_ElemIteratorPtr itOnSubNode, itOnSubFace;
 
 // Writing SMESH points into Hexotic File
 
@@ -213,44 +191,53 @@ static bool writeHexoticFile (ofstream &                      theFile,
       theSmdsToHexoticIdMap.insert( map <int,int>::value_type( aNode->GetID(), aSmdsNodeID ));
       theHexoticIdToNodeMap.insert (map <int,const SMDS_MeshNode*>::value_type( aSmdsNodeID, aNode ));
       aSmdsNodeID++;
-      theFile << aNode->X() << space << aNode->Y() << space << aNode->Z() << space << dummyint << endl;
+      theFile << aNode->X() << space << aNode->Y() << space << aNode->Z() << space << dummy_1D << endl;
       }
 
 // Writing SMESH faces into Hexotic File
 
-  nbTriangles = countFaces(theMesh, faces, onlyExternalFaces);
+  nbTriangles = theMesh->NbFaces();
 
   theFile << endl;
   theFile << "# Set of mesh triangles (v1,v2,v3,tag)" << endl;
   theFile << "Triangles" << endl;
   theFile << nbTriangles << endl;
 
-  if ( onlyExternalFaces ) {
-    itOnSmdsFace = theMesh->facesIterator();
-    while ( itOnSmdsFace->more() ) {
-      aFace = itOnSmdsFace->next();
-      itOnFaceNode = aFace->nodesIterator();
-      while ( itOnFaceNode->more() ) {
-        aSmdsNodeID = itOnFaceNode->next()->GetID();
-        itOnSmdsNode = theSmdsToHexoticIdMap.find( aSmdsNodeID );
-        ASSERT( itOnSmdsNode != theSmdsToHexoticIdMap.end() );
-        theFile << (*itOnSmdsNode).second << space;
+  expface.ReInit();
+  for ( int i = 0; expface.More(); expface.Next(), i++ ) {
+    tabID[i] = 0;
+    aShape   = expface.Current();
+    shapeID  = theMesh->ShapeToIndex( aShape );
+    if_ID    = false;
+    for ( int j=0; j<=i; j++) {
+      if ( shapeID == tabID[j] ) {
+        if_ID = true;
+        break;
       }
-      theFile << dummyint << endl;
+    }
+    if ( not if_ID ) {
+      tabID[i]    = shapeID;
+      tabShape[i] = aShape;
     }
   }
-  else {
-    itListFace = faces.begin();
-    for ( ; itListFace != faces.end(); ++itListFace ) {
-      aFace = *itListFace;
-      itOnFaceNode = aFace->nodesIterator();
-      while ( itOnFaceNode->more() ) {
-        aSmdsNodeID = itOnFaceNode->next()->GetID();
-        itOnSmdsNode = theSmdsToHexoticIdMap.find( aSmdsNodeID );
-        ASSERT( itOnSmdsNode != theSmdsToHexoticIdMap.end() );
-        theFile << (*itOnSmdsNode).second << space;
+  for ( int i=0; i<nbShape; i++ ) {
+    if ( not (tabID[i] == 0) ) {
+      aShape      = tabShape[i];
+      shapeID     = tabID[i];
+      theSubMesh  = theMesh->MeshElements( aShape );
+      itOnSubFace = theSubMesh->GetElements();
+      while ( itOnSubFace->more() ) {
+        aFace    = itOnSubFace->next();
+        dummy_2D = shapeID;
+        itOnSubNode = aFace->nodesIterator();
+        while ( itOnSubNode->more() ) {
+          aSmdsNodeID  = itOnSubNode->next()->GetID();
+          itOnSmdsNode = theSmdsToHexoticIdMap.find( aSmdsNodeID );
+          ASSERT( itOnSmdsNode != theSmdsToHexoticIdMap.end() );
+          theFile << (*itOnSmdsNode).second << space;
+        }
+        theFile << dummy_2D << endl;
       }
-      theFile << dummyint << endl;
     }
   }
 
@@ -410,14 +397,15 @@ static bool readResult(string                           theFile,
             node[ iRef ] = itOnHexoticNode->second;
           }
           fileRes >> dummy;
-          shapeID = compoundID;
           switch (nField) {
             case 3: { // "Edges"
               aHexoticElement = theMesh->AddEdge( node[0], node[1] );
+              shapeID = compoundID;
               break;
             }
             case 5: { // "Quadrilaterals"
               aHexoticElement = theMesh->AddFace( node[0], node[1], node[2], node[3] );
+              shapeID = dummy;
               break;
             }
             case 6: { // "Hexahedra"
