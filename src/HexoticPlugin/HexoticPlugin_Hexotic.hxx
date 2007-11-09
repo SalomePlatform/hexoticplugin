@@ -67,6 +67,7 @@ private:
   bool _hexoticIgnoreRidges;
   bool _hexoticInvalidElements;
   int  _hexoticSharpAngleThreshold;
+  SMDS_MeshNode** _tabNode;
 };
 
 #endif

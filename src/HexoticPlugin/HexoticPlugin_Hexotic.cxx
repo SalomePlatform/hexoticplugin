@@ -154,7 +154,7 @@ static bool writeHexoticFile (ofstream &                      theFile,
   int tabID[nbShape];
   TopoDS_Shape tabShape[nbShape], aShape;
   int shapeID;
-  bool if_ID;
+  bool idFound;
 
   int nbVertices    = 0;
   int nbTriangles   = 0;
@@ -208,14 +208,14 @@ static bool writeHexoticFile (ofstream &                      theFile,
     tabID[i] = 0;
     aShape   = expface.Current();
     shapeID  = theMesh->ShapeToIndex( aShape );
-    if_ID    = false;
+    idFound  = false;
     for ( int j=0; j<=i; j++) {
       if ( shapeID == tabID[j] ) {
-        if_ID = true;
+        idFound = true;
         break;
       }
     }
-    if ( not if_ID ) {
+    if ( not idFound ) {
       tabID[i]    = shapeID;
       tabShape[i] = aShape;
     }
@@ -337,7 +337,7 @@ static bool readResult(string                           theFile,
   SMDS_NodeIteratorPtr itOnHexoticInputNode = theMesh->nodesIterator();
   while ( itOnHexoticInputNode->more() )
     theMesh->RemoveNode( itOnHexoticInputNode->next() );
-  
+
   while ( EndOfFile == 0  ) {
     int dummy;
     fileRes >> token;
@@ -397,10 +397,10 @@ static bool readResult(string                           theFile,
             node[ iRef ] = itOnHexoticNode->second;
           }
           fileRes >> dummy;
+          shapeID = compoundID;
           switch (nField) {
             case 3: { // "Edges"
               aHexoticElement = theMesh->AddEdge( node[0], node[1] );
-              shapeID = compoundID;
               break;
             }
             case 5: { // "Quadrilaterals"
@@ -520,20 +520,27 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
   TCollection_AsciiString hexahedraMessage;
 
   if (_iShape == 0 && _nbShape == 0) {
-    cout << endl;
-    cout << "Hexotic execution..." << endl;
-    cout << endl;
-
     TopExp_Explorer expf(meshDS->ShapeToMesh(), TopAbs_SOLID);
     for ( ; expf.More(); expf.Next() )
-        _nbShape++;
+      _nbShape++;                             // we count the number of shapes
+    _tabNode = new SMDS_MeshNode*[_nbShape];  // we declare the size of the node array
   }
+
+  // to prevent from displaying error message after computing,
+  // we need to create one node for each shape theShape.
+
+  _tabNode[_iShape] = meshDS->AddNode(0, 0, 0);
+  meshDS->SetNodeInVolume( _tabNode[_iShape], meshDS->ShapeToIndex(theShape) );
 
   _iShape++;
 
   if (_iShape == _nbShape ) {
 
-    // create bounding box for every shape
+    for (int i=0; i<_nbShape; i++)
+      meshDS->RemoveNode( _tabNode[i] );  // we destroy the _nbShape nodes
+    delete _tabNode;
+
+    // create bounding box for each shape of the compound
 
     int iShape = 0;
     TopoDS_Shape tabShape[_nbShape];
@@ -554,6 +561,8 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
 
     SetParameters(_hypothesis);
 
+    cout << endl;
+    cout << "Hexotic execution..." << endl;
     cout << _name << " parameters :" << endl;
     cout << "    " << _name << " Segments Min Level = " << _hexesMinLevel << endl;
     cout << "    " << _name << " Segments Max Level = " << _hexesMaxLevel << endl;
