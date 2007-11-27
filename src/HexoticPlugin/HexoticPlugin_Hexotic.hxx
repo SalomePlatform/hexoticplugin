@@ -60,7 +60,6 @@ protected:
 private:
   int  _iShape;
   int  _nbShape;
-  int  _nodeRefNumber;
   int  _hexesMinLevel;
   int  _hexesMaxLevel;
   bool _hexoticQuadrangles;
