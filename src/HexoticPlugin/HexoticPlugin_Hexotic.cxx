@@ -33,6 +33,7 @@ using namespace std;
 #include "SMDS_MeshElement.hxx"
 #include "SMDS_MeshNode.hxx"
 
+#include <TopoDS.hxx>
 #include <TopExp_Explorer.hxx>
 #include <OSD_File.hxx>
 
@@ -82,6 +83,7 @@ HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, int studyId, SMESH_Gen* 
   MESSAGE("HexoticPlugin_Hexotic::HexoticPlugin_Hexotic");
   _name = "Hexotic_3D";
   _shapeType = (1 << TopAbs_SHELL) | (1 << TopAbs_SOLID);// 1 bit /shape type
+//   _onlyUnaryInput = false;
   _iShape=0;
   _nbShape=0;
   _compatibleHypothesis.push_back("Hexotic_Parameters");
@@ -140,12 +142,170 @@ bool HexoticPlugin_Hexotic::CheckHypothesis( SMESH_Mesh&                        
 }
 
 //=======================================================================
+//function : findShape
+//purpose  :
+//=======================================================================
+
+static TopoDS_Shape findShape(SMDS_MeshNode**     t_Node,
+                              TopoDS_Shape        aShape,
+                              const TopoDS_Shape* t_Shape,
+                              double**            t_Box,
+                              const int           nShape) {
+  double *pntCoor;
+  int iShape, nbNode = 8;
+
+  pntCoor = new double[3];
+  for ( int i=0; i<3; i++ ) {
+    pntCoor[i] = 0;
+    for ( int j=0; j<nbNode; j++ ) {
+      if ( i == 0) pntCoor[i] += t_Node[j]->X();
+      if ( i == 1) pntCoor[i] += t_Node[j]->Y();
+      if ( i == 2) pntCoor[i] += t_Node[j]->Z();
+    }
+    pntCoor[i] /= nbNode;
+  }
+
+  gp_Pnt aPnt(pntCoor[0], pntCoor[1], pntCoor[2]);
+  BRepClass3d_SolidClassifier SC (aShape, aPnt, Precision::Confusion());
+  if ( not(SC.State() == TopAbs_IN) ) {
+    for (iShape = 0; iShape < nShape; iShape++) {
+      aShape = t_Shape[iShape];
+      if ( not( pntCoor[0] < t_Box[iShape][0] || t_Box[iShape][1] < pntCoor[0] ||
+                pntCoor[1] < t_Box[iShape][2] || t_Box[iShape][3] < pntCoor[1] ||
+                pntCoor[2] < t_Box[iShape][4] || t_Box[iShape][5] < pntCoor[2]) ) {
+        BRepClass3d_SolidClassifier SC (aShape, aPnt, Precision::Confusion());
+        if (SC.State() == TopAbs_IN)
+          break;
+      }
+    }
+  }
+  delete [] pntCoor;
+  return aShape;
+}
+
+//=======================================================================
+//function : findEdge
+//purpose  :
+//=======================================================================
+
+static int findEdge(const SMDS_MeshNode* aNode,
+                    const SMESHDS_Mesh*  theMesh,
+                    const int            nEdge,
+                    const TopoDS_Shape*  t_Edge) {
+
+  TopoDS_Shape aPntShape, foundEdge;
+  TopoDS_Vertex aVertex;
+  gp_Pnt aPnt( aNode->X(), aNode->Y(), aNode->Z() );
+
+  int foundInd, ind;
+  double nearest = RealLast(), *t_Dist;
+  double epsilon = Precision::Confusion();
+
+  t_Dist = new double[ nEdge ];
+  aPntShape = BRepBuilderAPI_MakeVertex( aPnt ).Shape();
+  aVertex   = TopoDS::Vertex( aPntShape );
+
+  for ( ind=0; ind < nEdge; ind++ ) {
+    BRepExtrema_DistShapeShape aDistance ( aVertex, t_Edge[ind] );
+    t_Dist[ind] = aDistance.Value();
+    // cout << "edge " << ind << " is at " << aDistance.Value() << ",        nearest : " << nearest << endl;
+    if ( t_Dist[ind] < nearest ) {
+      nearest   = t_Dist[ind];
+      foundEdge = t_Edge[ind];
+      foundInd  = ind;
+      if ( nearest < epsilon )
+        ind = nEdge;
+    }
+  }
+
+//   cout << endl;
+//   cout << "Edges found by findEdge  : " << nEdge  << endl;
+//   cout << "number of the found edge : " << foundInd << endl;
+//   cout << "nearest                  : " << nearest  << endl;
+//   cout << endl;
+
+  delete [] t_Dist;
+  return theMesh->ShapeToIndex( foundEdge );
+}
+
+//=======================================================================
+//function : getNbShape
+//purpose  :
+//=======================================================================
+
+static int getNbShape(string aFile, string aString) {
+  int number;
+  string aLine;
+  ifstream file(aFile.c_str());
+  while ( !file.eof() ) {
+    getline( file, aLine);
+    if ( aLine == aString ) {
+      getline( file, aLine);
+      istringstream stringFlux( aLine );
+      stringFlux >> number;
+      break;
+    }
+  }
+  file.close();
+  return number;
+}
+
+//=======================================================================
+//function : countShape
+//purpose  :
+//=======================================================================
+
+template < class Mesh, class Shape >
+static int countShape( Mesh* mesh, Shape shape ) {
+  TopExp_Explorer expShape ( mesh->ShapeToMesh(), shape );
+  TopTools_MapOfShape mapShape;
+  int nbShape = 0;
+  for ( ; expShape.More(); expShape.Next() ) {
+    if (mapShape.Add(expShape.Current())) {
+      nbShape++;
+    }
+  }
+  return nbShape;
+}
+
+//=======================================================================
+//function : getShape
+//purpose  :
+//=======================================================================
+
+template < class Mesh, class Shape, class Tab >
+void getShape(Mesh* mesh, Shape shape, Tab *t_Shape) {
+  TopExp_Explorer expShape ( mesh->ShapeToMesh(), shape );
+  TopTools_MapOfShape mapShape;
+  for ( int i=0; expShape.More(); expShape.Next() ) {
+    if (mapShape.Add(expShape.Current())) {
+      t_Shape[i] = expShape.Current();
+      i++;
+    }
+  }
+  return;
+}
+
+//=======================================================================
+//function : printWarning
+//purpose  :
+//=======================================================================
+
+static void printWarning(const int nbExpected, string aString, const int nbFound) {
+  cout << endl;
+  cout << "WARNING : " << nbExpected << " " << aString << " expected, Hexotic has found " << nbFound << endl;
+  cout << "=======" << endl;
+  cout << endl;
+  return;
+}
+
+//=======================================================================
 //function : writeHexoticFile
 //purpose  : 
 //=======================================================================
 
 static bool writeHexoticFile (ofstream &                      theFile,
-                             SMESHDS_Mesh *                   theMesh,
+                             const SMESHDS_Mesh *             theMesh,
                              map <int,int> &                  theSmdsToHexoticIdMap,
                              map <int,const SMDS_MeshNode*> & theHexoticIdToNodeMap,
                              const TCollection_AsciiString &  Hexotic_In) {
@@ -158,8 +318,10 @@ static bool writeHexoticFile (ofstream &                      theFile,
   for ( ; expface.More(); expface.Next() )
     nbShape++;
 
-  int tabID[nbShape];
-  TopoDS_Shape tabShape[nbShape], aShape;
+  int *tabID;
+  int *tabNodeId;
+  TopoDS_Shape *tabShape, aShape;
+
   int shapeID;
   bool idFound;
 
@@ -192,7 +354,9 @@ static bool writeHexoticFile (ofstream &                      theFile,
   theFile << "Vertices" << endl;
   theFile << nbVertices << endl;
 
-  int tabNodeId[ nbVertices ];
+  tabID     = new int[nbShape];
+  tabNodeId = new int[ nbVertices ];
+  tabShape  = new TopoDS_Shape[nbShape];
 
   itOnNode = theMesh->nodesIterator();
   while ( itOnNode->more() ) {
@@ -271,161 +435,11 @@ static bool writeHexoticFile (ofstream &                      theFile,
   cout << "    " << nbTriangles << " triangles" << endl;
   cout << endl;
 
+  delete [] tabID;
+  delete [] tabNodeId;
+  delete [] tabShape;
+
   return true;
-}
-
-//=======================================================================
-//function : findShape
-//purpose  :
-//=======================================================================
-
-static TopoDS_Shape findShape(SMDS_MeshNode*     aNode[],
-                              TopoDS_Shape       aShape,
-                              const TopoDS_Shape shape[],
-                              const double       box[][6],
-                              const int          nShape) {
-  double pntCoor[3];
-  int iShape, nbNode = 8;
-
-  for ( int i=0; i<3; i++ ) {
-    pntCoor[i] = 0;
-    for ( int j=0; j<nbNode; j++ ) {
-      if ( i == 0) pntCoor[i] += aNode[j]->X();
-      if ( i == 1) pntCoor[i] += aNode[j]->Y();
-      if ( i == 2) pntCoor[i] += aNode[j]->Z();
-    }
-    pntCoor[i] /= nbNode;
-  }
-
-  gp_Pnt aPnt(pntCoor[0], pntCoor[1], pntCoor[2]);
-  BRepClass3d_SolidClassifier SC (aShape, aPnt, Precision::Confusion());
-  if ( not(SC.State() == TopAbs_IN) ) {
-    for (iShape = 0; iShape < nShape; iShape++) {
-      aShape = shape[iShape];
-      if ( not( pntCoor[0] < box[iShape][0] || box[iShape][1] < pntCoor[0] ||
-                pntCoor[1] < box[iShape][2] || box[iShape][3] < pntCoor[1] ||
-                pntCoor[2] < box[iShape][4] || box[iShape][5] < pntCoor[2]) ) {
-        BRepClass3d_SolidClassifier SC (aShape, aPnt, Precision::Confusion());
-        if (SC.State() == TopAbs_IN)
-          break;
-      }
-    }
-  }
-  return aShape;
-}
-
-//=======================================================================
-//function : findEdge
-//purpose  :
-//=======================================================================
-
-static int findEdge(const SMDS_MeshNode *aNode,
-                    SMESHDS_Mesh        *theMesh,
-                    int                  nbEdges,
-                    TopoDS_Shape         t_Edge[]) {
-
-  TopoDS_Shape aPntShape, foundEdge;
-  TopoDS_Vertex aVertex;
-  gp_Pnt aPnt( aNode->X(), aNode->Y(), aNode->Z() );
-
-  int foundInd, ind;
-  double nearest = RealLast(), t_Dist[nbEdges];
-  double epsilon = Precision::Confusion();
-
-  aPntShape = BRepBuilderAPI_MakeVertex( aPnt ).Shape();
-  aVertex   = TopoDS::Vertex( aPntShape );
-
-  for ( ind=0; ind < nbEdges; ind++ ) {
-    BRepExtrema_DistShapeShape aDistance ( aVertex, t_Edge[ind] );
-    t_Dist[ind] = aDistance.Value();
-    // cout << "edge " << ind << " is at " << aDistance.Value() << ",        nearest : " << nearest << endl;
-    if ( t_Dist[ind] < nearest ) {
-      nearest   = t_Dist[ind];
-      foundEdge = t_Edge[ind];
-      foundInd  = ind;
-      if ( nearest < epsilon )
-        ind = nbEdges;
-    }
-  }
-
-//   cout << endl;
-//   cout << "Edges found by findEdge  : " << nbEdges  << endl;
-//   cout << "number of the found edge : " << foundInd << endl;
-//   cout << "nearest                  : " << nearest  << endl;
-//   cout << endl;
-
-  return theMesh->ShapeToIndex( foundEdge );
-}
-
-//=======================================================================
-//function : getNbShape
-//purpose  :
-//=======================================================================
-
-static int getNbShape(string aFile, string aString) {
-  int number;
-  string aLine;
-  ifstream file(aFile.c_str());
-  while ( !file.eof() ) {
-    getline( file, aLine);
-    if ( aLine == aString ) {
-      getline( file, aLine);
-      istringstream stringFlux( aLine );
-      stringFlux >> number;
-      break;
-    }
-  }
-  file.close();
-  return number;
-}
-
-//=======================================================================
-//function : countShape
-//purpose  :
-//=======================================================================
-
-template < class Mesh, class Shape >
-static int countShape( Mesh* mesh, Shape shape ) {
-  TopExp_Explorer expShape ( mesh->ShapeToMesh(), shape );
-  TopTools_MapOfShape mapShape;
-  int nbShape = 0;
-  for ( ; expShape.More(); expShape.Next() ) {
-    if (mapShape.Add(expShape.Current())) {
-      nbShape++;
-    }
-  }
-  return nbShape;
-}
-
-//=======================================================================
-//function : getShape
-//purpose  :
-//=======================================================================
-
-template < class Mesh, class Shape, class Tab >
-void getShape(Mesh* mesh, Shape shape, Tab tab[]) {
-  TopExp_Explorer expShape ( mesh->ShapeToMesh(), shape );
-  TopTools_MapOfShape mapShape;
-  for ( int i=0; expShape.More(); expShape.Next() ) {
-    if (mapShape.Add(expShape.Current())) {
-      tab[i] = expShape.Current();
-      i++;
-    }
-  }
-  return;
-}
-
-//=======================================================================
-//function : printWarning
-//purpose  :
-//=======================================================================
-
-static void printWarning(const int nbExpected, string aString, const int nbFound) {
-  cout << endl;
-  cout << "WARNING : " << nbExpected << " " << aString << " expected, Hexotic has found " << nbFound << endl;
-  cout << "=======" << endl;
-  cout << endl;
-  return;
 }
 
 //=======================================================================
@@ -433,11 +447,11 @@ static void printWarning(const int nbExpected, string aString, const int nbFound
 //purpose  : 
 //=======================================================================
 
-static bool readResult(string         theFile,
-                       SMESHDS_Mesh * theMesh,
-                       const int      nbShape,
-                       TopoDS_Shape   tabShape[],
-                       double         tabBox[][6])
+static bool readResult(string              theFile,
+                       SMESHDS_Mesh*       theMesh,
+                       const int           nbShape,
+                       const TopoDS_Shape* tabShape,
+                       double**            tabBox)
 {
   // ---------------------------------
   // Read generated elements and nodes
@@ -449,11 +463,16 @@ static bool readResult(string         theFile,
   int EndOfFile = 0, nbElem = 0, nField = 9, nbRef = 0;
   int aHexoticNodeID = 0, shapeID, hexoticShapeID;
   int IdShapeRef = 2;
-  int tabID[nbShape];
-  int tabRef[nField];
-  bool tabDummy[nField], hasDummy = false;
+  int *tabID, *tabRef, *nodeAssigne;
+  bool *tabDummy, hasDummy = false;
   double epsilon = Precision::Confusion();
   map <string,int> mapField;
+  SMDS_MeshNode** HexoticNode;
+  TopoDS_Shape *tabCorner, *tabEdge;
+
+  tabID    = new int[nbShape];
+  tabRef   = new int[nField];
+  tabDummy = new bool[nField];
 
   for (int i=0; i<nbShape; i++)
     tabID[i] = 0;
@@ -483,11 +502,10 @@ static bool readResult(string         theFile,
       nbCorners = nbHexCorners;
   }
 
-  TopoDS_Shape tabCorner[ nbCorners ];
-  TopoDS_Shape tabEdge[ nbShapeEdge ];
-
-  SMDS_MeshNode* HexoticNode[ nbVertices ];
-  int nodeAssigne[ nbVertices ];
+  tabCorner   = new TopoDS_Shape[ nbCorners ];
+  tabEdge     = new TopoDS_Shape[ nbShapeEdge ];
+  nodeAssigne = new int[ nbVertices + 1 ];
+  HexoticNode = new SMDS_MeshNode*[ nbVertices + 1 ];
 
   getShape(theMesh, TopAbs_VERTEX, tabCorner);
   getShape(theMesh, TopAbs_EDGE,   tabEdge);
@@ -526,9 +544,10 @@ static bool readResult(string         theFile,
       case 2: { // "Vertices"
         MESSAGE("Read " << nbElem << " " << token);
         int aHexoticID;
-        double coord[nbRef];
+        double *coord;
         SMDS_MeshNode * aHexoticNode;
 
+        coord = new double[nbRef];
         for ( int iElem = 0; iElem < nbElem; iElem++ ) {
           aHexoticID = iElem + 1;
           for ( int iCoord = 0; iCoord < 3; iCoord++ )
@@ -538,6 +557,7 @@ static bool readResult(string         theFile,
           HexoticNode[ aHexoticID ] = aHexoticNode;
           nodeAssigne[ aHexoticID ] = 0;
         }
+        delete [] coord;
         break;
       }
       case 3: // "Corners"
@@ -546,12 +566,12 @@ static bool readResult(string         theFile,
       case 6: // "Quadrilaterals"
       case 7: { // "Hexahedra"
         MESSAGE("Read " << nbElem << " " << token);
-        SMDS_MeshNode * node[nbRef];
-        int nodeID[nbRef];
-        int nodeDim;
+        SMDS_MeshNode** node;
+        int nodeDim, *nodeID;
         SMDS_MeshElement * aHexoticElement;
-        map <int,const SMDS_MeshNode*>::iterator itOnHexoticNode;
 
+        node   = new SMDS_MeshNode*[ nbRef ];
+        nodeID = new int[ nbRef ];
         for ( int iElem = 0; iElem < nbElem; iElem++ ) {
           for ( int iRef = 0; iRef < nbRef; iRef++ ) {
             fileRes >> aHexoticNodeID;                          // read nbRef aHexoticNodeID
@@ -631,6 +651,8 @@ static bool readResult(string         theFile,
               theMesh->SetMeshElementOnShape( aHexoticElement, shapeID );
           }
         }
+        delete [] node;
+        delete [] nodeID;
         break;
       }
       case 8: { // "End"
@@ -645,6 +667,13 @@ static bool readResult(string         theFile,
     }
   }
   cout << endl;
+  delete [] tabID;
+  delete [] tabRef;
+  delete [] tabDummy;
+  delete [] tabCorner;
+  delete [] tabEdge;
+  delete [] nodeAssigne;
+  delete [] HexoticNode;
   return true;
 }
 
@@ -724,13 +753,18 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
 
     for (int i=0; i<_nbShape; i++)        // we destroy the (_nbShape - 1) nodes created and used
       meshDS->RemoveNode( _tabNode[i] );  // to simulate successful mesh computing.
-    delete _tabNode;
+    delete [] _tabNode;
 
     // create bounding box for each shape of the compound
 
     int iShape = 0;
-    TopoDS_Shape tabShape[_nbShape];
-    double tabBox[_nbShape][6];
+    TopoDS_Shape *tabShape;
+    double **tabBox;
+
+    tabShape = new TopoDS_Shape[_nbShape];
+    tabBox   = new double*[_nbShape];
+    for (int i=0; i<_nbShape; i++)
+      tabBox[i] = new double[6];
     double Xmin, Ymin, Zmin, Xmax, Ymax, Zmax;
 
     TopExp_Explorer expBox (meshDS->ShapeToMesh(), TopAbs_SOLID);
@@ -812,7 +846,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     ifstream fileRes( Hexotic_Out.ToCString() );
     if ( ! fileRes.fail() ) {
       Ok = readResult( Hexotic_Out.ToCString(), meshDS, _nbShape, tabShape, tabBox );
-      hexahedraMessage = "complete";
+      hexahedraMessage = "success";
     }
     else {
       hexahedraMessage = "failed";
@@ -822,7 +856,13 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     }
     cout << "Hexahedra meshing " << hexahedraMessage << endl;
     cout << endl;
-    _iShape=0;
+
+    delete [] tabShape;
+    for (int i=0; i<_nbShape; i++)
+      delete [] tabBox[i];
+    delete [] tabBox;
+    _nbShape = 0;
+    _iShape  = 0;
   }
   return Ok;
 }
