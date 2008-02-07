@@ -111,7 +111,6 @@ bool HexoticPlugin_Hexotic::CheckHypothesis( SMESH_Mesh&                        
                                              SMESH_Hypothesis::Hypothesis_Status& aStatus )
 {
   // MESSAGE("HexoticPlugin_Hexotic::CheckHypothesis");
-
   _hypothesis = NULL;
 
   list<const SMESHDS_Hypothesis*>::const_iterator itl;
@@ -119,8 +118,7 @@ bool HexoticPlugin_Hexotic::CheckHypothesis( SMESH_Mesh&                        
 
   const list<const SMESHDS_Hypothesis*>& hyps = GetUsedHypothesis(aMesh, aShape);
   int nbHyp = hyps.size();
-  if (!nbHyp)
-  {
+  if (!nbHyp) {
     aStatus = SMESH_Hypothesis::HYP_OK;
     return true;  // can work with no hypothesis
   }
@@ -129,8 +127,7 @@ bool HexoticPlugin_Hexotic::CheckHypothesis( SMESH_Mesh&                        
   theHyp = (*itl); // use only the first hypothesis
 
   string hypName = theHyp->GetName();
-  if (hypName == "Hexotic_Parameters")
-  {
+  if (hypName == "Hexotic_Parameters") {
     _hypothesis = static_cast<const HexoticPlugin_Hypothesis*> (theHyp);
     ASSERT(_hypothesis);
     aStatus = SMESH_Hypothesis::HYP_OK;
@@ -208,7 +205,6 @@ static int findEdge(const SMDS_MeshNode* aNode,
   for ( ind=0; ind < nEdge; ind++ ) {
     BRepExtrema_DistShapeShape aDistance ( aVertex, t_Edge[ind] );
     t_Dist[ind] = aDistance.Value();
-    // cout << "edge " << ind << " is at " << aDistance.Value() << ",        nearest : " << nearest << endl;
     if ( t_Dist[ind] < nearest ) {
       nearest   = t_Dist[ind];
       foundEdge = t_Edge[ind];
@@ -217,12 +213,6 @@ static int findEdge(const SMDS_MeshNode* aNode,
         ind = nEdge;
     }
   }
-
-//   cout << endl;
-//   cout << "Edges found by findEdge  : " << nEdge  << endl;
-//   cout << "number of the found edge : " << foundInd << endl;
-//   cout << "nearest                  : " << nearest  << endl;
-//   cout << endl;
 
   delete [] t_Dist;
   return theMesh->ShapeToIndex( foundEdge );
@@ -370,10 +360,8 @@ static bool writeHexoticFile (ofstream &                      theFile,
           break;
         }
       }
-      if ( not idFound ) {
+      if ( not idFound )
         tabNodeId[ aSmdsNodeID - 1 ] = dummy_1D;
-        // cout << aSmdsNodeID << ") idShapeNode : " << dummy_1D << "  IdNode : " << aNode->GetID() << endl;
-      }
       theSmdsToHexoticIdMap.insert( map <int,int>::value_type( aNode->GetID(), aSmdsNodeID ));
       theHexoticIdToNodeMap.insert (map <int,const SMDS_MeshNode*>::value_type( aSmdsNodeID, aNode ));
       aSmdsNodeID++;
@@ -662,7 +650,6 @@ static bool readResult(string              theFile,
       }
       default: {
         MESSAGE("Unknown Token: " << token);
-        // ASSERT(0);
       }
     }
   }
@@ -684,14 +671,26 @@ static bool readResult(string              theFile,
 //=============================================================================
 
 void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
+
+  MESSAGE("HexoticPlugin_Hexotic::SetParameters");
   if (hyp) {
-    MESSAGE("HexoticPlugin_Hexotic::SetParameters");
     _hexesMinLevel = hyp->GetHexesMinLevel();
     _hexesMaxLevel = hyp->GetHexesMaxLevel();
     _hexoticQuadrangles = hyp->GetHexoticQuadrangles();
     _hexoticIgnoreRidges = hyp->GetHexoticIgnoreRidges();
     _hexoticInvalidElements = hyp->GetHexoticInvalidElements();
     _hexoticSharpAngleThreshold = hyp->GetHexoticSharpAngleThreshold();
+  }
+  else {
+    cout << endl;
+    cout << "WARNING : The Hexotic default parameters are taken into account" << endl;
+    cout << "=======" << endl;
+    _hexesMinLevel = hyp->GetDefaultHexesMinLevel();
+    _hexesMaxLevel = hyp->GetDefaultHexesMaxLevel();
+    _hexoticQuadrangles = hyp->GetDefaultHexoticQuadrangles();
+    _hexoticIgnoreRidges = hyp->GetDefaultHexoticIgnoreRidges();
+    _hexoticInvalidElements = hyp->GetDefaultHexoticInvalidElements();
+    _hexoticSharpAngleThreshold = hyp->GetDefaultHexoticSharpAngleThreshold();
   }
 }
 
@@ -850,7 +849,6 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     }
     else {
       hexahedraMessage = "failed";
-      cout << endl;
       cout << "Problem with Hexotic output file " << Hexotic_Out.ToCString() << endl;
       Ok = false;
     }
