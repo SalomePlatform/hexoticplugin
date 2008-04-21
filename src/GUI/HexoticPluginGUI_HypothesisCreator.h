@@ -40,6 +40,9 @@ typedef struct
   QString  myName;
   int      myHexesMinLevel, myHexesMaxLevel;
   bool     myHexoticQuadrangles;
+  bool     myHexoticInvalidElements;
+  bool     myHexoticIgnoreRidges;
+  int      myHexoticSharpAngleThreshold;
 } HexoticHypothesisData;
 
 /*!
@@ -74,6 +77,9 @@ private:
  QtxIntSpinBox*   myHexesMinLevel;
  QtxIntSpinBox*   myHexesMaxLevel;
  QCheckBox*       myHexoticQuadrangles;
+ QCheckBox*       myHexoticIgnoreRidges;
+ QCheckBox*       myHexoticInvalidElements;
+ QtxIntSpinBox*   myHexoticSharpAngleThreshold;
 
  bool myIs3D;
 };

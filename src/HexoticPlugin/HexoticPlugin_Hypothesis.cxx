@@ -39,7 +39,10 @@ HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, int studyId,
   : SMESH_Hypothesis(hypId, studyId, gen),
     _hexesMinLevel( GetDefaultHexesMinLevel() ),
     _hexesMaxLevel( GetDefaultHexesMaxLevel() ),
-    _hexoticQuadrangles( GetDefaultHexoticQuadrangles() )
+    _hexoticQuadrangles( GetDefaultHexoticQuadrangles() ),
+    _hexoticIgnoreRidges( GetDefaultHexoticIgnoreRidges() ),
+    _hexoticInvalidElements( GetDefaultHexoticInvalidElements() ), 
+    _hexoticSharpAngleThreshold( GetDefaultHexoticSharpAngleThreshold() )
 {
   MESSAGE("HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis");
   _name = "Hexotic_Parameters";
@@ -73,6 +76,27 @@ void HexoticPlugin_Hypothesis::SetHexoticQuadrangles(bool theVal) {
   }
 }
 
+void HexoticPlugin_Hypothesis::SetHexoticIgnoreRidges(bool theVal) {
+  if (theVal != _hexoticIgnoreRidges) {
+    _hexoticIgnoreRidges = theVal;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
+void HexoticPlugin_Hypothesis::SetHexoticInvalidElements(bool theVal) {
+  if (theVal != _hexoticInvalidElements) {
+    _hexoticInvalidElements = theVal;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
+void HexoticPlugin_Hypothesis::SetHexoticSharpAngleThreshold(int theVal) {
+  if (theVal != _hexoticSharpAngleThreshold) {
+    _hexoticSharpAngleThreshold = theVal;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
 //=============================================================================
 /*!
  *  
@@ -82,6 +106,9 @@ ostream & HexoticPlugin_Hypothesis::SaveTo(ostream & save)
 {
   save << _hexesMinLevel << " " << _hexesMaxLevel;
   save << " " << (int)_hexoticQuadrangles;
+  save << " " << (int)_hexoticIgnoreRidges;
+  save << " " << (int)_hexoticInvalidElements;
+  save << " " << _hexoticSharpAngleThreshold;
   cout <<endl;
   cout << "save : " << save << endl;
   cout << endl;
@@ -196,4 +223,19 @@ int HexoticPlugin_Hypothesis::GetDefaultHexesMaxLevel()
 bool HexoticPlugin_Hypothesis::GetDefaultHexoticQuadrangles()
 {
   return true;
+}
+
+bool HexoticPlugin_Hypothesis::GetDefaultHexoticIgnoreRidges()
+{
+  return false;
+}
+
+bool HexoticPlugin_Hypothesis::GetDefaultHexoticInvalidElements()
+{
+  return false;
+}
+
+int HexoticPlugin_Hypothesis::GetDefaultHexoticSharpAngleThreshold()
+{
+  return 60;
 }

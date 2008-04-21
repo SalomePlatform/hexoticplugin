@@ -48,7 +48,7 @@ public:
   void SetParameters(const HexoticPlugin_Hypothesis* hyp);
 
   virtual bool Compute(SMESH_Mesh&         aMesh,
-		       const TopoDS_Shape& aShape);
+                       const TopoDS_Shape& aShape);
 
   ostream & SaveTo(ostream & save);
   istream & LoadFrom(istream & load);
@@ -58,12 +58,15 @@ public:
 protected:
   const HexoticPlugin_Hypothesis* _hypothesis;
 private:
-  int   _iShape;
-  int   _nbShape;
-  int   _nodeRefNumber;
-  int   _hexesMinLevel;
-  int   _hexesMaxLevel;
-  bool  _hexoticQuadrangles;
+  int  _iShape;
+  int  _nbShape;
+  int  _hexesMinLevel;
+  int  _hexesMaxLevel;
+  bool _hexoticQuadrangles;
+  bool _hexoticIgnoreRidges;
+  bool _hexoticInvalidElements;
+  int  _hexoticSharpAngleThreshold;
+  SMDS_MeshNode** _tabNode;
 };
 
 #endif

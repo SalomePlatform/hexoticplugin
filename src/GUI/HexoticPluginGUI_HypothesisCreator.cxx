@@ -37,6 +37,8 @@
 #include <SalomeApp_Tools.h>
 
 #include <QtxIntSpinBox.h>
+#include <QtxDblSpinBox.h>
+
 #include <QtxComboBox.h>
 
 #include <qlabel.h>
@@ -79,7 +81,7 @@ bool HexoticPluginGUI_HypothesisCreator::checkParams() const
 QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
 {
   QFrame* fr = new QFrame( 0, "myframe" );
-  QVBoxLayout* lay = new QVBoxLayout( fr, 5, 0 );
+  QVBoxLayout* lay = new QVBoxLayout( fr, 7, 0 );
 
   QGroupBox* GroupC1 = new QGroupBox( 2, Qt::Horizontal, fr, "GroupC1" );
   lay->addWidget( GroupC1 );
@@ -101,19 +103,31 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   myHexesMinLevel = new QtxIntSpinBox( GroupC1 );
   // myHexesMinLevel->setMinValue( 3 );
   myHexesMinLevel->setMinValue( h->GetHexesMinLevel() );
-  myHexesMinLevel->setMaxValue( 8 );
+  myHexesMinLevel->setMaxValue( 10 );
   myHexesMinLevel->setLineStep( 1 );
   
   new QLabel( tr( "Hexotic_HEXES_MAX_LEVEL" ), GroupC1 );
   myHexesMaxLevel = new QtxIntSpinBox( GroupC1 );
   myHexesMaxLevel->setMinValue( 3 );
-  myHexesMaxLevel->setMaxValue( 8 );
+  myHexesMaxLevel->setMaxValue( 10 );
   myHexesMaxLevel->setLineStep( 1 );
 
   myHexoticQuadrangles = new QCheckBox( tr( "Hexotic_QUADRANGLES" ), GroupC1 );
   GroupC1->addSpace(0);
   myIs3D = true;
-  
+
+  myHexoticIgnoreRidges = new QCheckBox( tr( "Hexotic_IGNORE_RIDGES" ), GroupC1 );
+  GroupC1->addSpace(0);
+
+  myHexoticInvalidElements = new QCheckBox( tr( "Hexotic_INVALID_ELEMENTS" ), GroupC1 );
+  GroupC1->addSpace(0);
+
+  new QLabel( tr( "Hexotic_SHARP_ANGLE_THRESHOLD" ), GroupC1 );
+  myHexoticSharpAngleThreshold = new QtxIntSpinBox( GroupC1 );
+  myHexoticSharpAngleThreshold->setMinValue( 0 );
+  myHexoticSharpAngleThreshold->setMaxValue( 90 );
+  myHexoticSharpAngleThreshold->setLineStep( 1 );
+
   return fr;
 }
 
@@ -126,10 +140,15 @@ void HexoticPluginGUI_HypothesisCreator::retrieveParams() const
     myName->setText( data.myName );
   myHexesMinLevel->setValue( data.myHexesMinLevel );
   myHexesMaxLevel->setValue( data.myHexesMaxLevel );
+  myHexoticSharpAngleThreshold->setValue( data.myHexoticSharpAngleThreshold );
+
   myHexoticQuadrangles->setChecked( data.myHexoticQuadrangles );
+  myHexoticIgnoreRidges->setChecked( data.myHexoticIgnoreRidges );
+  myHexoticInvalidElements->setChecked( data.myHexoticInvalidElements );
 
   myHexesMinLevel->setEnabled(true);
   myHexesMaxLevel->setEnabled(true);
+  myHexoticSharpAngleThreshold->setEnabled(true);
 }
 
 QString HexoticPluginGUI_HypothesisCreator::storeParams() const
@@ -142,7 +161,10 @@ QString HexoticPluginGUI_HypothesisCreator::storeParams() const
   valStr += tr("Hexotic_SEG_MIN_SIZE") + " = " + QString::number( data.myHexesMinLevel )   + "; ";
   valStr += tr("Hexotic_SEG_MAX_SIZE") + " = " + QString::number( data.myHexesMaxLevel ) + "; ";
   valStr += tr("Hexotic_QUADRANGLES")  + " = " + QString::number( data.myHexoticQuadrangles ) + "; ";
-  
+  valStr += tr("Hexotic_IGNORE_RIDGES")  + " = " + QString::number( data.myHexoticIgnoreRidges ) + "; ";
+  valStr += tr("Hexotic_INVALID_ELEMENTS")  + " = " + QString::number( data.myHexoticInvalidElements ) + "; ";
+  valStr += tr("Hexotic_SHARP_ANGLE_THRESHOLD") + " = " + QString::number( data.myHexoticSharpAngleThreshold ) + "; ";
+
   return valStr;
 }
 
@@ -156,6 +178,9 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromHypo( HexoticHypothesisDa
   h_data.myHexesMinLevel = h->GetHexesMinLevel();
   h_data.myHexesMaxLevel = h->GetHexesMaxLevel();
   h_data.myHexoticQuadrangles = h->GetHexoticQuadrangles();
+  h_data.myHexoticIgnoreRidges = h->GetHexoticIgnoreRidges();
+  h_data.myHexoticInvalidElements = h->GetHexoticInvalidElements();
+  h_data.myHexoticSharpAngleThreshold = h->GetHexoticSharpAngleThreshold();
 
   return true;
 }
@@ -174,6 +199,9 @@ bool HexoticPluginGUI_HypothesisCreator::storeParamsToHypo( const HexoticHypothe
     h->SetHexesMinLevel( h_data.myHexesMinLevel );
     h->SetHexesMaxLevel( h_data.myHexesMaxLevel );
     h->SetHexoticQuadrangles( h_data.myHexoticQuadrangles );
+    h->SetHexoticIgnoreRidges( h_data.myHexoticIgnoreRidges );
+    h->SetHexoticInvalidElements( h_data.myHexoticInvalidElements );
+    h->SetHexoticSharpAngleThreshold( h_data.myHexoticSharpAngleThreshold );
   }
   catch(const SALOME::SALOME_Exception& ex)
   {
@@ -189,7 +217,10 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromWidgets( HexoticHypothesi
   h_data.myHexesMinLevel = myHexesMinLevel->value();
   h_data.myHexesMaxLevel = myHexesMaxLevel->value();
   h_data.myHexoticQuadrangles = myHexoticQuadrangles->isChecked();
-  
+  h_data.myHexoticIgnoreRidges = myHexoticIgnoreRidges->isChecked();
+  h_data.myHexoticInvalidElements = myHexoticInvalidElements->isChecked();
+  h_data.myHexoticSharpAngleThreshold = myHexoticSharpAngleThreshold->value();
+
   return true;
 }
 

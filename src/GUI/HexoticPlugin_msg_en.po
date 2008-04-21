@@ -75,3 +75,12 @@ msgstr "Hexotic 3D"
 
 msgid "Hexotic_3D_TITLE"
 msgstr "Hypothesis Construction"
+
+msgid "Hexotic_IGNORE_RIDGES"
+msgstr "Generate smooth meshes ie no ridges"
+
+msgid "Hexotic_INVALID_ELEMENTS"
+msgstr "Authorize invalid elements"
+
+msgid "Hexotic_SHARP_ANGLE_THRESHOLD"
+msgstr "Sharp angle threshold in degrees"

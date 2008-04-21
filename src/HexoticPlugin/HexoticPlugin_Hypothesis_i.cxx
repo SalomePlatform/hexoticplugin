@@ -70,6 +70,9 @@ HexoticPlugin_Hypothesis_i::~HexoticPlugin_Hypothesis_i()
  *  HexoticPlugin_Hypothesis_i::SetHexesMinLevel
  *  HexoticPlugin_Hypothesis_i::SetHexesMaxLevel
  *  HexoticPlugin_Hypothesis_i::SetHexoticQuadrangles
+ *  HexoticPlugin_Hypothesis_i::SetHexoticIgnoreRidges
+ *  HexoticPlugin_Hypothesis_i::SetHexoticInvalidElements
+ *  HexoticPlugin_Hypothesis_i::SetHexoticSharpAngleThreshold
  */
 //=============================================================================
 
@@ -97,11 +100,38 @@ void HexoticPlugin_Hypothesis_i::SetHexoticQuadrangles (CORBA::Boolean theValue)
   SMESH::TPythonDump() << _this() << ".SetHexoticQuadrangles( " << theValue << " )";
 }
 
+void HexoticPlugin_Hypothesis_i::SetHexoticIgnoreRidges (CORBA::Boolean theValue)
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexoticIgnoreRidges");
+  ASSERT(myBaseImpl);
+  this->GetImpl()->SetHexoticIgnoreRidges(theValue);
+  SMESH::TPythonDump() << _this() << ".SetHexoticIgnoreRidges( " << theValue << " )";
+}
+
+void HexoticPlugin_Hypothesis_i::SetHexoticInvalidElements (CORBA::Boolean theValue)
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexoticInvalidElements");
+  ASSERT(myBaseImpl);
+  this->GetImpl()->SetHexoticInvalidElements(theValue);
+  SMESH::TPythonDump() << _this() << ".SetHexoticInvalidElements( " << theValue << " )";
+}
+
+void HexoticPlugin_Hypothesis_i::SetHexoticSharpAngleThreshold (CORBA::Long theValue)
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexoticSharpAngleThreshold");
+  ASSERT(myBaseImpl);
+  this->GetImpl()->SetHexoticSharpAngleThreshold(theValue);
+  SMESH::TPythonDump() << _this() << ".SetHexoticSharpAngleThreshold( " << theValue << " )";
+}
+
 //=============================================================================
 /*!
  *  HexoticPlugin_Hypothesis_i::GetHexesMinLevel
  *  HexoticPlugin_Hypothesis_i::GetHexesMaxLevel
  *  HexoticPlugin_Hypothesis_i::GetHexoticQuadrangles
+ *  HexoticPlugin_Hypothesis_i::GetHexoticIgnoreRidges
+ *  HexoticPlugin_Hypothesis_i::GetHexoticInvalidElements
+ *  HexoticPlugin_Hypothesis_i::GetHexoticSharpAngleThreshold 
  */
 //=============================================================================
 
@@ -124,6 +154,27 @@ CORBA::Boolean HexoticPlugin_Hypothesis_i::GetHexoticQuadrangles()
   // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexoticQuadrangles");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetHexoticQuadrangles();
+}
+
+CORBA::Boolean HexoticPlugin_Hypothesis_i::GetHexoticIgnoreRidges()
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexoticIgnoreRidges");
+  ASSERT(myBaseImpl);
+  return this->GetImpl()->GetHexoticIgnoreRidges();
+}
+
+CORBA::Boolean HexoticPlugin_Hypothesis_i::GetHexoticInvalidElements()
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexoticInvalidElements");
+  ASSERT(myBaseImpl);
+  return this->GetImpl()->GetHexoticInvalidElements();
+}
+
+CORBA::Long HexoticPlugin_Hypothesis_i::GetHexoticSharpAngleThreshold()
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexoticSharpAngleThreshold");
+  ASSERT(myBaseImpl);
+  return this->GetImpl()->GetHexoticSharpAngleThreshold();
 }
 
 //=============================================================================

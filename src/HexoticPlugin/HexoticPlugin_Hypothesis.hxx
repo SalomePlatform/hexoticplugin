@@ -23,7 +23,7 @@
 // Author    : Lioka RAZAFINDRAZAKA (CEA)
 // Date      : 2006/06/30
 // Project   : SALOME
-// $Header: /home/server/cvs/HexoticPLUGIN/HexoticPLUGIN_SRC/src/HexoticPlugin/HexoticPlugin_Hypothesis.hxx,v 1.2 2006/05/06 08:54:13 jfa Exp $
+// $Header$
 //=============================================================================
 
 #ifndef _HexoticPlugin_Hypothesis_HXX_
@@ -50,11 +50,23 @@ public:
   void SetHexoticQuadrangles(bool theVal);
   bool GetHexoticQuadrangles() const { return _hexoticQuadrangles; }
 
+  void SetHexoticIgnoreRidges(bool theVal);
+  bool GetHexoticIgnoreRidges() const { return _hexoticIgnoreRidges; }
+
+  void SetHexoticInvalidElements(bool theVal);
+  bool GetHexoticInvalidElements() const { return _hexoticInvalidElements; }
+   
+  void SetHexoticSharpAngleThreshold(int theVal);
+  int GetHexoticSharpAngleThreshold() const { return _hexoticSharpAngleThreshold; }
+
   // the parameters default values 
 
   static int GetDefaultHexesMinLevel();
   static int GetDefaultHexesMaxLevel();
   static bool GetDefaultHexoticQuadrangles();
+  static bool GetDefaultHexoticIgnoreRidges();
+  static bool GetDefaultHexoticInvalidElements();
+  static int GetDefaultHexoticSharpAngleThreshold();
 
   // Persistence
   virtual ostream & SaveTo(ostream & save);
@@ -71,9 +83,12 @@ public:
   virtual bool SetParametersByMesh(const SMESH_Mesh* theMesh, const TopoDS_Shape& theShape);
 
 private:
-  int   _hexesMinLevel;
-  int   _hexesMaxLevel;
-  bool  _hexoticQuadrangles;
+  int  _hexesMinLevel;
+  int  _hexesMaxLevel;
+  bool _hexoticQuadrangles;
+  bool _hexoticIgnoreRidges;
+  bool _hexoticInvalidElements;
+  int  _hexoticSharpAngleThreshold;
 };
 
 #endif

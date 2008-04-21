@@ -42,3 +42,13 @@ msgstr "Nb. Hexes Max Level"
 
 msgid "Hexotic_QUADRANGLES"
 msgstr "Salome Quadrangles"
+
+# 
+msgid "Hexotic_IGNORE_RIDGES"
+msgstr "Generate smooth meshes no ridges"
+# 
+msgid "Hexotic_INVALID_ELEMENTS"
+msgstr "Authorize invalid elements"
+# 
+msgid "Hexotic_SHARP_ANGLE_THRESHOLD"
+msgstr "Sharp angle threshold in degrees"
