@@ -51,4 +51,7 @@ LIB_CLIENT_IDL = \
 # Libraries targets
 LIB = libHexoticEngine.la
 
+# to compile modifs made by "CEA developpeur" (PAL19772)
+CPPFLAGS += $(QT_INCLUDES)
+
 @CONCLUDE@

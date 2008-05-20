@@ -29,6 +29,8 @@ using namespace std;
 #include <HexoticPlugin_Hypothesis.hxx>
 #include <utilities.h>
 
+#include <qstring.h>
+
 //=============================================================================
 /*!
  *  
@@ -104,15 +106,23 @@ void HexoticPlugin_Hypothesis::SetHexoticSharpAngleThreshold(int theVal) {
 //=============================================================================
 ostream & HexoticPlugin_Hypothesis::SaveTo(ostream & save)
 {
-  save << _hexesMinLevel << " " << _hexesMaxLevel;
+  /*save << _hexesMinLevel << " " << _hexesMaxLevel;
   save << " " << (int)_hexoticQuadrangles;
   save << " " << (int)_hexoticIgnoreRidges;
   save << " " << (int)_hexoticInvalidElements;
   save << " " << _hexoticSharpAngleThreshold;
   cout <<endl;
   cout << "save : " << save << endl;
-  cout << endl;
+  cout << endl;*/
 
+  //explicit outputs for future code compatibility of saved .hdf
+  //save without any whitespaces!
+  save<<"hexesMinLevel="<<_hexesMinLevel<<";"; 
+  save<<"hexesMaxLevel="<<_hexesMaxLevel<<";";
+  save<<"hexoticQuadrangles="<<(int)_hexoticQuadrangles<<";";
+  save<<"hexoticIgnoreRidges="<<(int)_hexoticIgnoreRidges<<";";
+  save<<"hexoticInvalidElements="<<(int)_hexoticInvalidElements<<";";
+  save<<"hexoticSharpAngleThreshold="<<_hexoticSharpAngleThreshold<<";";
   return save;
 }
 
@@ -123,55 +133,34 @@ ostream & HexoticPlugin_Hypothesis::SaveTo(ostream & save)
 //=============================================================================
 istream & HexoticPlugin_Hypothesis::LoadFrom(istream & load)
 {
-//   bool isOK = true;
-//   int is;
-//   double val;
+   //explicit inputs for future code compatibility of saved .hdf
+   bool isOK = true;
+   int imax;
+   string str1;
+   QString str2,str3,str4,str5;
+   
+   //save without any whitespaces!
+   isOK = (load >> str1);
+   if (!(isOK)) {
+     //defaults values assumed
+     load.clear(ios::badbit | load.rdstate());
+     return load;
+   }
+   str2 = (QString) str1;
+   imax = str2.contains(";");
+   for (int i=0; i<=imax; i++) {
+      str3 = str2.section(";",i,i);
+      str4 = str3.section("=",0,0);
+      str5 = str3.section("=",1,1);
 
-//   isOK = (load >> val);
-//   if (isOK)
-//     _maxSize = val;
-//   else
-//     load.clear(ios::badbit | load.rdstate());
-
-//   isOK = (load >> is);
-//   if (isOK)
-//     SetFineness((Fineness) is);
-//   else
-//     load.clear(ios::badbit | load.rdstate());
-
-//   if (_fineness == UserDefined)
-//   {
-//     isOK = (load >> val);
-//     if (isOK)
-//       _growthRate = val;
-//     else
-//       load.clear(ios::badbit | load.rdstate());
-
-//     isOK = (load >> val);
-//     if (isOK)
-//       _nbSegPerEdge = val;
-//     else
-//       load.clear(ios::badbit | load.rdstate());
-
-//     isOK = (load >> val);
-//     if (isOK)
-//       _nbSegPerRadius = val;
-//     else
-//       load.clear(ios::badbit | load.rdstate());
-//   }
-
-//   isOK = (load >> is);
-//   if (isOK)
-//     _secondOrder = (bool) is;
-//   else
-//     load.clear(ios::badbit | load.rdstate());
-
-//   isOK = (load >> is);
-//   if (isOK)
-//     _optimize = (bool) is;
-//   else
-//     load.clear(ios::badbit | load.rdstate());
-  return load;
+      if (str4=="hexesMinLevel") _hexesMinLevel = str5.toInt();
+      if (str4=="hexesMaxLevel") _hexesMaxLevel = str5.toInt();
+      if (str4=="hexoticQuadrangles") _hexoticQuadrangles = (bool) str5.toInt();
+      if (str4=="hexoticIgnoreRidges") _hexoticIgnoreRidges = (bool) str5.toInt();
+      if (str4=="hexoticInvalidElements") _hexoticInvalidElements = (bool) str5.toInt();
+      if (str4=="hexoticSharpAngleThreshold") _hexoticSharpAngleThreshold = str5.toInt();
+   }
+   return load;
 }
 
 //=============================================================================

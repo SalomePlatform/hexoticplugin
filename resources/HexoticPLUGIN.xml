@@ -13,6 +13,7 @@
     <hypothesis type="Hexotic_Parameters"
 		label-id="Hexotic Parameters"
 		icon-id="mesh_hypo_Hexotic.png"
+		need-geom="false"
 		dim="3"/>
   </hypotheses>
   <algorithms>
@@ -21,6 +22,7 @@
                icon-id="mesh_algo_Hexotic.png"
                hypos="Hexotic_Parameters"
                input="TRIA,QUAD"
+	       need-geom="false"
                dim="3"/>
   </algorithms>
 </meshers-group>
