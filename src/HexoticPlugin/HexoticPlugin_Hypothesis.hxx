@@ -23,7 +23,7 @@
 // Author    : Lioka RAZAFINDRAZAKA (CEA)
 // Date      : 2006/06/30
 // Project   : SALOME
-// $Header$
+// $Header: /home/server/cvs/HEXOTICPLUGIN/HexoticPLUGIN_SRC/src/HexoticPlugin/HexoticPlugin_Hypothesis.hxx,v 1.2 2008/04/21 13:38:20 jfa Exp $
 //=============================================================================
 
 #ifndef _HexoticPlugin_Hypothesis_HXX_
@@ -69,10 +69,10 @@ public:
   static int GetDefaultHexoticSharpAngleThreshold();
 
   // Persistence
-  virtual ostream & SaveTo(ostream & save);
-  virtual istream & LoadFrom(istream & load);
-  friend ostream & operator <<(ostream & save, HexoticPlugin_Hypothesis & hyp);
-  friend istream & operator >>(istream & load, HexoticPlugin_Hypothesis & hyp);
+  virtual std::ostream & SaveTo(std::ostream & save);
+  virtual std::istream & LoadFrom(std::istream & load);
+  friend std::ostream & operator <<(std::ostream & save, HexoticPlugin_Hypothesis & hyp);
+  friend std::istream & operator >>(std::istream & load, HexoticPlugin_Hypothesis & hyp);
 
   /*!
    * \brief Does nothing

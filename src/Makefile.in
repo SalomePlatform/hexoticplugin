@@ -30,6 +30,10 @@ VPATH=.:@srcdir@
 
 @COMMENCE@
 
-SUBDIRS = HexoticPlugin GUI
+SUBDIRS = HexoticPlugin
+
+ifeq (@WITHGUI@,yes)
+  SUBDIRS += GUI
+endif
 
 @MODULE@

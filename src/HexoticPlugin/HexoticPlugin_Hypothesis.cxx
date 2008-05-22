@@ -25,11 +25,10 @@
 // Project   : SALOME
 //=============================================================================
 
-using namespace std;
 #include <HexoticPlugin_Hypothesis.hxx>
 #include <utilities.h>
 
-#include <qstring.h>
+using namespace std;
 
 //=============================================================================
 /*!
@@ -135,10 +134,8 @@ istream & HexoticPlugin_Hypothesis::LoadFrom(istream & load)
 {
    //explicit inputs for future code compatibility of saved .hdf
    bool isOK = true;
-   int imax;
-   string str1;
-   QString str2,str3,str4,str5;
-   
+   string str1,str2,str3,str4;
+
    //save without any whitespaces!
    isOK = (load >> str1);
    if (!(isOK)) {
@@ -146,19 +143,22 @@ istream & HexoticPlugin_Hypothesis::LoadFrom(istream & load)
      load.clear(ios::badbit | load.rdstate());
      return load;
    }
-   str2 = (QString) str1;
-   imax = str2.contains(";");
-   for (int i=0; i<=imax; i++) {
-      str3 = str2.section(";",i,i);
-      str4 = str3.section("=",0,0);
-      str5 = str3.section("=",1,1);
+   int pos = 0;
+   int len = str1.length();
+   while (pos < len) {
+      int found = str1.find(';',pos);
+      str2 = str1.substr(pos,found-pos);
+      int eqpos = str2.find('=',0);
+      str3 = str2.substr(0,eqpos);
+      str4 = str2.substr(eqpos+1);
+      pos = found + 1;
 
-      if (str4=="hexesMinLevel") _hexesMinLevel = str5.toInt();
-      if (str4=="hexesMaxLevel") _hexesMaxLevel = str5.toInt();
-      if (str4=="hexoticQuadrangles") _hexoticQuadrangles = (bool) str5.toInt();
-      if (str4=="hexoticIgnoreRidges") _hexoticIgnoreRidges = (bool) str5.toInt();
-      if (str4=="hexoticInvalidElements") _hexoticInvalidElements = (bool) str5.toInt();
-      if (str4=="hexoticSharpAngleThreshold") _hexoticSharpAngleThreshold = str5.toInt();
+      if (str3=="hexesMinLevel") _hexesMinLevel = atoi(str4.c_str());
+      if (str3=="hexesMaxLevel") _hexesMaxLevel = atoi(str4.c_str());
+      if (str3=="hexoticQuadrangles") _hexoticQuadrangles = (bool) atoi(str4.c_str());
+      if (str3=="hexoticIgnoreRidges") _hexoticIgnoreRidges = (bool) atoi(str4.c_str());
+      if (str3=="hexoticInvalidElements") _hexoticInvalidElements = (bool) atoi(str4.c_str());
+      if (str3=="hexoticSharpAngleThreshold") _hexoticSharpAngleThreshold = atoi(str4.c_str());
    }
    return load;
 }
