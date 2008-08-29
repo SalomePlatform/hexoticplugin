@@ -18,12 +18,28 @@
 #
 # ---
 #
-# File   : INSTALL
+# File   : AUTHORS
 # Author : Vadim SANDLER, Open CASCADE S.A.S (vadim.sandler@opencascade.com)
 #
 # ---
+#
+# The format of this file was inspired by the Linux kernel CREDITS file.
+#
+# Authors and contributors are listed alphabetically.
+#
+# The fields are: name (N), email (E), web-address (W), CVS account login (C),
+# PGP key ID and fingerprint (P), description (D), and snail-mail address (S).
+#
+# ---
 
-SALOME2 : HexoticPLUGIN module (SMESH plugin)
+N: Lioka RAZAFINDRAZAKA, CEA
+E: lioka.razafindrazaka@cea.fr
+D: Initial development
 
-For installation instructions and other information, please refer to
-the README file.
+N: Edward AGAPOV, Open CASCADE S.A.S
+E: edward.agapov@opencascade.com
+D: Debug, improve meshing algorithms
+
+N: Vadim SANDLER, Open CASCADE S.A.S
+E: vadim.sandler@opencascade.com
+D: Porting to automake, porting to SALOME series 5x

@@ -18,25 +18,19 @@
 //
 // ---
 //
-// File   : HexoticPluginGUI.cxx
-// Author : Lioka RAZAFINDRAZAKA (CEA)
+// File   : HexoticPLUGIN_version.h
+// Author : Vadim SANDLER, Open CASCADE S.A.S (vadim.sandler@opencascade.com)
 //
 // ---
 
-#include "HexoticPluginGUI_HypothesisCreator.h"
+#if !defined(__HEXOTICPLUGIN_VERSION_H__)
+#define __HEXOTICPLUGIN_VERSION_H__
 
-//=============================================================================
-/*! GetHypothesisCreator
- *
- */
-//=============================================================================
-extern "C"
-{
-  SMESHGUI_GenericHypothesisCreator* GetHypothesisCreator( const QString& aHypType )
-  {
-    SMESHGUI_GenericHypothesisCreator* aCreator = NULL;
-    if( aHypType=="Hexotic_Parameters" )
-      aCreator =  new HexoticPluginGUI_HypothesisCreator( aHypType );
-    return aCreator;
-  }
-}
+/*
+  HEXOTICPLUGIN_VERSION is (major << 16) + (minor << 8) + patch.
+*/
+
+#define HEXOTICPLUGIN_VERSION_STR "@VERSION@"
+#define HEXOTICPLUGIN_VERSION     @XVERSION@
+
+#endif // __HEXOTICPLUGIN_VERSION_H__

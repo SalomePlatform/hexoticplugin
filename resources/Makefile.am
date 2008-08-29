@@ -18,12 +18,23 @@
 #
 # ---
 #
-# File   : INSTALL
+# File   : Makefile.am
 # Author : Vadim SANDLER, Open CASCADE S.A.S (vadim.sandler@opencascade.com)
 #
 # ---
 
-SALOME2 : HexoticPLUGIN module (SMESH plugin)
+include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-For installation instructions and other information, please refer to
-the README file.
+dist_salomeres_DATA =			\
+	HexoticPLUGIN.xml		\
+	HexoticPlugin.xml		\
+	SalomeApp.xml
+
+if HEXOTICPLUGIN_ENABLE_GUI
+  dist_salomeres_DATA +=		\
+	Hexotic.png			\
+	mesh_algo_Hexotic.png		\
+	mesh_hypo_Hexotic.png		\
+	mesh_tree_algo_Hexotic.png	\
+	mesh_tree_hypo_Hexotic.png
+endif

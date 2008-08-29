@@ -1,0 +1,128 @@
+SALOME platform
+Hexotic meshing plugin
+------------------------------
+
+Contents:
+
+1. Pre-requisites
+2. Installation
+3. Launch SALOME with HexoticPLUGIN
+4. HexoticPLUGIN plugin usage
+
+-----------------
+1. Pre-requisites
+-----------------
+
+The information in this file assumes that:
+
+* The SALOME platform is installed to the directory <salome>
+* The Hexotic (Tepal) product is installed to the directory <salome>/Hexotic
+
+---------------
+2. Installation
+---------------
+
+2.1. Unpack HexoticPLUGIN module sources
+
+cd <salome>
+tar zxf HexoticPLUGIN_SRC.tgz
+
+2.2. Build HexoticPLUGIN module
+
+* set environment 
+
+bash
+cd <salome>
+source env_build.sh
+export HexoticHOME=<salome>/Hexotic
+
+Note: you can avoid setting HexoticHOME environment variable but use
+--with-Hexotic key of configure script instead. You can also compile
+plugin withour Hexotic product installation. But you'll need to add
+path to the tepal executable to the PATH environment variable in order
+to use Hexotic meshing plugin within SALOME.
+
+* configure build system
+
+cd HexoticPLUGIN_SRC
+./build_configure
+
+cd ..
+mkdir HexoticPLUGIN_BUILD
+cd HexoticPLUGIN_BUILD
+../HexoticPLUGIN_SRC/configure --prefix=<salome>/HexoticPLUGIN_INSTALL
+
+Note: you can use --with-Hexotic option to pass the root directory of
+Hexotic product to the configure script. In this case you can avoid
+setting HexoticHOME environment variable. Try 'configure --help'
+command to learn more about available configure script options.
+
+Check "Summary" area in the log output of the configure script to
+verify that all pre-requisites required for the successful compilation
+of HexoticPLUFIN module have been found. All pre-requisite products
+should have status "yes". If any product has status "no", the
+compilation procedure will fail (the only exception is Hexotic
+product which is not required for the successful compilation of the
+plugin; it is needed in run-time only).
+
+* compile and install plugin module 
+
+make
+make install
+
+exit
+
+If the compilation is finished successfully (make and make install
+steps are finished without errors) the HexoticPLUGIN meshing module
+should be installed in the directory <salome>/HexoticPLUGIN_INSTALL.
+
+----------------------------------
+3. Launch SALOME with HexoticPLUGIN
+----------------------------------
+
+* set environment
+
+bash
+cd <salome>
+source env_products.sh
+
+export HexoticPLUGIN_ROOT_DIR=<salome>/HexoticPLUGIN_INSTALL
+export SalomeAppConfig=${HexoticPLUGIN_ROOT_DIR}/share/salome/resources/Hexoticplugin
+export PATH=<salome>/Hexotic:${PATH
+
+* run SALOME
+
+runSalome
+
+----------------------------
+4. HexoticPLUGIN plugin usage
+----------------------------
+
+* Create new study
+
+* Activate Geometry module and create simple geometry object
+
+* Activate Mesh module
+
+* Invoke menu "Mesh/Create Mesh"
+
+* Select previously created geometry object by clicking it with the
+mouse in the Object Browser
+
+* In the "Create mesh" dialog box:
+- activate "3D" page
+- In the "Algorithm" combo box select "Hexotic"
+- Click on the button at the right of the "Hypothesis" combo box and
+select "Hexotic parameters" item in the drop-down menu
+
+* In the "Hypothesis Construction" dialog box set parameters of Hexotic
+  meshing algorithm and click "OK" button
+
+* In the "Create mesh" dialog box Click "Apply & Close" button to
+  define mesh and close the dialog box
+
+* In the Object Browser select "Mesh_1" object, invoke context popup
+menu for it by clicking right mouse button and select "Compute" item
+
+The resulting mesh created with Hexotic plugin will be shown in the 3D
+viewer.

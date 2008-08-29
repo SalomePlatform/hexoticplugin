@@ -18,12 +18,21 @@
 #
 # ---
 #
-# File   : INSTALL
+# File   : Makefile.am
 # Author : Vadim SANDLER, Open CASCADE S.A.S (vadim.sandler@opencascade.com)
 #
 # ---
 
-SALOME2 : HexoticPLUGIN module (SMESH plugin)
+include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-For installation instructions and other information, please refer to
-the README file.
+SUBDIRS = idl adm_local resources src bin
+
+DIST_SUBDIRS = idl adm_local resources src bin 
+
+DISTCLEANFILES = a.out aclocal.m4 configure
+
+salomeinclude_DATA = HexoticPLUGIN_version.h
+
+EXTRA_DIST += \
+	build_configure \
+	clean_configure

@@ -18,12 +18,27 @@
 #
 # ---
 #
-# File   : INSTALL
+# File   : ChangeLog
 # Author : Vadim SANDLER, Open CASCADE S.A.S (vadim.sandler@opencascade.com)
 #
 # ---
+#
+# Changes are listed by modification time in the descending order,
+# i.e. newer changes are listed at the top of the file.
+#
+# Each record lists the modification date, author and short description of
+# the made changes.
+#
+# ---
 
-SALOME2 : HexoticPLUGIN module (SMESH plugin)
+2008-08-29 Vadim SANDLER
 
-For installation instructions and other information, please refer to
-the README file.
+    * Porting to automake, porting to SALOME series 5x
+
+2007-2008 Edward AGAPOV
+
+    * Debug, improve meshing algorithms
+
+2006 Lioka RAZAFINDRAZAKA
+
+    * Initial development

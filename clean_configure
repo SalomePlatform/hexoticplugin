@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (C) 2006-2008 OPEN CASCADE, CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
@@ -18,12 +20,21 @@
 #
 # ---
 #
-# File   : INSTALL
+# File   : clean_configure
 # Author : Vadim SANDLER, Open CASCADE S.A.S (vadim.sandler@opencascade.com)
 #
 # ---
 
-SALOME2 : HexoticPLUGIN module (SMESH plugin)
+rm -rf autom4te.cache aclocal.m4 configure make_config
+find . -name "*~" -print -exec rm {} \;
+find . -name "*.pyc" -print -exec rm {} \;
 
-For installation instructions and other information, please refer to
-the README file.
+# ... 
+
+find bin -name Makefile.in | xargs rm -f
+find doc -name Makefile.in | xargs rm -f
+find idl -name Makefile.in | xargs rm -f
+find resources -name Makefile.in | xargs rm -f
+find salome_adm -name Makefile.in | xargs rm -f
+find src -name Makefile.in | xargs rm -f
+rm -f Makefile.in
