@@ -29,7 +29,6 @@
 #include <SMESHGUI_Hypotheses.h>
 
 class QtxIntSpinBox;
-class QtxDblSpinBox;
 class QCheckBox;
 class QLineEdit;
 
@@ -79,7 +78,7 @@ private:
  QCheckBox*       myHexoticInvalidElements;
  QtxIntSpinBox*   myHexoticSharpAngleThreshold;
 
- bool myIs3D;
+ bool             myIs3D;
 };
 
 #endif

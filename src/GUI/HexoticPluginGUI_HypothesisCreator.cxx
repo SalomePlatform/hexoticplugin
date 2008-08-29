@@ -31,35 +31,30 @@
 #include CORBA_SERVER_HEADER(HexoticPlugin_Algorithm)
 
 #include <SUIT_Session.h>
-
+#include <SUIT_ResourceMgr.h>
 #include <SalomeApp_Tools.h>
-
 #include <QtxIntSpinBox.h>
-#include <QtxDblSpinBox.h>
 
-#include <QtxComboBox.h>
+#include <QFrame>
+#include <QGroupBox>
+#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QLineEdit>
+#include <QLabel>
+#include <QCheckBox>
 
-#include <qlabel.h>
-#include <qgroupbox.h>
-#include <qframe.h>
-#include <qlayout.h>
-#include <qlineedit.h>
-#include <qcheckbox.h>
-#include <qpixmap.h>
-
- enum Fineness
-   {
-     VeryCoarse,
-     Coarse,
-     Moderate,
-     Fine,
-     VeryFine,
-     UserDefined
-   };
+enum Fineness {
+  VeryCoarse,
+  Coarse,
+  Moderate,
+  Fine,
+  VeryFine,
+  UserDefined
+};
 
 HexoticPluginGUI_HypothesisCreator::HexoticPluginGUI_HypothesisCreator( const QString& theHypType )
 : SMESHGUI_GenericHypothesisCreator( theHypType ),
-  myIs3D(true)
+  myIs3D( true )
 {
 }
 
@@ -78,53 +73,60 @@ bool HexoticPluginGUI_HypothesisCreator::checkParams() const
 
 QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
 {
-  QFrame* fr = new QFrame( 0, "myframe" );
-  QVBoxLayout* lay = new QVBoxLayout( fr, 7, 0 );
+  QFrame* fr = new QFrame( 0 );
+  QVBoxLayout* lay = new QVBoxLayout( fr );
+  lay->setMargin( 5 );
+  lay->setSpacing( 0 );
 
-  QGroupBox* GroupC1 = new QGroupBox( 2, Qt::Horizontal, fr, "GroupC1" );
+  QGroupBox* GroupC1 = new QGroupBox( tr( "SMESH_ARGUMENTS" ), fr );
   lay->addWidget( GroupC1 );
   
-  GroupC1->setTitle( tr( "SMESH_ARGUMENTS" ) );
-  GroupC1->layout()->setSpacing( 6 );
-  GroupC1->layout()->setMargin( 11 );
+  QGridLayout* l = new QGridLayout( GroupC1 );
+  l->setSpacing( 6 );
+  l->setMargin( 11 );
   
+  int row = 0;
   myName = 0;
   if( isCreation() ) {
-    new QLabel( tr( "SMESH_NAME" ), GroupC1 );
+    l->addWidget( new QLabel( tr( "SMESH_NAME" ), GroupC1 ), row, 0, 1, 1 );
     myName = new QLineEdit( GroupC1 );
+    l->addWidget( myName, row++, 1, 1, 1 );
   }
 
   HexoticPlugin::HexoticPlugin_Hypothesis_var h =
   HexoticPlugin::HexoticPlugin_Hypothesis::_narrow( initParamsHypothesis() );
-
-  new QLabel( tr( "Hexotic_HEXES_MIN_LEVEL" ), GroupC1 );
-  myHexesMinLevel = new QtxIntSpinBox( GroupC1 );
-  // myHexesMinLevel->setMinValue( 3 );
-  myHexesMinLevel->setMinValue( h->GetHexesMinLevel() );
-  myHexesMinLevel->setMaxValue( 10 );
-  myHexesMinLevel->setLineStep( 1 );
   
-  new QLabel( tr( "Hexotic_HEXES_MAX_LEVEL" ), GroupC1 );
+  l->addWidget( new QLabel( tr( "Hexotic_HEXES_MIN_LEVEL" ), GroupC1 ), row, 0, 1, 1 );
+  myHexesMinLevel = new QtxIntSpinBox( GroupC1 );
+  // myHexesMinLevel->setMinimum( 3 );
+  myHexesMinLevel->setMinimum( h->GetHexesMinLevel() );
+  myHexesMinLevel->setMaximum( 10 );
+  myHexesMinLevel->setSingleStep( 1 );
+  l->addWidget( myHexesMinLevel, row++, 1, 1, 1 );
+  
+  l->addWidget( new QLabel( tr( "Hexotic_HEXES_MAX_LEVEL" ), GroupC1 ), row, 0, 1, 1 );
   myHexesMaxLevel = new QtxIntSpinBox( GroupC1 );
-  myHexesMaxLevel->setMinValue( 3 );
-  myHexesMaxLevel->setMaxValue( 10 );
-  myHexesMaxLevel->setLineStep( 1 );
+  myHexesMaxLevel->setMinimum( 3 );
+  myHexesMaxLevel->setMaximum( 10 );
+  myHexesMaxLevel->setSingleStep( 1 );
+  l->addWidget( myHexesMaxLevel, row++, 1, 1, 1 );
 
   myHexoticQuadrangles = new QCheckBox( tr( "Hexotic_QUADRANGLES" ), GroupC1 );
-  GroupC1->addSpace(0);
+  l->addWidget( myHexoticQuadrangles, row++, 1, 1, 2 );
   myIs3D = true;
 
   myHexoticIgnoreRidges = new QCheckBox( tr( "Hexotic_IGNORE_RIDGES" ), GroupC1 );
-  GroupC1->addSpace(0);
+  l->addWidget( myHexoticIgnoreRidges, row++, 1, 1, 2 );
 
   myHexoticInvalidElements = new QCheckBox( tr( "Hexotic_INVALID_ELEMENTS" ), GroupC1 );
-  GroupC1->addSpace(0);
+  l->addWidget( myHexoticInvalidElements, row++, 1, 1, 2 );
 
-  new QLabel( tr( "Hexotic_SHARP_ANGLE_THRESHOLD" ), GroupC1 );
+  l->addWidget( new QLabel( tr( "Hexotic_SHARP_ANGLE_THRESHOLD" ), GroupC1 ), row, 0, 1, 1 );
   myHexoticSharpAngleThreshold = new QtxIntSpinBox( GroupC1 );
-  myHexoticSharpAngleThreshold->setMinValue( 0 );
-  myHexoticSharpAngleThreshold->setMaxValue( 90 );
-  myHexoticSharpAngleThreshold->setLineStep( 1 );
+  myHexoticSharpAngleThreshold->setMinimum( 0 );
+  myHexoticSharpAngleThreshold->setMaximum( 90 );
+  myHexoticSharpAngleThreshold->setSingleStep( 1 );
+  l->addWidget( myHexoticSharpAngleThreshold, row++, 1, 1, 1 );
 
   return fr;
 }
@@ -192,7 +194,7 @@ bool HexoticPluginGUI_HypothesisCreator::storeParamsToHypo( const HexoticHypothe
   try
   {
     if( isCreation() )
-      SMESH::SetName( SMESH::FindSObject( h ), h_data.myName.latin1() );
+      SMESH::SetName( SMESH::FindSObject( h ), h_data.myName.toLatin1().constData() );
 
     h->SetHexesMinLevel( h_data.myHexesMinLevel );
     h->SetHexesMaxLevel( h_data.myHexesMaxLevel );
@@ -224,16 +226,16 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromWidgets( HexoticHypothesi
 
 QString HexoticPluginGUI_HypothesisCreator::caption() const
 {
-  return tr( QString( "Hexotic_%1_TITLE" ).arg(myIs3D?QString("3D"):QString("3D")) );
+  return myIs3D ? tr( "Hexotic_3D_TITLE" ) : tr( "Hexotic_3D_TITLE" ); // ??? 3D/2D ???
 }
 
 QPixmap HexoticPluginGUI_HypothesisCreator::icon() const
 {
-  QString hypIconName = tr( QString("ICON_DLG_Hexotic_PARAMETERS%1").arg(myIs3D?QString(""):QString("")) );
+  QString hypIconName = myIs3D ? tr( "ICON_DLG_Hexotic_PARAMETERS" ) : tr( "ICON_DLG_Hexotic_PARAMETERS" );
   return SUIT_Session::session()->resourceMgr()->loadPixmap( "HexoticPlugin", hypIconName );
 }
 
 QString HexoticPluginGUI_HypothesisCreator::type() const
 {
-  return tr( QString( "Hexotic_%1_HYPOTHESIS" ).arg(myIs3D?QString("3D"):QString("3D")) );
+  return myIs3D ? tr( "Hexotic_3D_HYPOTHESIS" ) : tr( "Hexotic_3D_HYPOTHESIS" ); // ??? 3D/2D ???
 }

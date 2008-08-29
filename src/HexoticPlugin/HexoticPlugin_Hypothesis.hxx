@@ -36,7 +36,7 @@ class HexoticPlugin_Hypothesis: public SMESH_Hypothesis
 {
 public:
 
-  HexoticPlugin_Hypothesis(int hypId, int studyId, SMESH_Gen * gen);
+  HexoticPlugin_Hypothesis(int hypId, int studyId, SMESH_Gen* gen);
 
   void SetHexesMinLevel(int theVal);
   int GetHexesMinLevel() const { return _hexesMinLevel; }
@@ -66,10 +66,10 @@ public:
   static int GetDefaultHexoticSharpAngleThreshold();
 
   // Persistence
-  virtual std::ostream & SaveTo(std::ostream & save);
-  virtual std::istream & LoadFrom(std::istream & load);
-  friend std::ostream & operator <<(std::ostream & save, HexoticPlugin_Hypothesis & hyp);
-  friend std::istream & operator >>(std::istream & load, HexoticPlugin_Hypothesis & hyp);
+  virtual std::ostream& SaveTo(std::ostream& save);
+  virtual std::istream& LoadFrom(std::istream& load);
+  friend  std::ostream& operator <<(std::ostream& save, HexoticPlugin_Hypothesis& hyp);
+  friend  std::istream& operator >>(std::istream& load, HexoticPlugin_Hypothesis& hyp);
 
   /*!
    * \brief Does nothing

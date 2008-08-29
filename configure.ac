@@ -425,7 +425,7 @@ AC_OUTPUT([ \
   ./resources/Makefile \
   ./src/Makefile \
   ./src/HexoticPlugin/Makefile \
-  ./src/gui/Makefile \
+  ./src/GUI/Makefile \
   ./HexoticPLUGIN_version.h \
   Makefile \
 ])

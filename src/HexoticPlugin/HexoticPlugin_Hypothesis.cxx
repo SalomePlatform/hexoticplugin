@@ -32,7 +32,7 @@
  */
 //=============================================================================
 HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, int studyId,
-                                                  SMESH_Gen * gen)
+						    SMESH_Gen* gen)
   : SMESH_Hypothesis(hypId, studyId, gen),
     _hexesMinLevel( GetDefaultHexesMinLevel() ),
     _hexesMaxLevel( GetDefaultHexesMaxLevel() ),
@@ -99,16 +99,16 @@ void HexoticPlugin_Hypothesis::SetHexoticSharpAngleThreshold(int theVal) {
  *  
  */
 //=============================================================================
-ostream & HexoticPlugin_Hypothesis::SaveTo(ostream & save)
+std::ostream& HexoticPlugin_Hypothesis::SaveTo(std::ostream& save)
 {
   /*save << _hexesMinLevel << " " << _hexesMaxLevel;
   save << " " << (int)_hexoticQuadrangles;
   save << " " << (int)_hexoticIgnoreRidges;
   save << " " << (int)_hexoticInvalidElements;
   save << " " << _hexoticSharpAngleThreshold;
-  cout <<endl;
-  cout << "save : " << save << endl;
-  cout << endl;*/
+  std::cout <<std::endl;
+  std::cout << "save : " << save << std::endl;
+  std::cout << std::endl;*/
 
   //explicit outputs for future code compatibility of saved .hdf
   //save without any whitespaces!
@@ -126,17 +126,17 @@ ostream & HexoticPlugin_Hypothesis::SaveTo(ostream & save)
  *  
  */
 //=============================================================================
-istream & HexoticPlugin_Hypothesis::LoadFrom(istream & load)
+std::istream& HexoticPlugin_Hypothesis::LoadFrom(std::istream& load)
 {
    //explicit inputs for future code compatibility of saved .hdf
    bool isOK = true;
-   string str1,str2,str3,str4;
+   std::string str1,str2,str3,str4;
 
    //save without any whitespaces!
    isOK = (load >> str1);
    if (!(isOK)) {
      //defaults values assumed
-     load.clear(ios::badbit | load.rdstate());
+     load.clear(std::ios::badbit | load.rdstate());
      return load;
    }
    int pos = 0;
@@ -164,7 +164,7 @@ istream & HexoticPlugin_Hypothesis::LoadFrom(istream & load)
  *  
  */
 //=============================================================================
-ostream & operator <<(ostream & save, HexoticPlugin_Hypothesis & hyp)
+std::ostream& operator <<(std::ostream& save, HexoticPlugin_Hypothesis& hyp)
 {
   return hyp.SaveTo( save );
 }
@@ -174,7 +174,7 @@ ostream & operator <<(ostream & save, HexoticPlugin_Hypothesis & hyp)
  *  
  */
 //=============================================================================
-istream & operator >>(istream & load, HexoticPlugin_Hypothesis & hyp)
+std::istream& operator >>(std::istream& load, HexoticPlugin_Hypothesis& hyp)
 {
   return hyp.LoadFrom( load );
 }
@@ -189,7 +189,7 @@ istream & operator >>(istream & load, HexoticPlugin_Hypothesis & hyp)
  */
 //================================================================================
 bool HexoticPlugin_Hypothesis::SetParametersByMesh(const SMESH_Mesh*   theMesh,
-                                                      const TopoDS_Shape& theShape)
+						   const TopoDS_Shape& theShape)
 {
   return false;
 }

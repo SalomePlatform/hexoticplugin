@@ -48,13 +48,14 @@ public:
   virtual bool Compute(SMESH_Mesh&         aMesh,
                        const TopoDS_Shape& aShape);
 
-  ostream & SaveTo(ostream & save);
-  istream & LoadFrom(istream & load);
-  friend ostream & operator << (ostream & save, HexoticPlugin_Hexotic & hyp);
-  friend istream & operator >> (istream & load, HexoticPlugin_Hexotic & hyp);
+  std::ostream& SaveTo(std::ostream& save);
+  std::istream& LoadFrom(std::istream& load);
+  friend std::ostream& operator << (std::ostream& save, HexoticPlugin_Hexotic& hyp);
+  friend std::istream& operator >> (std::istream& load, HexoticPlugin_Hexotic& hyp);
 
 protected:
   const HexoticPlugin_Hypothesis* _hypothesis;
+
 private:
   int  _iShape;
   int  _nbShape;

@@ -16,7 +16,7 @@ Contents:
 The information in this file assumes that:
 
 * The SALOME platform is installed to the directory <salome>
-* The Hexotic (Tepal) product is installed to the directory <salome>/Hexotic
+* The Hexotic product is installed to the directory <salome>/Hexotic
 
 ---------------
 2. Installation
@@ -37,9 +37,9 @@ source env_build.sh
 export HexoticHOME=<salome>/Hexotic
 
 Note: you can avoid setting HexoticHOME environment variable but use
---with-Hexotic key of configure script instead. You can also compile
+--with-hexotic key of configure script instead. You can also compile
 plugin withour Hexotic product installation. But you'll need to add
-path to the tepal executable to the PATH environment variable in order
+path to the hexotic executable to the PATH environment variable in order
 to use Hexotic meshing plugin within SALOME.
 
 * configure build system
@@ -52,7 +52,7 @@ mkdir HexoticPLUGIN_BUILD
 cd HexoticPLUGIN_BUILD
 ../HexoticPLUGIN_SRC/configure --prefix=<salome>/HexoticPLUGIN_INSTALL
 
-Note: you can use --with-Hexotic option to pass the root directory of
+Note: you can use --with-hexotic option to pass the root directory of
 Hexotic product to the configure script. In this case you can avoid
 setting HexoticHOME environment variable. Try 'configure --help'
 command to learn more about available configure script options.
@@ -76,9 +76,9 @@ If the compilation is finished successfully (make and make install
 steps are finished without errors) the HexoticPLUGIN meshing module
 should be installed in the directory <salome>/HexoticPLUGIN_INSTALL.
 
-----------------------------------
+-----------------------------------
 3. Launch SALOME with HexoticPLUGIN
-----------------------------------
+-----------------------------------
 
 * set environment
 
@@ -86,17 +86,17 @@ bash
 cd <salome>
 source env_products.sh
 
-export HexoticPLUGIN_ROOT_DIR=<salome>/HexoticPLUGIN_INSTALL
-export SalomeAppConfig=${HexoticPLUGIN_ROOT_DIR}/share/salome/resources/Hexoticplugin
+export HEXOTICPLUGIN_ROOT_DIR=<salome>/HexoticPLUGIN_INSTALL
+export SalomeAppConfig=${HEXOTICPLUGIN_ROOT_DIR}/share/salome/resources/hexoticplugin
 export PATH=<salome>/Hexotic:${PATH
 
 * run SALOME
 
 runSalome
 
-----------------------------
+-----------------------------
 4. HexoticPLUGIN plugin usage
-----------------------------
+-----------------------------
 
 * Create new study
 
