@@ -112,14 +112,14 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   l->addWidget( myHexesMaxLevel, row++, 1, 1, 1 );
 
   myHexoticQuadrangles = new QCheckBox( tr( "Hexotic_QUADRANGLES" ), GroupC1 );
-  l->addWidget( myHexoticQuadrangles, row++, 1, 1, 2 );
+  l->addWidget( myHexoticQuadrangles, row++, 0, 1, 2 );
   myIs3D = true;
 
   myHexoticIgnoreRidges = new QCheckBox( tr( "Hexotic_IGNORE_RIDGES" ), GroupC1 );
-  l->addWidget( myHexoticIgnoreRidges, row++, 1, 1, 2 );
+  l->addWidget( myHexoticIgnoreRidges, row++, 0, 1, 2 );
 
   myHexoticInvalidElements = new QCheckBox( tr( "Hexotic_INVALID_ELEMENTS" ), GroupC1 );
-  l->addWidget( myHexoticInvalidElements, row++, 1, 1, 2 );
+  l->addWidget( myHexoticInvalidElements, row++, 0, 1, 2 );
 
   l->addWidget( new QLabel( tr( "Hexotic_SHARP_ANGLE_THRESHOLD" ), GroupC1 ), row, 0, 1, 1 );
   myHexoticSharpAngleThreshold = new QtxIntSpinBox( GroupC1 );
@@ -232,7 +232,7 @@ QString HexoticPluginGUI_HypothesisCreator::caption() const
 QPixmap HexoticPluginGUI_HypothesisCreator::icon() const
 {
   QString hypIconName = myIs3D ? tr( "ICON_DLG_Hexotic_PARAMETERS" ) : tr( "ICON_DLG_Hexotic_PARAMETERS" );
-  return SUIT_Session::session()->resourceMgr()->loadPixmap( "HexoticPlugin", hypIconName );
+  return SUIT_Session::session()->resourceMgr()->loadPixmap( "HexoticPLUGIN", hypIconName );
 }
 
 QString HexoticPluginGUI_HypothesisCreator::type() const

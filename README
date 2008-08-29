@@ -86,8 +86,8 @@ bash
 cd <salome>
 source env_products.sh
 
-export HEXOTICPLUGIN_ROOT_DIR=<salome>/HexoticPLUGIN_INSTALL
-export SalomeAppConfig=${HEXOTICPLUGIN_ROOT_DIR}/share/salome/resources/hexoticplugin
+export HexoticPLUGIN_ROOT_DIR=<salome>/HexoticPLUGIN_INSTALL
+export SalomeAppConfig=${HexoticPLUGIN_ROOT_DIR}/share/salome/resources/hexoticplugin
 export PATH=<salome>/Hexotic:${PATH
 
 * run SALOME
