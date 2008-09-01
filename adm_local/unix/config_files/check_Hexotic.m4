@@ -63,13 +63,13 @@ else
       echo Hexotic commercial product to generate 3D hexahedral mesh.
       echo
     
-      AC_MSG_CHECKING(for Hexotic executable)
+      AC_CHECKING(for Hexotic executable)
     
       AC_CHECK_PROG(Hexotic,hexotic,found)
     
       if test "x$Hexotic" == x ; then
-        AC_MSG_RESULT(no)
         AC_MSG_WARN(hexotic program not found in PATH variable)
+        AC_MSG_WARN(Build plugin without Hexotic)
       else
         Hexotic_ok=yes
       fi
