@@ -42,18 +42,18 @@ dist_libHexoticEngine_la_SOURCES =	\
 	HexoticPlugin_Hypothesis_i.cxx	\
 	HexoticPlugin_i.cxx
 
-libHexoticEngine_la_CPPFLAGS =	\
-        $(KERNEL_CXXFLAGS)	\
-        $(GUI_CXXFLAGS)		\
-	$(MED_CXXFLAGS)		\
-	$(GEOM_CXXFLAGS)	\
-	$(CAS_CPPFLAGS)		\
-	$(SMESH_CXXFLAGS)	\
-	$(CORBA_CXXFLAGS)	\
-	$(CORBA_INCLUDES)	\
-	$(BOOST_CPPFLAGS)	\
-	-I$(top_builddir)/idl	\
-	-I$(top_builddir)/salome_adm/unix
+libHexoticEngine_la_CPPFLAGS =			\
+	-I$(top_builddir)/idl			\
+	-I$(top_builddir)/salome_adm/unix	\
+	$(SMESH_CXXFLAGS)			\
+	$(CORBA_CXXFLAGS)			\
+	$(CORBA_INCLUDES)			\
+	$(BOOST_CPPFLAGS)			\
+	$(CAS_CPPFLAGS)				\
+        $(KERNEL_CXXFLAGS)			\
+        $(GUI_CXXFLAGS)				\
+	$(MED_CXXFLAGS)				\
+	$(GEOM_CXXFLAGS)
 
 libHexoticEngine_la_LDFLAGS  =			\
 	../../idl/libSalomeIDLHexoticPLUGIN.la	\

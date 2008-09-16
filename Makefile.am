@@ -25,6 +25,21 @@
 
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
+if HEXOTICPLUGIN_ENABLE_GUI
+  ACLOCAL_AMFLAGS = -I adm_local/unix/config_files \
+                    -I ${KERNEL_ROOT_DIR}/salome_adm/unix/config_files \
+                    -I ${GUI_ROOT_DIR}/adm_local/unix/config_files \
+                    -I ${MED_ROOT_DIR}/adm_local/unix/config_files \
+                    -I ${GEOM_ROOT_DIR}/adm_local/unix/config_files \
+                    -I ${SMESH_ROOT_DIR}/adm_local/unix/config_files
+else !HEXOTICPLUGIN_ENABLE_GUI
+  ACLOCAL_AMFLAGS = -I adm_local/unix/config_files \
+                    -I ${KERNEL_ROOT_DIR}/salome_adm/unix/config_files \
+                    -I ${MED_ROOT_DIR}/adm_local/unix/config_files \
+                    -I ${GEOM_ROOT_DIR}/adm_local/unix/config_files \
+                    -I ${SMESH_ROOT_DIR}/adm_local/unix/config_files
+endif
+
 SUBDIRS = idl adm_local resources src bin
 
 DIST_SUBDIRS = idl adm_local resources src bin 
@@ -36,3 +51,6 @@ salomeinclude_DATA = HexoticPLUGIN_version.h
 EXTRA_DIST += \
 	build_configure \
 	clean_configure
+
+dist-hook:
+	rm -rf `find $(distdir) -name CVS`

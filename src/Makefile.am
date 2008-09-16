@@ -30,3 +30,5 @@ SUBDIRS = HexoticPlugin
 if HEXOTICPLUGIN_ENABLE_GUI
   SUBDIRS += GUI
 endif
+
+DIST_SUBDIRS = HexoticPlugin GUI

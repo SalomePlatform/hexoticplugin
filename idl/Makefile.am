@@ -34,19 +34,17 @@ include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
 BASEIDL_FILES = HexoticPlugin_Algorithm.idl
 
-EXTRA_DIST+= $(BASEIDL_FILES)
-
 # This variable defines the files to be installed
-salomeidl_DATA = $(BASEIDL_FILES)
+dist_salomeidl_DATA = $(BASEIDL_FILES)
 
 # GUI idl common library
 lib_LTLIBRARIES = libSalomeIDLHexoticPLUGIN.la
 
 # Sources built from idl files
-nodist_libSalomeIDLHexoticPLUGIN_la_SOURCES= HexoticPlugin_AlgorithmSK.cc
+nodist_libSalomeIDLHexoticPLUGIN_la_SOURCES = HexoticPlugin_AlgorithmSK.cc
 
 # header files must be exported: other modules have to use this library
-nodist_salomeinclude_HEADERS= $(BASEIDL_FILES:%.idl=%.hh)
+nodist_salomeinclude_HEADERS = $(BASEIDL_FILES:%.idl=%.hh)
 
 libSalomeIDLHexoticPLUGIN_la_CPPFLAGS =\
 	$(KERNEL_CXXFLAGS) \
@@ -56,7 +54,6 @@ libSalomeIDLHexoticPLUGIN_la_CPPFLAGS =\
 	@CORBA_INCLUDES@ \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl
-
 
 libSalomeIDLHexoticPLUGIN_la_LDFLAGS = -no-undefined -version-info=0:0:0
 libSalomeIDLHexoticPLUGIN_la_LIBADD  = \
@@ -96,14 +93,14 @@ SUFFIXES = .idl .hh SK.cc
 	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
 
 install-exec-local: $(BASEIDL_FILES:%=$(top_srcdir)/idl/%)
-	$(INSTALL) -d  $(pkgpythondir)
+	$(INSTALL) -d  $(DESTDIR)$(salomepythondir)
 	ls $^ | while read file; do \
-	  $(OMNIORB_IDL) $(IDLPYFLAGS) -C$(pkgpythondir) $$file ; \
+	  $(OMNIORB_IDL) $(IDLPYFLAGS) -C$(DESTDIR)$(salomepythondir) $$file ; \
 	done
 
 # uninstall-local removes too much, but it works in distcheck
 uninstall-local:
-	rm -rf $(pkgpythondir)/*
+	rm -rf $(DESTDIR)$(salomepythondir)/*
 
 mostlyclean-local:
 	-rm -f *.hh *.cc .depidl
