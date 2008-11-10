@@ -25,7 +25,7 @@
 #
 # ---
 
-AC_INIT([Salome2 Project HexoticPLUGIN module], [5.0.0], [webmaster.salome@opencascade.com], [SalomeHexoticPLUGIN])
+AC_INIT([Salome2 Project HexoticPLUGIN module], [5.1.0], [webmaster.salome@opencascade.com], [SalomeHexoticPLUGIN])
 AC_CONFIG_AUX_DIR(salome_adm/unix/config_files)
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
