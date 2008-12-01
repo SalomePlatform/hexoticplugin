@@ -85,6 +85,7 @@ HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, int studyId, SMESH_Gen* 
 //   _onlyUnaryInput = false;
   _iShape=0;
   _nbShape=0;
+  _hexoticFilesKept=false;
   _compatibleHypothesis.push_back("Hexotic_Parameters");
 }
 
@@ -223,7 +224,7 @@ static int findEdge(const SMDS_MeshNode* aNode,
 //=======================================================================
 
 static int getNbShape(string aFile, string aString) {
-  int number;
+  int number = 0;
   string aLine;
   ifstream file(aFile.c_str());
   while ( !file.eof() ) {
@@ -285,6 +286,17 @@ static void printWarning(const int nbExpected, string aString, const int nbFound
   cout << "WARNING : " << nbExpected << " " << aString << " expected, Hexotic has found " << nbFound << endl;
   cout << "=======" << endl;
   cout << endl;
+  return;
+}
+
+//=======================================================================
+//function : removeHexoticFiles
+//purpose  :
+//=======================================================================
+
+static void removeHexoticFiles(TCollection_AsciiString file_In, TCollection_AsciiString file_Out) {
+  OSD_File( file_In  ).Remove();
+  OSD_File( file_Out ).Remove();
   return;
 }
 
@@ -463,6 +475,8 @@ static bool readResult(string              theFile,
 
   for (int i=0; i<nbShape; i++)
     tabID[i] = 0;
+  if ( nbShape == 1 )
+    tabID[0] = theMesh->ShapeToIndex( tabShape[0] );
 
   mapField["MeshVersionFormatted"] = 0; tabRef[0] = 0; tabDummy[0] = false;
   mapField["Dimension"]            = 1; tabRef[1] = 0; tabDummy[1] = false;
@@ -620,6 +634,9 @@ static bool readResult(string              theFile,
                   if ( shapeAssociated != nbShape )
                     printWarning(nbShape, "domains", shapeAssociated);
                 }
+              }
+              else {
+                shapeID = tabID[0];
               }
               break;
             }
@@ -822,8 +839,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     cout << endl;
     cout << "Hexotic command : " << run_Hexotic << endl;
 
-    OSD_File( Hexotic_In  ).Remove();
-    OSD_File( Hexotic_Out ).Remove();
+    removeHexoticFiles(Hexotic_In, Hexotic_Out);
 
     ofstream HexoticFile (Hexotic_In.ToCString() , ios::out);
 
@@ -853,6 +869,9 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     }
     cout << "Hexahedra meshing " << hexahedraMessage << endl;
     cout << endl;
+
+    if ( ! _hexoticFilesKept )
+      removeHexoticFiles(Hexotic_In, Hexotic_Out);
 
     delete [] tabShape;
     for (int i=0; i<_nbShape; i++)
