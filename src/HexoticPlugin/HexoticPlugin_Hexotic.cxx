@@ -82,6 +82,7 @@ HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, int studyId, SMESH_Gen* 
 //   _onlyUnaryInput = false;
   _iShape=0;
   _nbShape=0;
+  _hexoticFilesKept=false;
   _compatibleHypothesis.push_back("Hexotic_Parameters");
 }
 
@@ -286,6 +287,16 @@ static void printWarning(const int nbExpected, std::string aString, const int nb
 }
 
 //=======================================================================
+//function : removeHexoticFiles
+//purpose  :
+//=======================================================================
+
+static void removeHexoticFiles(TCollection_AsciiString file_In, TCollection_AsciiString file_Out) {
+  OSD_File( file_In  ).Remove();
+  OSD_File( file_Out ).Remove();
+}
+
+//=======================================================================
 //function : writeHexoticFile
 //purpose  : 
 //=======================================================================
@@ -460,6 +471,8 @@ static bool readResult(std::string         theFile,
 
   for (int i=0; i<nbShape; i++)
     tabID[i] = 0;
+  if ( nbShape == 1 )
+    tabID[0] = theMesh->ShapeToIndex( tabShape[0] );
 
   mapField["MeshVersionFormatted"] = 0; tabRef[0] = 0; tabDummy[0] = false;
   mapField["Dimension"]            = 1; tabRef[1] = 0; tabDummy[1] = false;
@@ -617,6 +630,9 @@ static bool readResult(std::string         theFile,
                   if ( shapeAssociated != nbShape )
                     printWarning(nbShape, "domains", shapeAssociated);
                 }
+              }
+              else {
+                shapeID = tabID[0];
               }
               break;
             }
@@ -819,8 +835,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     cout << std::endl;
     cout << "Hexotic command : " << run_Hexotic << std::endl;
 
-    OSD_File( Hexotic_In  ).Remove();
-    OSD_File( Hexotic_Out ).Remove();
+    removeHexoticFiles(Hexotic_In, Hexotic_Out);
 
     std::ofstream HexoticFile (Hexotic_In.ToCString(), std::ios::out);
 
