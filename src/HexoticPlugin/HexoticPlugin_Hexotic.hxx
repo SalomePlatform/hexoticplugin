@@ -1,30 +1,26 @@
-//  HexoticPlugin : C++ implementation
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
 //
-//  Copyright (C) 2006  OPEN CASCADE, CEA/DEN, EDF R&D
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
 //
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
 //
-// File      : HexoticPlugin_Hexotic.hxx
-// Author    : Lioka RAZAFINDRAZAKA (CEA)
-// Date      : 2006/06/30
-// Project   : SALOME
-//=============================================================================
-
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+// ---
+// File   : HexoticPlugin_Hexotic.hxx
+// Author : Lioka RAZAFINDRAZAKA (CEA)
+// ---
+//
 #ifndef _HexoticPlugin_Hexotic_HXX_
 #define _HexoticPlugin_Hexotic_HXX_
 
@@ -50,13 +46,14 @@ public:
   virtual bool Compute(SMESH_Mesh&         aMesh,
                        const TopoDS_Shape& aShape);
 
-  ostream & SaveTo(ostream & save);
-  istream & LoadFrom(istream & load);
-  friend ostream & operator << (ostream & save, HexoticPlugin_Hexotic & hyp);
-  friend istream & operator >> (istream & load, HexoticPlugin_Hexotic & hyp);
+  std::ostream& SaveTo(std::ostream& save);
+  std::istream& LoadFrom(std::istream& load);
+  friend std::ostream& operator << (std::ostream& save, HexoticPlugin_Hexotic& hyp);
+  friend std::istream& operator >> (std::istream& load, HexoticPlugin_Hexotic& hyp);
 
 protected:
   const HexoticPlugin_Hypothesis* _hypothesis;
+
 private:
   int  _iShape;
   int  _nbShape;
@@ -65,6 +62,7 @@ private:
   bool _hexoticQuadrangles;
   bool _hexoticIgnoreRidges;
   bool _hexoticInvalidElements;
+  bool _hexoticFilesKept;
   int  _hexoticSharpAngleThreshold;
   SMDS_MeshNode** _tabNode;
 };

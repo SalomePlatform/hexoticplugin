@@ -1,53 +1,64 @@
-AC_DEFUN([CHECK_HEXOTIC],[
+dnl  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+dnl
+dnl  This library is free software; you can redistribute it and/or
+dnl  modify it under the terms of the GNU Lesser General Public
+dnl  License as published by the Free Software Foundation; either
+dnl  version 2.1 of the License.
+dnl
+dnl  This library is distributed in the hope that it will be useful,
+dnl  but WITHOUT ANY WARRANTY; without even the implied warranty of
+dnl  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+dnl  Lesser General Public License for more details.
+dnl
+dnl  You should have received a copy of the GNU Lesser General Public
+dnl  License along with this library; if not, write to the Free Software
+dnl  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+dnl
+dnl  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+dnl
+dnl  File   : check_HexoticPLUGIN.m4
+dnl  Author : Vadim SANDLER, Open CASCADE S.A.S (vadim.sandler@opencascade.com)
 
-AC_REQUIRE([AC_PROG_CXX])dnl
-AC_REQUIRE([AC_PROG_CXXCPP])dnl
+AC_DEFUN([CHECK_HEXOTICPLUGIN],[
 
-AC_CHECKING(for Hexotic comercial product)
+AC_CHECKING(for Hexotic mesh plugin)
 
-AC_LANG_SAVE
-AC_LANG_CPLUSPLUS
+Hexoticplugin_ok=no
 
-AC_ARG_WITH(,
-	    [  --with-Hexotic=DIR root directory path of Hexotic installation],
-	    Hexotic_HOME=$withval,Hexotic_HOME="")
+HexoticPLUGIN_LDFLAGS=""
+HexoticPLUGIN_CXXFLAGS=""
 
-Hexotic_ok=no
+AC_ARG_WITH(Hexoticplugin,
+	    [  --with-Hexoticplugin=DIR root directory path of Hexotic mesh plugin installation ])
 
-if test "x$Hexotic_HOME" == "x" ; then
+if test "$with_Hexoticplugin" != "no" ; then
+    if test "$with_Hexoticplugin" == "yes" || test "$with_Hexoticplugin" == "auto"; then
+	if test "x$HexoticPLUGIN_ROOT_DIR" != "x" ; then
+            HexoticPLUGIN_DIR=$HexoticPLUGIN_ROOT_DIR
+        fi
+    else
+        HexoticPLUGIN_DIR="$with_Hexoticplugin"
+    fi
 
-# no --with-Hexotic option used
-   if test "x$HexoticHOME" != "x" ; then
-
-    # HexoticHOME environment variable defined
-      Hexotic_HOME=$HexoticHOME
-
-   fi
-# 
+    if test "x$HexoticPLUGIN_DIR" != "x" ; then
+	if test -f ${HexoticPLUGIN_DIR}/lib${LIB_LOCATION_SUFFIX}/salome/libHexoticEngine.so ; then
+	    Hexoticplugin_ok=yes
+	    AC_MSG_RESULT(Using Hexotic mesh plugin distribution in ${HexoticPLUGIN_DIR})
+	    HexoticPLUGIN_ROOT_DIR=${HexoticPLUGIN_DIR}
+	    HexoticPLUGIN_LDFLAGS=-L${HexoticPLUGIN_DIR}/lib${LIB_LOCATION_SUFFIX}/salome
+	    HexoticPLUGIN_CXXFLAGS=-I${HexoticPLUGIN_DIR}/include/salome
+	else
+	    AC_MSG_WARN("Cannot find compiled Hexotic mesh plugin distribution")
+	fi
+    else
+	AC_MSG_WARN("Cannot find compiled Hexotic mesh plugin distribution")
+    fi
 fi
 
-if test "x$Hexotic_HOME" != "x"; then
+AC_MSG_RESULT(for Hexotic mesh plugin: $Hexoticplugin_ok)
 
-  echo
-  echo -------------------------------------------------
-  echo You are about to choose to use somehow the
-  echo Hexotic commercial product to generate 3D hexahedral mesh.
-  echo
-
-  AC_MSG_CHECKING(for Hexotic executable)
-
-  AC_CHECK_PROG(HEXOTIC, hexotic,found)
-
-  if test "x$HEXOTIC" == x ; then
-    AC_MSG_RESULT(no)
-    AC_MSG_WARN(Hexotic program not found in PATH variable)
-  else
-    Hexotic_ok=yes
-  fi
-
-fi
-
-AC_MSG_RESULT(for Hexotic: $Hexotic_ok)
-AC_LANG_RESTORE
-
+AC_SUBST(HexoticPLUGIN_ROOT_DIR)
+AC_SUBST(HexoticPLUGIN_LDFLAGS)
+AC_SUBST(HexoticPLUGIN_CXXFLAGS)
+ 
 ])dnl

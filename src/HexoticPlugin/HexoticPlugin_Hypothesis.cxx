@@ -1,31 +1,26 @@
-//  HexoticPlugin : C++ implementation
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
 //
-//  Copyright (C) 2006  OPEN CASCADE, CEA/DEN, EDF R&D
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
 //
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
 //
-// File      : HexoticPlugin_Hypothesis.cxx
-// Author    : Lioka RAZAFINDRAZAKA (CEA)
-// Date      : 2006/06/30
-// Project   : SALOME
-//=============================================================================
-
-using namespace std;
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+// ---
+// File   : HexoticPlugin_Hypothesis.cxx
+// Author : Lioka RAZAFINDRAZAKA (CEA)
+// ---
+//
 #include <HexoticPlugin_Hypothesis.hxx>
 #include <utilities.h>
 
@@ -35,7 +30,7 @@ using namespace std;
  */
 //=============================================================================
 HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, int studyId,
-                                                  SMESH_Gen * gen)
+						    SMESH_Gen* gen)
   : SMESH_Hypothesis(hypId, studyId, gen),
     _hexesMinLevel( GetDefaultHexesMinLevel() ),
     _hexesMaxLevel( GetDefaultHexesMaxLevel() ),
@@ -102,17 +97,25 @@ void HexoticPlugin_Hypothesis::SetHexoticSharpAngleThreshold(int theVal) {
  *  
  */
 //=============================================================================
-ostream & HexoticPlugin_Hypothesis::SaveTo(ostream & save)
+std::ostream& HexoticPlugin_Hypothesis::SaveTo(std::ostream& save)
 {
-  save << _hexesMinLevel << " " << _hexesMaxLevel;
+  /*save << _hexesMinLevel << " " << _hexesMaxLevel;
   save << " " << (int)_hexoticQuadrangles;
   save << " " << (int)_hexoticIgnoreRidges;
   save << " " << (int)_hexoticInvalidElements;
   save << " " << _hexoticSharpAngleThreshold;
-  cout <<endl;
-  cout << "save : " << save << endl;
-  cout << endl;
+  std::cout <<std::endl;
+  std::cout << "save : " << save << std::endl;
+  std::cout << std::endl;*/
 
+  //explicit outputs for future code compatibility of saved .hdf
+  //save without any whitespaces!
+  save<<"hexesMinLevel="<<_hexesMinLevel<<";"; 
+  save<<"hexesMaxLevel="<<_hexesMaxLevel<<";";
+  save<<"hexoticQuadrangles="<<(int)_hexoticQuadrangles<<";";
+  save<<"hexoticIgnoreRidges="<<(int)_hexoticIgnoreRidges<<";";
+  save<<"hexoticInvalidElements="<<(int)_hexoticInvalidElements<<";";
+  save<<"hexoticSharpAngleThreshold="<<_hexoticSharpAngleThreshold<<";";
   return save;
 }
 
@@ -121,57 +124,37 @@ ostream & HexoticPlugin_Hypothesis::SaveTo(ostream & save)
  *  
  */
 //=============================================================================
-istream & HexoticPlugin_Hypothesis::LoadFrom(istream & load)
+std::istream& HexoticPlugin_Hypothesis::LoadFrom(std::istream& load)
 {
-//   bool isOK = true;
-//   int is;
-//   double val;
+   //explicit inputs for future code compatibility of saved .hdf
+   bool isOK = true;
+   std::string str1,str2,str3,str4;
 
-//   isOK = (load >> val);
-//   if (isOK)
-//     _maxSize = val;
-//   else
-//     load.clear(ios::badbit | load.rdstate());
+   //save without any whitespaces!
+   isOK = (load >> str1);
+   if (!(isOK)) {
+     //defaults values assumed
+     load.clear(std::ios::badbit | load.rdstate());
+     return load;
+   }
+   int pos = 0;
+   int len = str1.length();
+   while (pos < len) {
+      int found = str1.find(';',pos);
+      str2 = str1.substr(pos,found-pos);
+      int eqpos = str2.find('=',0);
+      str3 = str2.substr(0,eqpos);
+      str4 = str2.substr(eqpos+1);
+      pos = found + 1;
 
-//   isOK = (load >> is);
-//   if (isOK)
-//     SetFineness((Fineness) is);
-//   else
-//     load.clear(ios::badbit | load.rdstate());
-
-//   if (_fineness == UserDefined)
-//   {
-//     isOK = (load >> val);
-//     if (isOK)
-//       _growthRate = val;
-//     else
-//       load.clear(ios::badbit | load.rdstate());
-
-//     isOK = (load >> val);
-//     if (isOK)
-//       _nbSegPerEdge = val;
-//     else
-//       load.clear(ios::badbit | load.rdstate());
-
-//     isOK = (load >> val);
-//     if (isOK)
-//       _nbSegPerRadius = val;
-//     else
-//       load.clear(ios::badbit | load.rdstate());
-//   }
-
-//   isOK = (load >> is);
-//   if (isOK)
-//     _secondOrder = (bool) is;
-//   else
-//     load.clear(ios::badbit | load.rdstate());
-
-//   isOK = (load >> is);
-//   if (isOK)
-//     _optimize = (bool) is;
-//   else
-//     load.clear(ios::badbit | load.rdstate());
-  return load;
+      if (str3=="hexesMinLevel") _hexesMinLevel = atoi(str4.c_str());
+      if (str3=="hexesMaxLevel") _hexesMaxLevel = atoi(str4.c_str());
+      if (str3=="hexoticQuadrangles") _hexoticQuadrangles = (bool) atoi(str4.c_str());
+      if (str3=="hexoticIgnoreRidges") _hexoticIgnoreRidges = (bool) atoi(str4.c_str());
+      if (str3=="hexoticInvalidElements") _hexoticInvalidElements = (bool) atoi(str4.c_str());
+      if (str3=="hexoticSharpAngleThreshold") _hexoticSharpAngleThreshold = atoi(str4.c_str());
+   }
+   return load;
 }
 
 //=============================================================================
@@ -179,7 +162,7 @@ istream & HexoticPlugin_Hypothesis::LoadFrom(istream & load)
  *  
  */
 //=============================================================================
-ostream & operator <<(ostream & save, HexoticPlugin_Hypothesis & hyp)
+std::ostream& operator <<(std::ostream& save, HexoticPlugin_Hypothesis& hyp)
 {
   return hyp.SaveTo( save );
 }
@@ -189,7 +172,7 @@ ostream & operator <<(ostream & save, HexoticPlugin_Hypothesis & hyp)
  *  
  */
 //=============================================================================
-istream & operator >>(istream & load, HexoticPlugin_Hypothesis & hyp)
+std::istream& operator >>(std::istream& load, HexoticPlugin_Hypothesis& hyp)
 {
   return hyp.LoadFrom( load );
 }
@@ -204,7 +187,19 @@ istream & operator >>(istream & load, HexoticPlugin_Hypothesis & hyp)
  */
 //================================================================================
 bool HexoticPlugin_Hypothesis::SetParametersByMesh(const SMESH_Mesh*   theMesh,
-                                                      const TopoDS_Shape& theShape)
+						   const TopoDS_Shape& theShape)
+{
+  return false;
+}
+//================================================================================
+/*!
+ * \brief Initialize my parameter values by default parameters.
+ *  \retval bool - true if parameter values have been successfully defined
+ */
+//================================================================================
+
+bool HexoticPlugin_Hypothesis::SetParametersByDefaults(const TDefaults&  /*dflts*/,
+                                                       const SMESH_Mesh* /*theMesh*/)
 {
   return false;
 }

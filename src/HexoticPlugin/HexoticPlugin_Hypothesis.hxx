@@ -1,31 +1,26 @@
-//  HexoticPlugin : C++ implementation
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
 //
-//  Copyright (C) 2006  OPEN CASCADE, CEA/DEN, EDF R&D
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
 //
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
 //
-// File      : HexoticPlugin_Hypothesis.hxx
-// Author    : Lioka RAZAFINDRAZAKA (CEA)
-// Date      : 2006/06/30
-// Project   : SALOME
-// $Header$
-//=============================================================================
-
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+// ---
+// File   : HexoticPlugin_Hypothesis.hxx
+// Author : Lioka RAZAFINDRAZAKA (CEA)
+// ---
+//
 #ifndef _HexoticPlugin_Hypothesis_HXX_
 #define _HexoticPlugin_Hypothesis_HXX_
 
@@ -39,7 +34,7 @@ class HexoticPlugin_Hypothesis: public SMESH_Hypothesis
 {
 public:
 
-  HexoticPlugin_Hypothesis(int hypId, int studyId, SMESH_Gen * gen);
+  HexoticPlugin_Hypothesis(int hypId, int studyId, SMESH_Gen* gen);
 
   void SetHexesMinLevel(int theVal);
   int GetHexesMinLevel() const { return _hexesMinLevel; }
@@ -69,10 +64,10 @@ public:
   static int GetDefaultHexoticSharpAngleThreshold();
 
   // Persistence
-  virtual ostream & SaveTo(ostream & save);
-  virtual istream & LoadFrom(istream & load);
-  friend ostream & operator <<(ostream & save, HexoticPlugin_Hypothesis & hyp);
-  friend istream & operator >>(istream & load, HexoticPlugin_Hypothesis & hyp);
+  virtual std::ostream& SaveTo(std::ostream& save);
+  virtual std::istream& LoadFrom(std::istream& load);
+  friend  std::ostream& operator <<(std::ostream& save, HexoticPlugin_Hypothesis& hyp);
+  friend  std::istream& operator >>(std::istream& load, HexoticPlugin_Hypothesis& hyp);
 
   /*!
    * \brief Does nothing
@@ -81,6 +76,12 @@ public:
    * \retval bool - always false
    */
   virtual bool SetParametersByMesh(const SMESH_Mesh* theMesh, const TopoDS_Shape& theShape);
+
+  /*!
+   * \brief Initialize my parameter values by default parameters.
+   *  \retval bool - true if parameter values have been successfully defined
+   */
+  virtual bool SetParametersByDefaults(const TDefaults& dflts, const SMESH_Mesh* theMesh=0);
 
 private:
   int  _hexesMinLevel;

@@ -18,12 +18,12 @@
 #
 # ---
 #
-# File   : INSTALL
+# File   : NEWS
 # Author : Vadim SANDLER, Open CASCADE S.A.S (vadim.sandler@opencascade.com)
 #
 # ---
-
-SALOME2 : HexoticPLUGIN module (SMESH plugin)
-
-For installation instructions and other information, please refer to
-the README file.
+#
+# Changes are listed by modification time in the descending order,
+# i.e. newer changes are listed at the top of the file.
+#
+# ---

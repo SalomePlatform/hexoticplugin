@@ -1,5 +1,3 @@
-<?xml version='1.0' encoding='us-ascii'?>
-<!DOCTYPE meshers PUBLIC "" "desktop.dtd">
 <!--
   Copyright (C) 2007-2008  CEA/DEN, EDF R&D
 
@@ -20,31 +18,12 @@
   See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 
 -->
-
-<!--  GUI customization for Hexotic Plugin  -->
-
-<meshers>
-
-<meshers-group name="Hexotic"
-               resources="HexoticPlugin"
-               server-lib="HexoticEngine"
-               gui-lib="HexoticPluginGUI">
-  <hypotheses>
-    <hypothesis type="Hexotic_Parameters"
-		label-id="Hexotic Parameters"
-		icon-id="mesh_hypo_Hexotic.png"
-		need-geom="false"
-		dim="3"/>
-  </hypotheses>
-  <algorithms>
-    <algorithm type="Hexotic_3D"
-               label-id="Hexotic"
-               icon-id="mesh_algo_Hexotic.png"
-               hypos="Hexotic_Parameters"
-               input="TRIA,QUAD"
-	       need-geom="false"
-               dim="3"/>
-  </algorithms>
-</meshers-group>
-
-</meshers>
+<document>
+  <section name="resources">
+    <parameter name="HexoticPLUGIN" value="${HexoticPLUGIN_ROOT_DIR}/share/salome/resources/hexoticplugin"/>
+  </section>
+  <section name="SMESH">
+    <!-- Default SMESH module plugins -->
+    <parameter name="plugins" value="NETGENPlugin,GHS3DPlugin,HexoticPLUGIN"/>
+  </section>
+</document>

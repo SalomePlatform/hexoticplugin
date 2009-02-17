@@ -1,34 +1,28 @@
-//  HexoticPlugin : C++ implementation
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
 //
-//  Copyright (C) 2006  OPEN CASCADE, CEA/DEN, EDF R&D
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
 //
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
 //
-// File    : HexoticPlugin_Hexotic.cxx
-// Author  : Lioka RAZAFINDRAZAKA (CEA)
-// Date    : 2006/06/30
-// Project : SALOME
-//=============================================================================
-using namespace std;
-
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+// ---
+// File   : HexoticPlugin_Hexotic.cxx
+// Author : Lioka RAZAFINDRAZAKA (CEA)
+// ---
+//
 #include "HexoticPlugin_Hexotic.hxx"
 #include "HexoticPlugin_Hypothesis.hxx"
-// #include "HexoticPlugin_Mesher.hxx"
 
 #include "SMDS_MeshElement.hxx"
 #include "SMDS_MeshNode.hxx"
@@ -86,6 +80,7 @@ HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, int studyId, SMESH_Gen* 
 //   _onlyUnaryInput = false;
   _iShape=0;
   _nbShape=0;
+  _hexoticFilesKept=false;
   _compatibleHypothesis.push_back("Hexotic_Parameters");
 }
 
@@ -113,10 +108,10 @@ bool HexoticPlugin_Hexotic::CheckHypothesis( SMESH_Mesh&                        
   // MESSAGE("HexoticPlugin_Hexotic::CheckHypothesis");
   _hypothesis = NULL;
 
-  list<const SMESHDS_Hypothesis*>::const_iterator itl;
+  std::list<const SMESHDS_Hypothesis*>::const_iterator itl;
   const SMESHDS_Hypothesis* theHyp;
 
-  const list<const SMESHDS_Hypothesis*>& hyps = GetUsedHypothesis(aMesh, aShape);
+  const std::list<const SMESHDS_Hypothesis*>& hyps = GetUsedHypothesis(aMesh, aShape);
   int nbHyp = hyps.size();
   if (!nbHyp) {
     aStatus = SMESH_Hypothesis::HYP_OK;
@@ -126,7 +121,7 @@ bool HexoticPlugin_Hexotic::CheckHypothesis( SMESH_Mesh&                        
   itl = hyps.begin();
   theHyp = (*itl); // use only the first hypothesis
 
-  string hypName = theHyp->GetName();
+  std::string hypName = theHyp->GetName();
   if (hypName == "Hexotic_Parameters") {
     _hypothesis = static_cast<const HexoticPlugin_Hypothesis*> (theHyp);
     ASSERT(_hypothesis);
@@ -223,15 +218,15 @@ static int findEdge(const SMDS_MeshNode* aNode,
 //purpose  :
 //=======================================================================
 
-static int getNbShape(string aFile, string aString) {
+static int getNbShape(std::string aFile, std::string aString) {
   int number;
-  string aLine;
-  ifstream file(aFile.c_str());
+  std::string aLine;
+  std::ifstream file(aFile.c_str());
   while ( !file.eof() ) {
     getline( file, aLine);
     if ( aLine == aString ) {
       getline( file, aLine);
-      istringstream stringFlux( aLine );
+      std::istringstream stringFlux( aLine );
       stringFlux >> number;
       break;
     }
@@ -281,12 +276,22 @@ void getShape(Mesh* mesh, Shape shape, Tab *t_Shape) {
 //purpose  :
 //=======================================================================
 
-static void printWarning(const int nbExpected, string aString, const int nbFound) {
-  cout << endl;
-  cout << "WARNING : " << nbExpected << " " << aString << " expected, Hexotic has found " << nbFound << endl;
-  cout << "=======" << endl;
-  cout << endl;
+static void printWarning(const int nbExpected, std::string aString, const int nbFound) {
+  cout << std::endl;
+  cout << "WARNING : " << nbExpected << " " << aString << " expected, Hexotic has found " << nbFound << std::endl;
+  cout << "=======" << std::endl;
+  cout << std::endl;
   return;
+}
+
+//=======================================================================
+//function : removeHexoticFiles
+//purpose  :
+//=======================================================================
+
+static void removeHexoticFiles(TCollection_AsciiString file_In, TCollection_AsciiString file_Out) {
+  OSD_File( file_In  ).Remove();
+  OSD_File( file_Out ).Remove();
 }
 
 //=======================================================================
@@ -294,13 +299,13 @@ static void printWarning(const int nbExpected, string aString, const int nbFound
 //purpose  : 
 //=======================================================================
 
-static bool writeHexoticFile (ofstream &                      theFile,
-                             const SMESHDS_Mesh *             theMesh,
-                             map <int,int> &                  theSmdsToHexoticIdMap,
-                             map <int,const SMDS_MeshNode*> & theHexoticIdToNodeMap,
-                             const TCollection_AsciiString &  Hexotic_In) {
-  cout << endl;
-  cout << "Creating Hexotic processed mesh file : " << Hexotic_In << endl;
+static bool writeHexoticFile (std::ofstream&                       theFile,
+			      const SMESHDS_Mesh*                  theMesh,
+			      std::map <int,int>&                  theSmdsToHexoticIdMap,
+			      std::map <int,const SMDS_MeshNode*>& theHexoticIdToNodeMap,
+			      const TCollection_AsciiString&       Hexotic_In) {
+  cout << std::endl;
+  cout << "Creating Hexotic processed mesh file : " << Hexotic_In << std::endl;
 
   int nbShape = 0;
 
@@ -325,24 +330,24 @@ static bool writeHexoticFile (ofstream &                      theFile,
   const SMDS_MeshNode* aNode;
   SMDS_NodeIteratorPtr itOnNode;
 
-  list< const SMDS_MeshElement* > faces;
-  list< const SMDS_MeshElement* >::iterator itListFace;
+  std::list< const SMDS_MeshElement* > faces;
+  std::list< const SMDS_MeshElement* >::iterator itListFace;
   const SMDS_MeshElement* aFace;
   SMESHDS_SubMesh* theSubMesh;
-  map<int,int>::const_iterator itOnSmdsNode;
+  std::map<int,int>::const_iterator itOnSmdsNode;
   SMDS_ElemIteratorPtr itOnSubNode, itOnSubFace;
 
 // Writing SMESH points into Hexotic File
 
   nbVertices = theMesh->NbNodes();
 
-  theFile << "MeshVersionFormatted 1" << endl;
-  theFile << endl;
-  theFile << "Dimension" << endl;
-  theFile << 3 << endl;
-  theFile << "# Set of mesh vertices" << endl;
-  theFile << "Vertices" << endl;
-  theFile << nbVertices << endl;
+  theFile << "MeshVersionFormatted 1" << std::endl;
+  theFile << std::endl;
+  theFile << "Dimension" << std::endl;
+  theFile << 3 << std::endl;
+  theFile << "# Set of mesh vertices" << std::endl;
+  theFile << "Vertices" << std::endl;
+  theFile << nbVertices << std::endl;
 
   tabID     = new int[nbShape];
   tabNodeId = new int[ nbVertices ];
@@ -362,20 +367,20 @@ static bool writeHexoticFile (ofstream &                      theFile,
       }
       if ( not idFound )
         tabNodeId[ aSmdsNodeID - 1 ] = dummy_1D;
-      theSmdsToHexoticIdMap.insert( map <int,int>::value_type( aNode->GetID(), aSmdsNodeID ));
-      theHexoticIdToNodeMap.insert (map <int,const SMDS_MeshNode*>::value_type( aSmdsNodeID, aNode ));
+      theSmdsToHexoticIdMap.insert(std::map <int,int>::value_type( aNode->GetID(), aSmdsNodeID ));
+      theHexoticIdToNodeMap.insert(std::map <int,const SMDS_MeshNode*>::value_type( aSmdsNodeID, aNode ));
       aSmdsNodeID++;
-      theFile << aNode->X() << space << aNode->Y() << space << aNode->Z() << space << dummy_1D << endl;
+      theFile << aNode->X() << space << aNode->Y() << space << aNode->Z() << space << dummy_1D << std::endl;
       }
 
 // Writing SMESH faces into Hexotic File
 
   nbTriangles = theMesh->NbFaces();
 
-  theFile << endl;
-  theFile << "# Set of mesh triangles (v1,v2,v3,tag)" << endl;
-  theFile << "Triangles" << endl;
-  theFile << nbTriangles << endl;
+  theFile << std::endl;
+  theFile << "# Set of mesh triangles (v1,v2,v3,tag)" << std::endl;
+  theFile << "Triangles" << std::endl;
+  theFile << nbTriangles << std::endl;
 
   expface.ReInit();
   for ( int i = 0; expface.More(); expface.Next(), i++ ) {
@@ -410,18 +415,18 @@ static bool writeHexoticFile (ofstream &                      theFile,
           ASSERT( itOnSmdsNode != theSmdsToHexoticIdMap.end() );
           theFile << (*itOnSmdsNode).second << space;
         }
-        theFile << dummy_2D << endl;
+        theFile << dummy_2D << std::endl;
       }
     }
   }
 
-  theFile << endl;
-  theFile << "End" << endl;
+  theFile << std::endl;
+  theFile << "End" << std::endl;
 
-  cout << "Processed mesh file created, it contains :" << endl;
-  cout << "    " << nbVertices  << " vertices"  << endl;
-  cout << "    " << nbTriangles << " triangles" << endl;
-  cout << endl;
+  cout << "Processed mesh file created, it contains :" << std::endl;
+  cout << "    " << nbVertices  << " vertices"  << std::endl;
+  cout << "    " << nbTriangles << " triangles" << std::endl;
+  cout << std::endl;
 
   delete [] tabID;
   delete [] tabNodeId;
@@ -435,7 +440,7 @@ static bool writeHexoticFile (ofstream &                      theFile,
 //purpose  : 
 //=======================================================================
 
-static bool readResult(string              theFile,
+static bool readResult(std::string         theFile,
                        SMESHDS_Mesh*       theMesh,
                        const int           nbShape,
                        const TopoDS_Shape* tabShape,
@@ -447,14 +452,14 @@ static bool readResult(string              theFile,
 
   TopoDS_Shape aShape;
   TopoDS_Vertex aVertex;
-  string token;
+  std::string token;
   int EndOfFile = 0, nbElem = 0, nField = 9, nbRef = 0;
   int aHexoticNodeID = 0, shapeID, hexoticShapeID;
   int IdShapeRef = 2;
   int *tabID, *tabRef, *nodeAssigne;
   bool *tabDummy, hasDummy = false;
   double epsilon = Precision::Confusion();
-  map <string,int> mapField;
+  std::map <std::string,int> mapField;
   SMDS_MeshNode** HexoticNode;
   TopoDS_Shape *tabCorner, *tabEdge;
 
@@ -464,6 +469,8 @@ static bool readResult(string              theFile,
 
   for (int i=0; i<nbShape; i++)
     tabID[i] = 0;
+  if ( nbShape == 1 )
+    tabID[0] = theMesh->ShapeToIndex( tabShape[0] );
 
   mapField["MeshVersionFormatted"] = 0; tabRef[0] = 0; tabDummy[0] = false;
   mapField["Dimension"]            = 1; tabRef[1] = 0; tabDummy[1] = false;
@@ -499,7 +506,7 @@ static bool readResult(string              theFile,
   getShape(theMesh, TopAbs_EDGE,   tabEdge);
 
   MESSAGE("Read " << theFile << " file");
-  ifstream fileRes(theFile.c_str());
+  std::ifstream fileRes(theFile.c_str());
   ASSERT(fileRes);
 
   while ( EndOfFile == 0  ) {
@@ -622,6 +629,9 @@ static bool readResult(string              theFile,
                     printWarning(nbShape, "domains", shapeAssociated);
                 }
               }
+              else {
+                shapeID = tabID[0];
+              }
               break;
             }
           }
@@ -653,7 +663,7 @@ static bool readResult(string              theFile,
       }
     }
   }
-  cout << endl;
+  cout << std::endl;
   delete [] tabID;
   delete [] tabRef;
   delete [] tabDummy;
@@ -682,9 +692,9 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _hexoticSharpAngleThreshold = hyp->GetHexoticSharpAngleThreshold();
   }
   else {
-    cout << endl;
-    cout << "WARNING : The Hexotic default parameters are taken into account" << endl;
-    cout << "=======" << endl;
+    cout << std::endl;
+    cout << "WARNING : The Hexotic default parameters are taken into account" << std::endl;
+    cout << "=======" << std::endl;
     _hexesMinLevel = hyp->GetDefaultHexesMinLevel();
     _hexesMaxLevel = hyp->GetDefaultHexesMaxLevel();
     _hexoticQuadrangles = hyp->GetDefaultHexoticQuadrangles();
@@ -780,15 +790,15 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
 
     SetParameters(_hypothesis);
 
-    cout << endl;
-    cout << "Hexotic execution..." << endl;
-    cout << _name << " parameters :" << endl;
-    cout << "    " << _name << " Segments Min Level = " << _hexesMinLevel << endl;
-    cout << "    " << _name << " Segments Max Level = " << _hexesMaxLevel << endl;
-    cout << "    " << "Salome Quadrangles : " << (_hexoticQuadrangles ? "yes":"no") << endl;
-    cout << "    " << "Hexotic can ignore ridges : " << (_hexoticIgnoreRidges ? "yes":"no") << endl;
-    cout << "    " << "Hexotic authorize invalide elements : " << ( _hexoticInvalidElements ? "yes":"no") << endl;
-    cout << "    " << _name << " Sharp angle threshold = " << _hexoticSharpAngleThreshold << " degrees" << endl;
+    cout << std::endl;
+    cout << "Hexotic execution..." << std::endl;
+    cout << _name << " parameters :" << std::endl;
+    cout << "    " << _name << " Segments Min Level = " << _hexesMinLevel << std::endl;
+    cout << "    " << _name << " Segments Max Level = " << _hexesMaxLevel << std::endl;
+    cout << "    " << "Salome Quadrangles : " << (_hexoticQuadrangles ? "yes":"no") << std::endl;
+    cout << "    " << "Hexotic can ignore ridges : " << (_hexoticIgnoreRidges ? "yes":"no") << std::endl;
+    cout << "    " << "Hexotic authorize invalide elements : " << ( _hexoticInvalidElements ? "yes":"no") << std::endl;
+    cout << "    " << _name << " Sharp angle threshold = " << _hexoticSharpAngleThreshold << " degrees" << std::endl;
 
     TCollection_AsciiString aTmpDir = getTmpDir();
     TCollection_AsciiString Hexotic_In, Hexotic_Out;
@@ -805,8 +815,8 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     sharpAngle = _hexoticSharpAngleThreshold;
     mode = 4;
 
-    map <int,int> aSmdsToHexoticIdMap;
-    map <int,const SMDS_MeshNode*> aHexoticIdToNodeMap;
+    std::map <int,int> aSmdsToHexoticIdMap;
+    std::map <int,const SMDS_MeshNode*> aHexoticIdToNodeMap;
 
     Hexotic_In  = aTmpDir + "Hexotic_In.mesh";
     Hexotic_Out = aTmpDir + "Hexotic_Out.mesh";
@@ -820,13 +830,12 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     run_Hexotic += angle + sharpAngle + minl + minLevel + maxl + maxLevel + in + Hexotic_In + out + Hexotic_Out;
     run_Hexotic += subdom + mode;
 
-    cout << endl;
-    cout << "Hexotic command : " << run_Hexotic << endl;
+    cout << std::endl;
+    cout << "Hexotic command : " << run_Hexotic << std::endl;
 
-    OSD_File( Hexotic_In  ).Remove();
-    OSD_File( Hexotic_Out ).Remove();
+    removeHexoticFiles(Hexotic_In, Hexotic_Out);
 
-    ofstream HexoticFile (Hexotic_In.ToCString() , ios::out);
+    std::ofstream HexoticFile (Hexotic_In.ToCString(), std::ios::out);
 
     Ok = ( writeHexoticFile(HexoticFile, meshDS, aSmdsToHexoticIdMap, aHexoticIdToNodeMap, Hexotic_In) );
 
@@ -842,18 +851,18 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     // read a result
     // --------------
 
-    ifstream fileRes( Hexotic_Out.ToCString() );
+    std::ifstream fileRes( Hexotic_Out.ToCString() );
     if ( ! fileRes.fail() ) {
       Ok = readResult( Hexotic_Out.ToCString(), meshDS, _nbShape, tabShape, tabBox );
       hexahedraMessage = "success";
     }
     else {
       hexahedraMessage = "failed";
-      cout << "Problem with Hexotic output file " << Hexotic_Out.ToCString() << endl;
+      cout << "Problem with Hexotic output file " << Hexotic_Out.ToCString() << std::endl;
       Ok = false;
     }
-    cout << "Hexahedra meshing " << hexahedraMessage << endl;
-    cout << endl;
+    cout << "Hexahedra meshing " << hexahedraMessage << std::endl;
+    cout << std::endl;
 
     delete [] tabShape;
     for (int i=0; i<_nbShape; i++)
@@ -871,7 +880,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
  */
 //=============================================================================
 
-ostream & HexoticPlugin_Hexotic::SaveTo(ostream & save)
+std::ostream& HexoticPlugin_Hexotic::SaveTo(std::ostream& save)
 {
   return save;
 }
@@ -882,7 +891,7 @@ ostream & HexoticPlugin_Hexotic::SaveTo(ostream & save)
  */
 //=============================================================================
 
-istream & HexoticPlugin_Hexotic::LoadFrom(istream & load)
+std::istream& HexoticPlugin_Hexotic::LoadFrom(std::istream& load)
 {
   return load;
 }
@@ -893,7 +902,7 @@ istream & HexoticPlugin_Hexotic::LoadFrom(istream & load)
  */
 //=============================================================================
 
-ostream & operator << (ostream & save, HexoticPlugin_Hexotic & hyp)
+std::ostream& operator << (std::ostream& save, HexoticPlugin_Hexotic& hyp)
 {
   return hyp.SaveTo( save );
 }
@@ -904,7 +913,7 @@ ostream & operator << (ostream & save, HexoticPlugin_Hexotic & hyp)
  */
 //=============================================================================
 
-istream & operator >> (istream & load, HexoticPlugin_Hexotic & hyp)
+std::istream& operator >> (std::istream& load, HexoticPlugin_Hexotic& hyp)
 {
   return hyp.LoadFrom( load );
 }

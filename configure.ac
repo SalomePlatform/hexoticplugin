@@ -1,29 +1,39 @@
+#!/bin/bash
+#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
 #
-#  PLEASE DO NOT MODIFY configure.in FILE
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
 #
-#  ALL CHANGES WILL BE DISCARDED BY THE NEXT
-#  build_configure COMMAND
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
 #
-#  CHANGES MUST BE MADE IN configure.in.base FILE
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-# Author : Lioka RAZAFINDRAZAKA (CEA)
-# Date : 2006/06/30
-# Modified by : Patrick GOLDBRONN (CEA)
-# Modified by : Marc Tajchman (CEA)
+# ---
+# File   : configure.ac
+# Author : Vadim SANDLER, Open CASCADE S.A.S (vadim.sandler@opencascade.com)
+# ---
 #
-# Created from configure.in.base
-#
-
-AC_INIT(src)
-AC_CONFIG_AUX_DIR(${KERNEL_ROOT_DIR}/salome_adm/unix/config_files/DEPRECATED)
+AC_INIT([Salome2 Project HexoticPLUGIN module], [5.1.0], [webmaster.salome@opencascade.com], [SalomeHexoticPLUGIN])
+AC_CONFIG_AUX_DIR(salome_adm/unix/config_files)
 AC_CANONICAL_HOST
+AC_CANONICAL_TARGET
+AM_INIT_AUTOMAKE
 
-PACKAGE=salome
-AC_SUBST(PACKAGE)
+XVERSION=`echo $VERSION | awk -F. '{printf("0x%02x%02x%02x",$1,$2,$3)}'`
+AC_SUBST(XVERSION)
 
-VERSION=0.0.1
-AC_SUBST(VERSION)
+# set up MODULE_NAME variable for dynamic construction of directories (resources, etc.)
+MODULE_NAME=hexoticplugin
+AC_SUBST(MODULE_NAME)
 
 dnl
 dnl Initialize source and build root directories
@@ -100,6 +110,21 @@ AC_DEPEND_FLAG
 # AC_CC_WARNINGS([ansi])
 cc_ok=yes
 
+echo
+echo ---------------------------------------------
+echo testing Fortran
+echo ---------------------------------------------
+echo
+
+fortran_ok=no
+AC_PROG_F77
+AC_F77_LIBRARY_LDFLAGS
+AC_PROG_FC
+AC_FC_LIBRARY_LDFLAGS
+if test "X$FC" != "X" ; then
+   fortran_ok=yes
+fi
+
 dnl Library libdl :
 AC_CHECK_LIB(dl,dlopen)
 
@@ -112,6 +137,14 @@ dnl We must test if it exists. If not, add it in include !
 dnl
 
 AC_CXX_HAVE_SSTREAM
+
+echo
+echo ---------------------------------------------
+echo BOOST Library
+echo ---------------------------------------------
+echo
+
+CHECK_BOOST
 
 dnl
 dnl ---------------------------------------------
@@ -140,13 +173,7 @@ echo
 
 CHECK_PYTHON
 
-echo
-echo ---------------------------------------------
-echo BOOST Library
-echo ---------------------------------------------
-echo
-
-CHECK_BOOST
+AM_PATH_PYTHON(2.3)
 
 dnl echo
 dnl echo ---------------------------------------------
@@ -201,37 +228,55 @@ AC_SUBST_FILE(CORBA)
 corba=make_$ORB
 CORBA=adm_local/unix/$corba
 
-echo
-echo ---------------------------------------------
-echo testing openGL
-echo ---------------------------------------------
-echo
+HEXOTICPLUGIN_WITH_GUI=yes
 
-CHECK_OPENGL
+AM_CONDITIONAL(HEXOTICPLUGIN_ENABLE_GUI, [test "${HEXOTICPLUGIN_WITH_GUI}" = "yes"])
 
-echo
-echo ---------------------------------------------
-echo testing QT
-echo ---------------------------------------------
-echo
+if test "${HEXOTICPLUGIN_WITH_GUI}" = "yes"; then
+    echo
+    echo ---------------------------------------------
+    echo testing openGL
+    echo ---------------------------------------------
+    echo
 
-CHECK_QT
+    CHECK_OPENGL
 
-echo
-echo ---------------------------------------------
-echo testing MSG2QM
-echo ---------------------------------------------
-echo
+    echo
+    echo ---------------------------------------------
+    echo testing QT
+    echo ---------------------------------------------
+    echo
 
-CHECK_MSG2QM
+    CHECK_QT
 
-echo
-echo ---------------------------------------------
-echo testing VTK
-echo ---------------------------------------------
-echo
+    echo
+    echo ---------------------------------------------
+    echo testing VTK
+    echo ---------------------------------------------
+    echo
 
-CHECK_VTK
+    CHECK_VTK
+
+    echo
+    echo ---------------------------------------------
+    echo Testing GUI
+    echo ---------------------------------------------
+    echo
+
+    CHECK_SALOME_GUI
+
+    echo
+    echo ---------------------------------------------
+    echo Testing full GUI
+    echo ---------------------------------------------
+    echo
+
+    CHECK_CORBA_IN_GUI
+    if test "x${CORBA_IN_GUI}" != "xyes"; then
+      echo "failed : For configure HexoticPLUGIN module necessary full GUI !"
+      exit
+    fi
+fi
 
 echo
 echo ---------------------------------------------
@@ -259,23 +304,11 @@ CHECK_HTML_GENERATORS
 
 echo
 echo ---------------------------------------------
-echo Testing GUI
+echo Testing Hexotic
 echo ---------------------------------------------
 echo
 
-CHECK_SALOME_GUI
-
-echo
-echo ---------------------------------------------
-echo Testing full GUI
-echo ---------------------------------------------
-echo
-
-CHECK_CORBA_IN_GUI
-if test "x${CORBA_IN_GUI}" != "xyes"; then
-  echo "failed : For configure HexoticPLUGIN module necessary full GUI !"
-  exit
-fi
+CHECK_HEXOTIC
 
 echo
 echo ---------------------------------------------
@@ -293,22 +326,14 @@ echo
 
 CHECK_GEOM
 
-# echo
-# echo ---------------------------------------------
-# echo Testing Med
-# echo ---------------------------------------------
-# echo
-# 
-# CHECK_MED
-
 echo
 echo ---------------------------------------------
-echo Testing Hexotic
+echo Testing Med
 echo ---------------------------------------------
 echo
-
-CHECK_HEXOTIC
  
+CHECK_MED
+
 echo
 echo ---------------------------------------------
 echo Testing SMesh
@@ -323,8 +348,20 @@ echo Summary
 echo ---------------------------------------------
 echo
 
-echo Configure
-variables="cc_ok boost_ok lex_yacc_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok omniORB_ok occ_ok doxygen_ok graphviz_ok Kernel_ok Geom_ok SMesh_ok Hexotic_ok"
+#AM_CONDITIONAL( USE_GFORTRAN, [test "$F77" = "gfortran"])
+
+if test "${HEXOTICPLUGIN_WITH_GUI}" = "yes"; then
+variables="cc_ok boost_ok lex_yacc_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok omniORB_ok occ_ok doxygen_ok graphviz_ok Kernel_ok Geom_ok Med_ok SMesh_ok SalomeGUI_ok"
+opt_variables="Hexotic_ok"
+fi
+if test "${HEXOTICPLUGIN_WITH_GUI}" = "no"; then
+variables="cc_ok boost_ok lex_yacc_ok python_ok swig_ok threads_ok hdf5_ok omniORB_ok occ_ok doxygen_ok graphviz_ok Kernel_ok Geom_ok Med_ok SMesh_ok"
+opt_variables="Hexotic_ok"
+fi
+
+echo
+echo --- Mandatory products :
+echo
 
 for var in $variables
 do
@@ -333,17 +370,19 @@ do
 done
 
 echo
-echo "Default ORB   : $DEFAULT_ORB"
+echo --- Optional products :
 echo
 
-dnl generals files which could be included in every makefile
+for var in $opt_variables
+do
+   printf "   %10s : " `echo \$var | sed -e "s,_ok,,"`
+   eval echo \$$var
+done
 
-AC_SUBST_FILE(COMMENCE) COMMENCE=adm_local/unix/make_commence
-AC_SUBST_FILE(CONCLUDE) CONCLUDE=salome_adm/unix/make_conclude
-AC_SUBST_FILE(MODULE) MODULE=salome_adm/unix/make_module
 
-dnl les dependences
-AC_SUBST_FILE(DEPEND) DEPEND=salome_adm/unix/depend
+echo
+echo "Default ORB   : $DEFAULT_ORB"
+echo
 
 dnl We don t need to say when we re entering directories if we re using
 dnl GNU make becuase make does it for us.
@@ -353,66 +392,9 @@ else
    AC_SUBST(SETX) SETX="set -x"
 fi
 
-# make other build directories
-for rep in salome_adm adm_local doc bin/salome include/salome lib${LIB_LOCATION_SUFFIX}/salome share/salome/resources idl
-do
-#   if test ! -d $rep ; then
-#      eval mkdir $rep
-#   fi
-    $INSTALL -d $rep
-done
-
-echo 
-echo ---------------------------------------------
-echo copying resource files, shell scripts, and 
-echo xml files
-echo ---------------------------------------------
-echo
-
-
-dnl copy resources directories
-
-#for i in `find $ROOT_SRCDIR -name 'resources' -print`
-#do
-#  local_res=`echo $i | sed -e "s,$ROOT_SRCDIR,.,"`
-#  local_res_dir=`echo $local_res | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
-#  mkdir -p $local_res_dir
-#  cd $local_res_dir
-#  ln -fs $i
-#  echo $local_res
-#  cd $ROOT_BUILDDIR
-#done
-
 dnl copy shells and utilities contained in the bin directory
-dnl excluding .in files (treated in AC-OUTPUT below) and CVS 
+dnl excluding .in files (treated in AC-OUTPUT below) and CVS
 dnl directory
-
-#mkdir -p bin/salome
-#cd bin/salome
-#for i in $ROOT_SRCDIR/bin/*
-#do
-#  local_bin=`echo $i | sed -e "s,$ROOT_SRCDIR,.,"`
-#  case "$local_bin" in
-#        *.in | *~)                    ;;
-#        ./bin/CVS | ./bin/salome)                    ;;
-#        *) /usr/bin/install -C $i .; echo $local_bin ;;
-#  esac
-#done
-#cd $ROOT_BUILDDIR
-
-AC_SUBST_FILE(ENVSCRIPT) ENVSCRIPT=salome_adm/unix/envScript
-
-dnl copy xml files to the build tree (lib directory)
-dnl pourquoi ????
-
-#cd lib
-#for i in `find $ROOT_SRCDIR -name "*.xml" -print`
-#do
-#  ln -fs $i
-#  echo `echo $i | sed -e "s,$ROOT_SRCDIR,.,"`
-#done
-#cd $ROOT_BUILDDIR
-
 
 echo
 echo ---------------------------------------------
@@ -421,7 +403,26 @@ echo ---------------------------------------------
 echo
 
 #AC_OUTPUT_COMMANDS([ \
-#	chmod +x ./bin/* \
+#  chmod +x ./bin/*; \
+#  chmod +x ./bin/salome/*;
 #])
 
-## do not delete this line
+# This list is initiated using autoscan and must be updated manually
+# when adding a new file <filename>.in to manage. When you execute
+# autoscan, the Makefile list is generated in the output file configure.scan.
+# This could be helpfull to update de configuration.
+AC_OUTPUT([ \
+  ./salome_adm/unix/SALOMEconfig.h \
+  ./adm_local/Makefile \
+  ./adm_local/unix/Makefile \
+  ./adm_local/unix/config_files/Makefile \
+  ./bin/VERSION \
+  ./bin/Makefile \
+  ./idl/Makefile \
+  ./resources/Makefile \
+  ./src/Makefile \
+  ./src/HexoticPlugin/Makefile \
+  ./src/GUI/Makefile \
+  ./HexoticPLUGIN_version.h \
+  Makefile \
+])
