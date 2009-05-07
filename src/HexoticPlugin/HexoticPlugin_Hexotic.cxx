@@ -218,8 +218,8 @@ static int findEdge(const SMDS_MeshNode* aNode,
 //purpose  :
 //=======================================================================
 
-static int getNbShape(std::string aFile, std::string aString) {
-  int number;
+static int getNbShape(std::string aFile, std::string aString, int defaultValue=0) {
+  int number = defaultValue;
   std::string aLine;
   std::ifstream file(aFile.c_str());
   while ( !file.eof() ) {
@@ -487,15 +487,15 @@ static bool readResult(std::string         theFile,
     theMesh->RemoveNode( itOnHexoticInputNode->next() );
 
   int nbVertices   = getNbShape(theFile, "Vertices");
-  int nbHexCorners = getNbShape(theFile, "Corners");
-  int nbCorners    = countShape( theMesh, TopAbs_VERTEX );
+  int nbCorners    = getNbShape(theFile, "Corners",countShape( theMesh, TopAbs_VERTEX ));
+//  int nbCorners    = countShape( theMesh, TopAbs_VERTEX );
   int nbShapeEdge  = countShape( theMesh, TopAbs_EDGE );
 
-  if ( nbHexCorners != nbCorners ) {
-    printWarning(nbCorners, "corners", nbHexCorners);
-    if ( nbHexCorners > nbCorners )
-      nbCorners = nbHexCorners;
-  }
+//  if ( nbHexCorners != nbCorners ) {
+//    printWarning(nbCorners, "corners", nbHexCorners);
+//    if ( nbHexCorners > nbCorners )
+//      nbCorners = nbHexCorners;
+//  }
 
   tabCorner   = new TopoDS_Shape[ nbCorners ];
   tabEdge     = new TopoDS_Shape[ nbShapeEdge ];
