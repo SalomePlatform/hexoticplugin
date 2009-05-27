@@ -21,7 +21,7 @@
 // Author : Lioka RAZAFINDRAZAKA (CEA)
 // ---
 //
-#include <HexoticPlugin_Hypothesis.hxx>
+#include "HexoticPlugin_Hypothesis.hxx"
 #include <utilities.h>
 
 //=============================================================================
