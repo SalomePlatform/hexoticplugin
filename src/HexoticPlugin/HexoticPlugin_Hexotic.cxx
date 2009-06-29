@@ -917,3 +917,24 @@ std::istream& operator >> (std::istream& load, HexoticPlugin_Hexotic& hyp)
 {
   return hyp.LoadFrom( load );
 }
+
+
+//=============================================================================
+/*!
+ *  
+ */
+//=============================================================================
+bool HexoticPlugin_Hexotic::Evaluate(SMESH_Mesh& aMesh,
+				     const TopoDS_Shape& aShape,
+				     MapShapeNbElems& aResMap)
+{
+  std::vector<int> aResVec(17);
+  for(int i=0; i<17; i++) aResVec[i] = 0;
+  SMESH_subMesh * sm = aMesh.GetSubMesh(aShape);
+  aResMap.insert(std::make_pair(sm,aResVec));
+
+  SMESH_ComputeErrorPtr& smError = sm->GetComputeError();
+  smError.reset( new SMESH_ComputeError(COMPERR_ALGO_FAILED,"Evaluation is not implemented",this));
+
+  return true;
+}

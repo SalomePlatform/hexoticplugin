@@ -46,6 +46,9 @@ public:
   virtual bool Compute(SMESH_Mesh&         aMesh,
                        const TopoDS_Shape& aShape);
 
+  virtual bool Evaluate(SMESH_Mesh& aMesh, const TopoDS_Shape& aShape,
+                        MapShapeNbElems& aResMap);
+
   std::ostream& SaveTo(std::ostream& save);
   std::istream& LoadFrom(std::istream& load);
   friend std::ostream& operator << (std::ostream& save, HexoticPlugin_Hexotic& hyp);
