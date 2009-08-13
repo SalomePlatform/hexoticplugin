@@ -42,14 +42,13 @@ dist_libHexoticEngine_la_SOURCES =	\
 
 libHexoticEngine_la_CPPFLAGS =			\
 	-I$(top_builddir)/idl			\
-	-I$(top_builddir)/salome_adm/unix	\
 	$(SMESH_CXXFLAGS)			\
 	$(CORBA_CXXFLAGS)			\
 	$(CORBA_INCLUDES)			\
 	$(BOOST_CPPFLAGS)			\
 	$(CAS_CPPFLAGS)				\
-        $(KERNEL_CXXFLAGS)			\
-        $(GUI_CXXFLAGS)				\
+	$(KERNEL_CXXFLAGS)			\
+	$(GUI_CXXFLAGS)				\
 	$(MED_CXXFLAGS)				\
 	$(GEOM_CXXFLAGS)
 

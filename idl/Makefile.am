@@ -47,7 +47,6 @@ libSalomeIDLHexoticPLUGIN_la_CPPFLAGS =\
 	$(SMESH_CXXFLAGS) \
 	@CORBA_CXXFLAGS@ \
 	@CORBA_INCLUDES@ \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl
 
 libSalomeIDLHexoticPLUGIN_la_LDFLAGS = -no-undefined -version-info=0:0:0
@@ -72,8 +71,7 @@ IDLCXXFLAGS = \
 	-I$(top_builddir)/idl/salome \
 	-I$(KERNEL_ROOT_DIR)/idl/salome \
 	-I$(GEOM_ROOT_DIR)/idl/salome \
-	-I$(SMESH_ROOT_DIR)/idl/salome \
-	-I$(top_builddir)/salome_adm/unix
+	-I$(SMESH_ROOT_DIR)/idl/salome
 IDLPYFLAGS  = \
 	@IDLPYFLAGS@ \
 	-I$(KERNEL_ROOT_DIR)/idl/salome \
@@ -109,7 +107,7 @@ mostlyclean-local:
 	@for dep in $^ dummy; do \
 	  if [ $$dep != "dummy" ]; then \
 	    echo Building dependencies for $$dep; \
-	    $(CPP) $(C_DEPEND_FLAG) -x c -I$(srcdir) -I$(KERNEL_ROOT_DIR)/idl/salome -I$(GEOM_ROOT_DIR)/idl/salome -I$(SMESH_ROOT_DIR)/idl/salome -I$(top_builddir)/salome_adm/unix $$dep 2>/dev/null | \
+	    $(CPP) $(C_DEPEND_FLAG) -x c -I$(srcdir) -I$(KERNEL_ROOT_DIR)/idl/salome -I$(GEOM_ROOT_DIR)/idl/salome -I$(SMESH_ROOT_DIR)/idl/salome $$dep 2>/dev/null | \
 	    sed 's/\.o/\SK.cc/' >>$@; \
 	  fi; \
 	done ;

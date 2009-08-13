@@ -55,8 +55,7 @@ libHexoticPluginGUI_la_CPPFLAGS = 	\
 	$(CORBA_CXXFLAGS)		\
 	$(CORBA_INCLUDES)		\
 	-I$(srcdir)/../HexoticPlugin	\
-	-I$(top_builddir)/idl		\
-	-I$(top_builddir)/salome_adm/unix
+	-I$(top_builddir)/idl
 
 libHexoticPluginGUI_la_LDFLAGS =		\
 	../HexoticPlugin/libHexoticEngine.la	\
