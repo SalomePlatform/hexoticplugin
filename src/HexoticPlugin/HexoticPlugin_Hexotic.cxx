@@ -228,6 +228,7 @@ static int getNbShape(std::string aFile, std::string aString, int defaultValue=0
       getline( file, aLine);
       std::istringstream stringFlux( aLine );
       stringFlux >> number;
+      number = ( number + defaultValue + fabs(number - defaultValue) ) / 2;
       break;
     }
   }
@@ -487,15 +488,8 @@ static bool readResult(std::string         theFile,
     theMesh->RemoveNode( itOnHexoticInputNode->next() );
 
   int nbVertices   = getNbShape(theFile, "Vertices");
-  int nbCorners    = getNbShape(theFile, "Corners",countShape( theMesh, TopAbs_VERTEX ));
-//  int nbCorners    = countShape( theMesh, TopAbs_VERTEX );
+  int nbCorners    = getNbShape(theFile, "Corners", countShape( theMesh, TopAbs_VERTEX ));
   int nbShapeEdge  = countShape( theMesh, TopAbs_EDGE );
-
-//  if ( nbHexCorners != nbCorners ) {
-//    printWarning(nbCorners, "corners", nbHexCorners);
-//    if ( nbHexCorners > nbCorners )
-//      nbCorners = nbHexCorners;
-//  }
 
   tabCorner   = new TopoDS_Shape[ nbCorners ];
   tabEdge     = new TopoDS_Shape[ nbShapeEdge ];
@@ -918,12 +912,12 @@ std::istream& operator >> (std::istream& load, HexoticPlugin_Hexotic& hyp)
   return hyp.LoadFrom( load );
 }
 
-
 //=============================================================================
 /*!
  *  
  */
 //=============================================================================
+
 bool HexoticPlugin_Hexotic::Evaluate(SMESH_Mesh& aMesh,
 				     const TopoDS_Shape& aShape,
 				     MapShapeNbElems& aResMap)
