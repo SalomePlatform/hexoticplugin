@@ -228,7 +228,7 @@ static int getNbShape(std::string aFile, std::string aString, int defaultValue=0
       getline( file, aLine);
       std::istringstream stringFlux( aLine );
       stringFlux >> number;
-      number = ( number + defaultValue + fabs(number - defaultValue) ) / 2;
+      number = ( number + defaultValue + std::abs(number - defaultValue) ) / 2;
       break;
     }
   }
