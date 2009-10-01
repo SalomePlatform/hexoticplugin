@@ -52,6 +52,8 @@
 #include <cstdlib>
 #include <iostream>
 
+#include <Standard_ProgramError.hxx>
+
 #include <BRepClass3d_SolidClassifier.hxx>
 #include <Bnd_Box.hxx>
 #include <BRepBndLib.hxx>
@@ -64,6 +66,16 @@
 #include <BRepExtrema_DistShapeShape.hxx>
 #include <TColStd_Array1OfReal.hxx>
 #include <BRepExtrema_DistShapeShape.hxx>
+
+static void removeFile( const TCollection_AsciiString& fileName )
+{
+  try {
+    OSD_File( fileName ).Remove();
+  }
+  catch ( Standard_ProgramError ) {
+    MESSAGE("Can't remove file: " << fileName.ToCString() << " ; file does not exist or permission denied");
+  }
+}
 
 //=============================================================================
 /*!
@@ -291,8 +303,8 @@ static void printWarning(const int nbExpected, std::string aString, const int nb
 //=======================================================================
 
 static void removeHexoticFiles(TCollection_AsciiString file_In, TCollection_AsciiString file_Out) {
-  OSD_File( file_In  ).Remove();
-  OSD_File( file_Out ).Remove();
+  removeFile( file_In );
+  removeFile( file_Out );
 }
 
 //=======================================================================
