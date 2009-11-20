@@ -313,10 +313,10 @@ static void removeHexoticFiles(TCollection_AsciiString file_In, TCollection_Asci
 //=======================================================================
 
 static bool writeHexoticFile (std::ofstream&                       theFile,
-			      const SMESHDS_Mesh*                  theMesh,
-			      std::map <int,int>&                  theSmdsToHexoticIdMap,
-			      std::map <int,const SMDS_MeshNode*>& theHexoticIdToNodeMap,
-			      const TCollection_AsciiString&       Hexotic_In) {
+			                  const SMESHDS_Mesh*                  theMesh,
+			                  std::map <int,int>&                  theSmdsToHexoticIdMap,
+			                  std::map <int,const SMDS_MeshNode*>& theHexoticIdToNodeMap,
+			                  const TCollection_AsciiString&       Hexotic_In) {
   cout << std::endl;
   cout << "Creating Hexotic processed mesh file : " << Hexotic_In << std::endl;
 
@@ -808,6 +808,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
 
     TCollection_AsciiString aTmpDir = getTmpDir();
     TCollection_AsciiString Hexotic_In, Hexotic_Out;
+    TCollection_AsciiString modeFile_In( "chmod 666 " ), modeFile_Out( "chmod 666 " );
     TCollection_AsciiString run_Hexotic( "hexotic" );
 
     TCollection_AsciiString minl = " -minl ", maxl = " -maxl ", angle = " -ra ";
@@ -846,6 +847,8 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     Ok = ( writeHexoticFile(HexoticFile, meshDS, aSmdsToHexoticIdMap, aHexoticIdToNodeMap, Hexotic_In) );
 
     HexoticFile.close();
+    modeFile_In += Hexotic_In;
+    system( modeFile_In.ToCString() );
     aSmdsToHexoticIdMap.clear();
     aHexoticIdToNodeMap.clear();
 
@@ -858,6 +861,8 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     // --------------
 
     std::ifstream fileRes( Hexotic_Out.ToCString() );
+    modeFile_Out += Hexotic_Out;
+    system( modeFile_Out.ToCString() );
     if ( ! fileRes.fail() ) {
       Ok = readResult( Hexotic_Out.ToCString(), meshDS, _nbShape, tabShape, tabBox );
       hexahedraMessage = "success";
