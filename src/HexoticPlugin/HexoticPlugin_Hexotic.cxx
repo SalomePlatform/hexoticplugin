@@ -313,10 +313,10 @@ static void removeHexoticFiles(TCollection_AsciiString file_In, TCollection_Asci
 //=======================================================================
 
 static bool writeHexoticFile (std::ofstream&                       theFile,
-			                  const SMESHDS_Mesh*                  theMesh,
-			                  std::map <int,int>&                  theSmdsToHexoticIdMap,
-			                  std::map <int,const SMDS_MeshNode*>& theHexoticIdToNodeMap,
-			                  const TCollection_AsciiString&       Hexotic_In) {
+                                          const SMESHDS_Mesh*                  theMesh,
+                                          std::map <int,int>&                  theSmdsToHexoticIdMap,
+                                          std::map <int,const SMDS_MeshNode*>& theHexoticIdToNodeMap,
+                                          const TCollection_AsciiString&       Hexotic_In) {
   cout << std::endl;
   cout << "Creating Hexotic processed mesh file : " << Hexotic_In << std::endl;
 
@@ -940,8 +940,8 @@ std::istream& operator >> (std::istream& load, HexoticPlugin_Hexotic& hyp)
 //=============================================================================
 
 bool HexoticPlugin_Hexotic::Evaluate(SMESH_Mesh& aMesh,
-				     const TopoDS_Shape& aShape,
-				     MapShapeNbElems& aResMap)
+                                     const TopoDS_Shape& aShape,
+                                     MapShapeNbElems& aResMap)
 {
   std::vector<int> aResVec(SMDSEntity_Last);
   for(int i=SMDSEntity_Node; i<SMDSEntity_Last; i++) aResVec[i] = 0;

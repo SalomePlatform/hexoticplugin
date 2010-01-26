@@ -30,7 +30,7 @@
  */
 //=============================================================================
 HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, int studyId,
-						    SMESH_Gen* gen)
+                                                    SMESH_Gen* gen)
   : SMESH_Hypothesis(hypId, studyId, gen),
     _hexesMinLevel( GetDefaultHexesMinLevel() ),
     _hexesMaxLevel( GetDefaultHexesMaxLevel() ),
@@ -187,7 +187,7 @@ std::istream& operator >>(std::istream& load, HexoticPlugin_Hypothesis& hyp)
  */
 //================================================================================
 bool HexoticPlugin_Hypothesis::SetParametersByMesh(const SMESH_Mesh*   theMesh,
-						   const TopoDS_Shape& theShape)
+                                                   const TopoDS_Shape& theShape)
 {
   return false;
 }
