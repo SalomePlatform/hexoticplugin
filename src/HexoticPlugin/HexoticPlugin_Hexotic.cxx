@@ -313,10 +313,10 @@ static void removeHexoticFiles(TCollection_AsciiString file_In, TCollection_Asci
 //=======================================================================
 
 static bool writeHexoticFile (std::ofstream&                       theFile,
-                                          const SMESHDS_Mesh*                  theMesh,
-                                          std::map <int,int>&                  theSmdsToHexoticIdMap,
-                                          std::map <int,const SMDS_MeshNode*>& theHexoticIdToNodeMap,
-                                          const TCollection_AsciiString&       Hexotic_In) {
+                              const SMESHDS_Mesh*                  theMesh,
+                              std::map <int,int>&                  theSmdsToHexoticIdMap,
+                              std::map <int,const SMDS_MeshNode*>& theHexoticIdToNodeMap,
+                              const TCollection_AsciiString&       Hexotic_In) {
   cout << std::endl;
   cout << "Creating Hexotic processed mesh file : " << Hexotic_In << std::endl;
 
