@@ -40,6 +40,7 @@
                label-id="Hexotic"
                icon-id="mesh_algo_Hexotic.png"
                hypos="Hexotic_Parameters"
+               need-geom="false"
                input="TRIA,QUAD"
                dim="3"/>
   </algorithms>

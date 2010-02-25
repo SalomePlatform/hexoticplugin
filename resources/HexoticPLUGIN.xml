@@ -33,7 +33,6 @@
     <hypothesis type="Hexotic_Parameters"
 		label-id="Hexotic Parameters"
 		icon-id="mesh_hypo_Hexotic.png"
-		need-geom="false"
 		dim="3"/>
   </hypotheses>
   <algorithms>
