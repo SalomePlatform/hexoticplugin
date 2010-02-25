@@ -805,7 +805,6 @@ static bool readResult(std::string theFile, SMESH_MesherHelper* theHelper)
     theMesh->RemoveNode( itOnHexoticInputNode->next() );
 
   int nbVertices = getNbShape(theFile, "Vertices");
-  nodeAssigne = new int[ nbVertices + 1 ];
   HexoticNode = new SMDS_MeshNode*[ nbVertices + 1 ];
 
   MESSAGE("Read " << theFile << " file");
@@ -851,9 +850,8 @@ static bool readResult(std::string theFile, SMESH_MesherHelper* theHelper)
         for ( int iCoord = 0; iCoord < 3; iCoord++ )
           fileRes >> coord[ iCoord ];
         fileRes >> dummy;
-        aHexoticNode = theMesh->AddNode(coord[0], coord[1], coord[2]);
+        aHexoticNode = theHelper->AddNode(coord[0], coord[1], coord[2]);
         HexoticNode[ aHexoticID ] = aHexoticNode;
-        nodeAssigne[ aHexoticID ] = 0;
       }
       break;
     }
@@ -879,17 +877,14 @@ static bool readResult(std::string theFile, SMESH_MesherHelper* theHelper)
         switch (nField)
         {
         case 4: // "Edges"
-          theMesh->AddEdge( node[0], node[1] ); break;
+          theHelper->AddEdge( node[0], node[1] ); break;
         case 6:  // "Quadrilaterals"
-          theMesh->AddFace( node[0], node[1], node[2], node[3] ); break;
+          theHelper->AddFace( node[0], node[1], node[2], node[3] ); break;
         case 7: // "Hexahedra"
           theHelper->AddVolume( node[0], node[3], node[2], node[1],
                                 node[4], node[7], node[6], node[5] ); break;
         default: continue;
         }
-        if ( nField != 7 )
-          for ( int i=0; i<nbRef; i++ )
-            nodeAssigne[ nodeID[i] ] = 1;
       }
       break;
     }
@@ -907,10 +902,8 @@ static bool readResult(std::string theFile, SMESH_MesherHelper* theHelper)
 
   shapeID = theHelper->GetSubShapeID();
   for ( int i = 0; i < nbVertices; ++i )
-    if ( !nodeAssigne[ i+1 ] )
-      theHelper->GetMeshDS()->SetNodeInVolume( HexoticNode[ i+1 ], shapeID );
+    theMesh->SetNodeInVolume( HexoticNode[ i+1 ], shapeID );
 
-  delete [] nodeAssigne;
   delete [] HexoticNode;
   return true;
 }
