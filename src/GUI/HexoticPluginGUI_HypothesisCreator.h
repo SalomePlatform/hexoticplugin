@@ -52,6 +52,7 @@ public:
   virtual ~HexoticPluginGUI_HypothesisCreator();
 
   virtual bool checkParams() const;
+  virtual QString  helpPage() const;
 
 protected:
   virtual QFrame*  buildFrame    ();

@@ -237,3 +237,8 @@ QString HexoticPluginGUI_HypothesisCreator::type() const
 {
   return myIs3D ? tr( "Hexotic_3D_HYPOTHESIS" ) : tr( "Hexotic_3D_HYPOTHESIS" ); // ??? 3D/2D ???
 }
+
+QString HexoticPluginGUI_HypothesisCreator::helpPage() const
+{
+  return "hexotic_hypo_page.html";
+}
