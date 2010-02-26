@@ -383,7 +383,6 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
       if ( not idFound )
         tabNodeId[ aSmdsNodeID - 1 ] = dummy_1D;
       theSmdsToHexoticIdMap.insert(std::map <int,int>::value_type( aNode->GetID(), aSmdsNodeID ));
-      //theHexoticIdToNodeMap.insert(std::map <int,const SMDS_MeshNode*>::value_type( aSmdsNodeID, aNode ));
       aSmdsNodeID++;
       theFile << aNode->X() << space << aNode->Y() << space << aNode->Z() << space << dummy_1D << std::endl;
       }
@@ -458,7 +457,6 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
 static bool writeHexoticFile (std::ofstream&                       theFile,
                               const SMESH_MesherHelper*            theHelper,
                               std::map <int,int>&                  theSmdsToHexoticIdMap,
-                              std::map <int,const SMDS_MeshNode*>& /*theHexoticIdToNodeMap*/,
                               const TCollection_AsciiString&       Hexotic_In)
 {
   cout << std::endl;
@@ -495,34 +493,50 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
   {
     aNode = itOnNode->next();
     theSmdsToHexoticIdMap.insert(make_pair( aNode->GetID(), aSmdsNodeID ));
-    //theHexoticIdToNodeMap.insert(make_pair( aSmdsNodeID, aNode ));
     aSmdsNodeID++;
     theFile << aNode->X() << space << aNode->Y() << space << aNode->Z() << space << dummy_1D << std::endl;
   }
 
   // Writing SMESH faces into Hexotic File
 
-  nbTriangles = theHelper->GetMeshDS()->NbFaces();
+  ostringstream triaOut;
+
+  itOnSubFace = theHelper->GetMeshDS()->elementsIterator(SMDSAbs_Face);
+  while ( itOnSubFace->more() )
+  {
+    aFace = itOnSubFace->next();
+    int nbNodes = aFace->IsQuadratic() ? aFace->NbNodes()/2 : aFace->NbNodes();
+    if ( nbNodes == 3 ) // triangle
+    {
+      nbTriangles++;
+      for ( int i = 0; i < nbNodes; ++i )
+      {
+        aSmdsNodeID = aFace->GetNode( i )->GetID();
+        itOnSmdsNode = theSmdsToHexoticIdMap.find( aSmdsNodeID );
+        ASSERT( itOnSmdsNode != theSmdsToHexoticIdMap.end() );
+        triaOut << (*itOnSmdsNode).second << space;
+      }
+      triaOut << dummy_2D << std::endl;
+    }
+    else // polygon
+    {
+      int nbTria = nbNodes - 2, n0 = theSmdsToHexoticIdMap[ aFace->GetNode(0)->GetID() ];
+      nbTriangles += nbTria;
+      for ( int i = 0; i < nbTria; ++i )
+      {
+        triaOut << n0 << space;
+        triaOut << theSmdsToHexoticIdMap[ aFace->GetNode(i+1)->GetID() ] << space;
+        triaOut << theSmdsToHexoticIdMap[ aFace->GetNode(i+2)->GetID() ] << space;
+        triaOut << dummy_2D << std::endl;
+      }
+    }
+  }
 
   theFile << std::endl;
   theFile << "# Set of mesh triangles (v1,v2,v3,tag)" << std::endl;
   theFile << "Triangles" << std::endl;
   theFile << nbTriangles << std::endl;
-
-  itOnSubFace = theHelper->GetMeshDS()->elementsIterator(SMDSAbs_Face);
-  while ( itOnSubFace->more() )
-  {
-    aFace    = itOnSubFace->next();
-    itOnSubNode = aFace->nodesIterator();
-    while ( itOnSubNode->more() )
-    {
-      aSmdsNodeID  = itOnSubNode->next()->GetID();
-      itOnSmdsNode = theSmdsToHexoticIdMap.find( aSmdsNodeID );
-      ASSERT( itOnSmdsNode != theSmdsToHexoticIdMap.end() );
-      theFile << (*itOnSmdsNode).second << space;
-    }
-    theFile << dummy_2D << std::endl;
-  }
+  theFile << triaOut.str() << std::endl;
 
   theFile << std::endl;
   theFile << "End" << std::endl;
@@ -800,12 +814,11 @@ static bool readResult(std::string theFile, SMESH_MesherHelper* theHelper)
   mapField["Hexahedra"]            = 7; tabRef[7] = 8; tabDummy[7] = true;
   mapField["End"]                  = 8; tabRef[8] = 0; tabDummy[8] = false;
 
-  SMDS_NodeIteratorPtr itOnHexoticInputNode = theMesh->nodesIterator();
-  while ( itOnHexoticInputNode->more() )
-    theMesh->RemoveNode( itOnHexoticInputNode->next() );
+  theHelper->GetMesh()->Clear();
 
   int nbVertices = getNbShape(theFile, "Vertices");
   HexoticNode = new SMDS_MeshNode*[ nbVertices + 1 ];
+  nodeAssigne = new int[ nbVertices + 1 ];
 
   MESSAGE("Read " << theFile << " file");
   std::ifstream fileRes(theFile.c_str());
@@ -850,8 +863,9 @@ static bool readResult(std::string theFile, SMESH_MesherHelper* theHelper)
         for ( int iCoord = 0; iCoord < 3; iCoord++ )
           fileRes >> coord[ iCoord ];
         fileRes >> dummy;
-        aHexoticNode = theHelper->AddNode(coord[0], coord[1], coord[2]);
+        aHexoticNode = theMesh->AddNode(coord[0], coord[1], coord[2]);
         HexoticNode[ aHexoticID ] = aHexoticNode;
+        nodeAssigne[ aHexoticID ] = 0;
       }
       break;
     }
@@ -879,12 +893,15 @@ static bool readResult(std::string theFile, SMESH_MesherHelper* theHelper)
         case 4: // "Edges"
           theHelper->AddEdge( node[0], node[1] ); break;
         case 6:  // "Quadrilaterals"
-          theHelper->AddFace( node[0], node[1], node[2], node[3] ); break;
+          theMesh->AddFace( node[0], node[1], node[2], node[3] ); break;
         case 7: // "Hexahedra"
           theHelper->AddVolume( node[0], node[3], node[2], node[1],
                                 node[4], node[7], node[6], node[5] ); break;
         default: continue;
         }
+        if ( nField == 6 )
+          for ( int iRef = 0; iRef < nbRef; iRef++ )
+            nodeAssigne[ nodeID[ iRef ]] = 1;
       }
       break;
     }
@@ -902,9 +919,11 @@ static bool readResult(std::string theFile, SMESH_MesherHelper* theHelper)
 
   shapeID = theHelper->GetSubShapeID();
   for ( int i = 0; i < nbVertices; ++i )
-    theMesh->SetNodeInVolume( HexoticNode[ i+1 ], shapeID );
+    if ( !nodeAssigne[ i+1 ])
+      theMesh->SetNodeInVolume( HexoticNode[ i+1 ], shapeID );
 
   delete [] HexoticNode;
+  delete [] nodeAssigne;
   return true;
 }
 
@@ -1170,7 +1189,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
 
   std::ofstream HexoticFile (Hexotic_In.ToCString(), std::ios::out);
 
-  Ok = ( writeHexoticFile(HexoticFile, aHelper, aSmdsToHexoticIdMap, aHexoticIdToNodeMap, Hexotic_In) );
+  Ok = ( writeHexoticFile(HexoticFile, aHelper, aSmdsToHexoticIdMap, Hexotic_In) );
 
   HexoticFile.close();
   modeFile_In += Hexotic_In;
