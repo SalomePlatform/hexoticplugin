@@ -96,8 +96,8 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   
   l->addWidget( new QLabel( tr( "Hexotic_HEXES_MIN_LEVEL" ), GroupC1 ), row, 0, 1, 1 );
   myHexesMinLevel = new QtxIntSpinBox( GroupC1 );
-  // myHexesMinLevel->setMinimum( 3 );
-  myHexesMinLevel->setMinimum( h->GetHexesMinLevel() );
+  myHexesMinLevel->setMinimum( 3 );
+  //myHexesMinLevel->setMinimum( h->GetHexesMinLevel() );
   myHexesMinLevel->setMaximum( 10 );
   myHexesMinLevel->setSingleStep( 1 );
   l->addWidget( myHexesMinLevel, row++, 1, 1, 1 );
