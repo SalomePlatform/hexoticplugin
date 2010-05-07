@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // ---
 // File   : HexoticPlugin_Hexotic.cxx
 // Author : Lioka RAZAFINDRAZAKA (CEA)
@@ -173,12 +174,12 @@ static TopoDS_Shape findShape(SMDS_MeshNode**     t_Node,
 
   gp_Pnt aPnt(pntCoor[0], pntCoor[1], pntCoor[2]);
   BRepClass3d_SolidClassifier SC (aShape, aPnt, Precision::Confusion());
-  if ( not(SC.State() == TopAbs_IN) ) {
+  if ( !(SC.State() == TopAbs_IN) ) {
     for (iShape = 0; iShape < nShape; iShape++) {
       aShape = t_Shape[iShape];
-      if ( not( pntCoor[0] < t_Box[iShape][0] || t_Box[iShape][1] < pntCoor[0] ||
-                pntCoor[1] < t_Box[iShape][2] || t_Box[iShape][3] < pntCoor[1] ||
-                pntCoor[2] < t_Box[iShape][4] || t_Box[iShape][5] < pntCoor[2]) ) {
+      if ( !( pntCoor[0] < t_Box[iShape][0] || t_Box[iShape][1] < pntCoor[0] ||
+              pntCoor[1] < t_Box[iShape][2] || t_Box[iShape][3] < pntCoor[1] ||
+              pntCoor[2] < t_Box[iShape][4] || t_Box[iShape][5] < pntCoor[2]) ) {
         BRepClass3d_SolidClassifier SC (aShape, aPnt, Precision::Confusion());
         if (SC.State() == TopAbs_IN)
           break;
@@ -380,7 +381,7 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
           break;
         }
       }
-      if ( not idFound )
+      if ( ! idFound )
         tabNodeId[ aSmdsNodeID - 1 ] = dummy_1D;
       theSmdsToHexoticIdMap.insert(std::map <int,int>::value_type( aNode->GetID(), aSmdsNodeID ));
       aSmdsNodeID++;
@@ -408,13 +409,13 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
         break;
       }
     }
-    if ( not idFound ) {
+    if ( ! idFound ) {
       tabID[i]    = shapeID;
       tabShape[i] = aShape;
     }
   }
   for ( int i=0; i<nbShape; i++ ) {
-    if ( not (tabID[i] == 0) ) {
+    if ( ! (tabID[i] == 0) ) {
       aShape      = tabShape[i];
       shapeID     = tabID[i];
       theSubMesh  = theMesh->MeshElements( aShape );
