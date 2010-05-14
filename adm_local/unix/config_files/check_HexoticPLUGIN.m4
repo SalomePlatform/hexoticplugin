@@ -1,4 +1,4 @@
-dnl  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+dnl  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 dnl
 dnl  This library is free software; you can redistribute it and/or
 dnl  modify it under the terms of the GNU Lesser General Public
@@ -16,9 +16,10 @@ dnl  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 dnl
 dnl  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 dnl
+
 dnl  File   : check_HexoticPLUGIN.m4
 dnl  Author : Vadim SANDLER, Open CASCADE S.A.S (vadim.sandler@opencascade.com)
-
+dnl
 AC_DEFUN([CHECK_HEXOTICPLUGIN],[
 
 AC_CHECKING(for Hexotic mesh plugin)

@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // ---
 // File   : HexoticPlugin_Hexotic.hxx
 // Author : Lioka RAZAFINDRAZAKA (CEA)
@@ -28,8 +29,11 @@
 #include "SMESH_Mesh.hxx"
 #include "Utils_SALOME_Exception.hxx"
 
+#include <string>
+
 class SMESH_Mesh;
 class HexoticPlugin_Hypothesis;
+class TCollection_AsciiString;
 
 class HexoticPlugin_Hexotic: public SMESH_3D_Algo
 {
@@ -43,21 +47,21 @@ public:
 
   void SetParameters(const HexoticPlugin_Hypothesis* hyp);
 
-  virtual bool Compute(SMESH_Mesh&         aMesh,
-                       const TopoDS_Shape& aShape);
+  virtual bool Compute(SMESH_Mesh& aMesh,  const TopoDS_Shape& aShape);
+
+  virtual bool Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHelper);
 
   virtual bool Evaluate(SMESH_Mesh& aMesh, const TopoDS_Shape& aShape,
                         MapShapeNbElems& aResMap);
-
-  std::ostream& SaveTo(std::ostream& save);
-  std::istream& LoadFrom(std::istream& load);
-  friend std::ostream& operator << (std::ostream& save, HexoticPlugin_Hexotic& hyp);
-  friend std::istream& operator >> (std::istream& load, HexoticPlugin_Hexotic& hyp);
 
 protected:
   const HexoticPlugin_Hypothesis* _hypothesis;
 
 private:
+
+  std::string getHexoticCommand(const TCollection_AsciiString& Hexotic_In,
+                                const TCollection_AsciiString& Hexotic_Out) const;
+
   int  _iShape;
   int  _nbShape;
   int  _hexesMinLevel;

@@ -1,4 +1,4 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+#  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,15 +16,16 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 # ---
 # File   : make_common_starter.am
 # Author : Vadim SANDLER, Open CASCADE S.A.S (vadim.sandler@opencascade.com)
 # ---
-
 # ============================================================
 # The following is to avoid PACKAGE_... env variable
 # redefinition compilation warnings
 # ============================================================
+#
 AM_CXXFLAGS = @KERNEL_CXXFLAGS@ -include SALOMEconfig.h
 AM_CPPFLAGS = @KERNEL_CXXFLAGS@ -include SALOMEconfig.h
 

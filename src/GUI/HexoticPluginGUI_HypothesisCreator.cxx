@@ -1,4 +1,4 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
@@ -16,6 +16,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // ---
 // File   : HexoticPluginGUI_HypothesisCreator.cxx
 // Author : Lioka RAZAFINDRAZAKA (CEA)
@@ -96,8 +97,8 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   
   l->addWidget( new QLabel( tr( "Hexotic_HEXES_MIN_LEVEL" ), GroupC1 ), row, 0, 1, 1 );
   myHexesMinLevel = new QtxIntSpinBox( GroupC1 );
-  // myHexesMinLevel->setMinimum( 3 );
-  myHexesMinLevel->setMinimum( h->GetHexesMinLevel() );
+  myHexesMinLevel->setMinimum( 3 );
+  //myHexesMinLevel->setMinimum( h->GetHexesMinLevel() );
   myHexesMinLevel->setMaximum( 10 );
   myHexesMinLevel->setSingleStep( 1 );
   l->addWidget( myHexesMinLevel, row++, 1, 1, 1 );
@@ -236,4 +237,9 @@ QPixmap HexoticPluginGUI_HypothesisCreator::icon() const
 QString HexoticPluginGUI_HypothesisCreator::type() const
 {
   return myIs3D ? tr( "Hexotic_3D_HYPOTHESIS" ) : tr( "Hexotic_3D_HYPOTHESIS" ); // ??? 3D/2D ???
+}
+
+QString HexoticPluginGUI_HypothesisCreator::helpPage() const
+{
+  return "hexotic_hypo_page.html";
 }
