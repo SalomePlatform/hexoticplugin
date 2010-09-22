@@ -431,3 +431,5 @@ AC_OUTPUT([ \
   HexoticPLUGIN_version.h \
   Makefile \
 ])
+
+AC_HACK_LIBTOOL
