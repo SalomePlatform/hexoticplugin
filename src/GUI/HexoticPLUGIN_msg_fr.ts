@@ -13,11 +13,11 @@
     </message>
     <message>
         <source>Hexotic_HEXES_MAX_LEVEL</source>
-        <translation>Nb. des héxagones: niveau max</translation>
+        <translation>Nb. des hexagones: niveau max</translation>
     </message>
     <message>
         <source>Hexotic_HEXES_MIN_LEVEL</source>
-        <translation>Nb. des héxagones: niveau min</translation>
+        <translation>Nb. des hexagones: niveau min</translation>
     </message>
     <message>
         <source>Hexotic_IGNORE_RIDGES</source>
