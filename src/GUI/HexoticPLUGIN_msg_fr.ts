@@ -9,23 +9,23 @@
     </message>
     <message>
         <source>Hexotic_3D_TITLE</source>
-        <translation>Construction de l&apos;Hypothèse</translation>
+        <translation>Construction de l&apos;hypothèse</translation>
     </message>
     <message>
         <source>Hexotic_HEXES_MAX_LEVEL</source>
-        <translation>Nb. des Hexagones Niveau Max</translation>
+        <translation>Nb. des héxagones: niveau max</translation>
     </message>
     <message>
         <source>Hexotic_HEXES_MIN_LEVEL</source>
-        <translation>Nb. des Hexagones Niveau Min</translation>
+        <translation>Nb. des héxagones: niveau min</translation>
     </message>
     <message>
         <source>Hexotic_IGNORE_RIDGES</source>
-        <translation>Générer des maillages lisses sans crêtes</translation>
+        <translation>Générer des maillages lisses sans crête</translation>
     </message>
     <message>
         <source>Hexotic_INVALID_ELEMENTS</source>
-        <translation>Authoriser des éléments invalides</translation>
+        <translation>Autoriser des éléments invalides</translation>
     </message>
     <message>
         <source>Hexotic_QUADRANGLES</source>
@@ -33,7 +33,7 @@
     </message>
     <message>
         <source>Hexotic_SHARP_ANGLE_THRESHOLD</source>
-        <translation>Seuil d&apos;un angle aigu en degrées</translation>
+        <translation>Seuil d&apos;un angle aigu en degrés</translation>
     </message>
 </context>
 </TS>
