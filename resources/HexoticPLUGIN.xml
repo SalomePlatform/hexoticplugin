@@ -37,7 +37,7 @@
   </hypotheses>
   <algorithms>
     <algorithm type="Hexotic_3D"
-               label-id="Hexotic"
+               label-id="Hexotic (experimental)"
                icon-id="mesh_algo_Hexotic.png"
                hypos="Hexotic_Parameters"
                input="TRIA,QUAD"

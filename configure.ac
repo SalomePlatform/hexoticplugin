@@ -23,7 +23,7 @@
 # Author : Vadim SANDLER, Open CASCADE S.A.S (vadim.sandler@opencascade.com)
 # ---
 #
-AC_INIT([Salome2 Project HexoticPLUGIN module], [6.1.0], [webmaster.salome@opencascade.com], [SalomeHexoticPLUGIN])
+AC_INIT([Salome2 Project HexoticPLUGIN module], [6.2.0], [webmaster.salome@opencascade.com], [SalomeHexoticPLUGIN])
 AC_CONFIG_AUX_DIR(adm_local/unix/config_files)
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
@@ -420,6 +420,19 @@ echo
 #  chmod +x ./bin/*; \
 #  chmod +x ./bin/salome/*;
 #])
+
+AC_CONFIG_COMMANDS([hack_libtool],[
+sed -i "s%^CC=\"\(.*\)\"%hack_libtool (){ \n\
+  if test \"\$(echo \$[@] | grep -E '\\\-L/usr/lib(/../lib)?(64)? ')\" == \"\" \n\
+  then\n\
+    cmd=\"\1 \$[@]\"\n\
+  else\n\
+    cmd=\"\1 \"\`echo \$[@] | sed -r -e 's|(.*)-L/usr/lib(/../lib)?(64)? (.*)|\\\1\\\4 -L/usr/lib\\\3|g'\`\n\
+  fi\n\
+  \$cmd\n\
+}\n\
+CC=\"hack_libtool\"%g" libtool
+],[])
 
 # This list is initiated using autoscan and must be updated manually
 # when adding a new file <filename>.in to manage. When you execute

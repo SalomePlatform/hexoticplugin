@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="en_US">
+<TS version="2.0" language="fr_FR">
 <context>
     <name>@default</name>
     <message>
@@ -9,35 +9,31 @@
     </message>
     <message>
         <source>Hexotic_3D_TITLE</source>
-        <translation>Hypothesis Construction</translation>
+        <translation>Construction de l&apos;hypothèse</translation>
     </message>
     <message>
         <source>Hexotic_HEXES_MAX_LEVEL</source>
-        <translation>Nb. Hexes Max Level</translation>
+        <translation>Nb. des hexagones: niveau max</translation>
     </message>
     <message>
         <source>Hexotic_HEXES_MIN_LEVEL</source>
-        <translation>Nb. Hexes Min Level</translation>
+        <translation>Nb. des hexagones: niveau min</translation>
     </message>
     <message>
         <source>Hexotic_IGNORE_RIDGES</source>
-        <translation>Generate smooth meshes no ridges</translation>
+        <translation>Générer des maillages lisses sans crête</translation>
     </message>
     <message>
         <source>Hexotic_INVALID_ELEMENTS</source>
-        <translation>Authorize invalid elements</translation>
+        <translation>Autoriser des éléments invalides</translation>
     </message>
     <message>
         <source>Hexotic_QUADRANGLES</source>
-        <translation>Salome Quadrangles</translation>
+        <translation>Quadrangles Salomé</translation>
     </message>
     <message>
         <source>Hexotic_SHARP_ANGLE_THRESHOLD</source>
-        <translation>Sharp angle threshold in degrees</translation>
-    </message>
-    <message>
-        <source>Hexotic_INFO</source>
-        <translation>&lt;b&gt;Warning&lt;/b&gt;: Hexotic algorithm is still in the development and no any guarantee can be given about the result</translation>
+        <translation>Seuil d&apos;un angle aigu en degrés</translation>
     </message>
 </context>
 </TS>

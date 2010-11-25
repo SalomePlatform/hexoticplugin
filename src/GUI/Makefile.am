@@ -64,6 +64,7 @@ libHexoticPluginGUI_la_LDFLAGS =		\
 	$(CAS_KERNEL)
 
 # resources files
-nodist_salomeres_DATA =			\
+nodist_salomeres_DATA =		\
 	HexoticPLUGIN_images.qm	\
-	HexoticPLUGIN_msg_en.qm
+	HexoticPLUGIN_msg_en.qm \
+	HexoticPLUGIN_msg_fr.qm

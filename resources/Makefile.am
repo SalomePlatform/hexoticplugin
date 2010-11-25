@@ -26,7 +26,6 @@ include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
 dist_salomeres_DATA =			\
 	HexoticPLUGIN.xml		\
-	HexoticPlugin.xml		\
 	SalomeApp.xml
 
 if HEXOTICPLUGIN_ENABLE_GUI

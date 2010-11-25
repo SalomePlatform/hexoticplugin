@@ -74,8 +74,8 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
 {
   QFrame* fr = new QFrame( 0 );
   QVBoxLayout* lay = new QVBoxLayout( fr );
-  lay->setMargin( 5 );
-  lay->setSpacing( 0 );
+  lay->setMargin( 0 );
+  lay->setSpacing( 6 );
 
   QGroupBox* GroupC1 = new QGroupBox( tr( "SMESH_ARGUMENTS" ), fr );
   lay->addWidget( GroupC1 );
@@ -90,6 +90,7 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
     l->addWidget( new QLabel( tr( "SMESH_NAME" ), GroupC1 ), row, 0, 1, 1 );
     myName = new QLineEdit( GroupC1 );
     l->addWidget( myName, row++, 1, 1, 1 );
+    myName->setMinimumWidth( 150 );
   }
 
   HexoticPlugin::HexoticPlugin_Hypothesis_var h =
@@ -126,6 +127,17 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   myHexoticSharpAngleThreshold->setMaximum( 90 );
   myHexoticSharpAngleThreshold->setSingleStep( 1 );
   l->addWidget( myHexoticSharpAngleThreshold, row++, 1, 1, 1 );
+
+  QGroupBox* GroupC2 = new QGroupBox( fr );
+  lay->addWidget( GroupC2 );
+
+  QLabel* info = new QLabel( GroupC2 );
+  info->setText( tr( "Hexotic_INFO" ) );
+  info->setWordWrap( true );
+  QVBoxLayout* l2 = new QVBoxLayout( GroupC2 );
+  l2->setSpacing( 6 );
+  l2->setMargin( 11 );
+  l2->addWidget( info );
 
   return fr;
 }
