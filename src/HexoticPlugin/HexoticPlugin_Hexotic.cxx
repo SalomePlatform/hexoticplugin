@@ -372,7 +372,7 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
   itOnNode = theMesh->nodesIterator();
   while ( itOnNode->more() ) {
       aNode = itOnNode->next();
-      dummy_1D = aNode->GetPosition()->GetShapeId();
+      dummy_1D = aNode->getshapeId();
       tabNodeId[ aSmdsNodeID - 1 ] = 0;
       idFound  = false;
       for ( int j=0; j< aSmdsNodeID; j++ ) {

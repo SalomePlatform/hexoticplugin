@@ -48,6 +48,7 @@ libHexoticEngine_la_CPPFLAGS =			\
 	$(CORBA_INCLUDES)			\
 	$(BOOST_CPPFLAGS)			\
 	$(CAS_CPPFLAGS)				\
+	$(VTK_INCLUDES)	                        \
 	$(KERNEL_CXXFLAGS)			\
 	$(GUI_CXXFLAGS)				\
 	$(MED_CXXFLAGS)				\
