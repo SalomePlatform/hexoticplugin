@@ -97,6 +97,9 @@ HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, int studyId, SMESH_Gen* 
   _nbShape=0;
   _hexoticFilesKept=false;
   _compatibleHypothesis.push_back("Hexotic_Parameters");
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+  _compute_canceled = false;
+#endif
 }
 
 //=============================================================================
@@ -556,6 +559,9 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
 //=======================================================================
 
 static bool readResult(std::string         theFile,
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+                       HexoticPlugin_Hexotic*  theAlgo,
+#endif
                        SMESHDS_Mesh*       theMesh,
                        const int           nbShape,
                        const TopoDS_Shape* tabShape,
@@ -652,6 +658,12 @@ static bool readResult(std::string         theFile,
 
         coord = new double[nbRef];
         for ( int iElem = 0; iElem < nbElem; iElem++ ) {
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+          if(theAlgo->computeCanceled())
+            {
+              return false;
+            }
+#endif
           aHexoticID = iElem + 1;
           for ( int iCoord = 0; iCoord < 3; iCoord++ )
             fileRes >> coord[ iCoord ];
@@ -676,6 +688,12 @@ static bool readResult(std::string         theFile,
         node   = new SMDS_MeshNode*[ nbRef ];
         nodeID = new int[ nbRef ];
         for ( int iElem = 0; iElem < nbElem; iElem++ ) {
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+          if(theAlgo->computeCanceled())
+            {
+              return false;
+            }
+#endif
           for ( int iRef = 0; iRef < nbRef; iRef++ ) {
             fileRes >> aHexoticNodeID;                          // read nbRef aHexoticNodeID
             node[ iRef ]   = HexoticNode[ aHexoticNodeID ];
@@ -788,7 +806,11 @@ static bool readResult(std::string         theFile,
 //purpose  : 
 //=======================================================================
 
-static bool readResult(std::string theFile, SMESH_MesherHelper* theHelper)
+static bool readResult(std::string theFile,
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+                       HexoticPlugin_Hexotic*  theAlgo,
+#endif
+                       SMESH_MesherHelper* theHelper)
 {
   SMESHDS_Mesh* theMesh = theHelper->GetMeshDS();
 
@@ -860,6 +882,12 @@ static bool readResult(std::string theFile, SMESH_MesherHelper* theHelper)
       SMDS_MeshNode * aHexoticNode;
 
       for ( int iElem = 0; iElem < nbElem; iElem++ ) {
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+        if(theAlgo->computeCanceled())
+          {
+            return false;
+          }
+#endif
         aHexoticID = iElem + 1;
         for ( int iCoord = 0; iCoord < 3; iCoord++ )
           fileRes >> coord[ iCoord ];
@@ -881,6 +909,12 @@ static bool readResult(std::string theFile, SMESH_MesherHelper* theHelper)
 
       for ( int iElem = 0; iElem < nbElem; iElem++ )
       {
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+        if(theAlgo->computeCanceled())
+          {
+            return false;
+          }
+#endif
         for ( int iRef = 0; iRef < nbRef; iRef++ )
         {
           fileRes >> aHexoticNodeID;                          // read nbRef aHexoticNodeID
@@ -1044,6 +1078,9 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
 bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
                                      const TopoDS_Shape& theShape)
 {
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+  _compute_canceled = false;
+#endif
   bool Ok = true;
   SMESHDS_Mesh* meshDS = theMesh.GetMeshDS();
   TCollection_AsciiString hexahedraMessage;
@@ -1134,8 +1171,15 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     modeFile_Out += Hexotic_Out;
     system( modeFile_Out.ToCString() );
     if ( ! fileRes.fail() ) {
-      Ok = readResult( Hexotic_Out.ToCString(), meshDS, _nbShape, tabShape, tabBox );
-      hexahedraMessage = "success";
+      Ok = readResult( Hexotic_Out.ToCString(),
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+                       this,
+#endif
+                       meshDS, _nbShape, tabShape, tabBox );
+      if(Ok)
+        hexahedraMessage = "success";
+      else
+        hexahedraMessage = "failed";
     }
     else {
       hexahedraMessage = "failed";
@@ -1152,6 +1196,10 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     _nbShape = 0;
     _iShape  = 0;
   }
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+  if(_compute_canceled)
+    return error(SMESH_Comment("interruption initiated by user"));
+#endif
   return Ok;
 }
 
@@ -1168,6 +1216,9 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
 
 bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHelper)
 {
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+  _compute_canceled = false;
+#endif
   bool Ok = true;
   TCollection_AsciiString hexahedraMessage;
 
@@ -1212,8 +1263,15 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   modeFile_Out += Hexotic_Out;
   system( modeFile_Out.ToCString() );
   if ( ! fileRes.fail() ) {
-    Ok = readResult( Hexotic_Out.ToCString(), aHelper );
-    hexahedraMessage = "success";
+    Ok = readResult( Hexotic_Out.ToCString(),
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+                     this,
+#endif
+                     aHelper );
+    if(Ok)
+      hexahedraMessage = "success";
+    else
+      hexahedraMessage = "failed";
   }
   else {
     hexahedraMessage = "failed";
@@ -1223,6 +1281,10 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   cout << "Hexahedra meshing " << hexahedraMessage << std::endl;
   cout << std::endl;
 
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+  if(_compute_canceled)
+    return error(SMESH_Comment("interruption initiated by user"));
+#endif
   return Ok;
 }
 
@@ -1246,3 +1308,18 @@ bool HexoticPlugin_Hexotic::Evaluate(SMESH_Mesh& aMesh,
 
   return true;
 }
+
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+void HexoticPlugin_Hexotic::CancelCompute()
+{
+  _compute_canceled = true;
+#ifdef WNT
+#else
+  TCollection_AsciiString aTmpDir = getTmpDir();
+  TCollection_AsciiString Hexotic_In = aTmpDir + "Hexotic_In.mesh";
+  TCollection_AsciiString cmd = TCollection_AsciiString("ps ux | grep ") + Hexotic_In;
+  cmd += TCollection_AsciiString(" | grep -v grep | awk '{print $2}' | xargs kill -9 > /dev/null 2>&1");
+  system( cmd.ToCString() );
+#endif
+}
+#endif

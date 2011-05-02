@@ -51,6 +51,11 @@ public:
 
   virtual bool Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHelper);
 
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+    virtual void CancelCompute();
+    bool computeCanceled() { return _compute_canceled;};
+#endif
+
   virtual bool Evaluate(SMESH_Mesh& aMesh, const TopoDS_Shape& aShape,
                         MapShapeNbElems& aResMap);
 
@@ -72,6 +77,10 @@ private:
   bool _hexoticFilesKept;
   int  _hexoticSharpAngleThreshold;
   SMDS_MeshNode** _tabNode;
+
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+  volatile bool _compute_canceled;
+#endif
 };
 
 #endif
