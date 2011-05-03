@@ -342,7 +342,7 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
   int nbVertices    = 0;
   int nbTriangles   = 0;
   const char* space = "  ";
-  int dummy_1D      = 0;
+  int dummy_0D      = 0;
   int dummy_2D;
 
   int aSmdsNodeID = 1;
@@ -375,20 +375,20 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
   itOnNode = theMesh->nodesIterator();
   while ( itOnNode->more() ) {
       aNode = itOnNode->next();
-      dummy_1D = aNode->getshapeId();
+      dummy_0D = aNode->getshapeId();
       tabNodeId[ aSmdsNodeID - 1 ] = 0;
       idFound  = false;
       for ( int j=0; j< aSmdsNodeID; j++ ) {
-        if ( dummy_1D == tabNodeId[j] ) {
+        if ( dummy_0D == tabNodeId[j] ) {
           idFound = true;
           break;
         }
       }
       if ( ! idFound )
-        tabNodeId[ aSmdsNodeID - 1 ] = dummy_1D;
+        tabNodeId[ aSmdsNodeID - 1 ] = dummy_0D;
       theSmdsToHexoticIdMap.insert(std::map <int,int>::value_type( aNode->GetID(), aSmdsNodeID ));
       aSmdsNodeID++;
-      theFile << aNode->X() << space << aNode->Y() << space << aNode->Z() << space << dummy_1D << std::endl;
+      theFile << aNode->X() << space << aNode->Y() << space << aNode->Z() << space << dummy_0D << std::endl;
       }
 
 // Writing SMESH faces into Hexotic File
@@ -469,7 +469,7 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
   int nbVertices    = 0;
   int nbTriangles   = 0;
   const char* space = "  ";
-  int dummy_1D      = 0;
+  int dummy_0D      = 0;
   int dummy_2D      = 0;
 
   int aSmdsNodeID = 1;
@@ -498,7 +498,7 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
     aNode = itOnNode->next();
     theSmdsToHexoticIdMap.insert(make_pair( aNode->GetID(), aSmdsNodeID ));
     aSmdsNodeID++;
-    theFile << aNode->X() << space << aNode->Y() << space << aNode->Z() << space << dummy_1D << std::endl;
+    theFile << aNode->X() << space << aNode->Y() << space << aNode->Z() << space << dummy_0D << std::endl;
   }
 
   // Writing SMESH faces into Hexotic File
