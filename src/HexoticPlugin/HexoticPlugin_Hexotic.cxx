@@ -47,6 +47,7 @@
 
 #include <SMESH_Gen.hxx>
 #include <SMESHDS_Mesh.hxx>
+#include <SMESHDS_GroupBase.hxx>
 #include <SMESH_ControlsDef.hxx>
 #include <SMESH_MesherHelper.hxx>
 
@@ -568,6 +569,29 @@ static bool readResult(std::string         theFile,
                        double**            tabBox)
 {
   // ---------------------------------
+  // Optimisation of the plugin ...
+  // Retrieve the correspondance edge --> shape
+  // (which is very costly) only when user
+  // has defined at least one group of edges
+  // which should be rare for a 3d mesh !
+  // ---------------------------------
+  
+  bool retrieve_edges = false;
+  const std::set<SMESHDS_GroupBase*>& aGroups = theMesh->GetGroups();
+  set<SMESHDS_GroupBase*>::const_iterator GrIt = aGroups.begin();
+  for (; GrIt != aGroups.end(); GrIt++)
+    {
+      SMESHDS_GroupBase* aGrp = *GrIt;
+      if ( !aGrp )
+        continue;
+      if ( aGrp->GetType() == SMDSAbs_Edge )
+        {
+          retrieve_edges = true;
+          break;
+        }
+    }
+  
+  // ---------------------------------
   // Read generated elements and nodes
   // ---------------------------------
 
@@ -719,7 +743,10 @@ static bool readResult(std::string         theFile,
               int iNode = 1;
               if ( nodeAssigne[ nodeID[0] ] == 0 || nodeAssigne[ nodeID[0] ] == 2 )
                 iNode = 0;
-              shapeID = findEdge( node[iNode], theMesh, nbShapeEdge, tabEdge );
+              if(retrieve_edges)
+                shapeID = findEdge( node[iNode], theMesh, nbShapeEdge, tabEdge );
+              else
+                shapeID = 0;
               break;
             }
             case 5: { // "Ridges"
