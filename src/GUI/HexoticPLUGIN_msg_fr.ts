@@ -37,7 +37,7 @@
     </message>
     <message>
         <source>Hexotic_INFO</source>
-        <translation>&lt;b&gt;Attention&lt;/b&gt;: l&apos;algorithme Hexotic est encore en train de développement donc, il n&apos;est pas possible de garantir le résultat</translation>
+        <translation>&lt;b&gt;Attention&lt;/b&gt;: l&apos;algorithme Hexotic est encore en cours de développement donc, il n&apos;est pas possible de garantir le résultat</translation>
     </message>
 </context>
 </TS>
