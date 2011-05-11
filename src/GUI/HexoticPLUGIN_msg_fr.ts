@@ -35,5 +35,9 @@
         <source>Hexotic_SHARP_ANGLE_THRESHOLD</source>
         <translation>Seuil d&apos;un angle aigu en degrés</translation>
     </message>
+    <message>
+        <source>Hexotic_INFO</source>
+        <translation type="unfinished">&lt;b&gt;Attention&lt;/b&gt;: l&apos;algorithme Hexotic est encore en train de développement donc, il n&apos;est pas possible de garantir le résultat</translation>
+    </message>
 </context>
 </TS>
