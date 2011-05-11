@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.0" language="fr_FR">
 <context>
@@ -9,7 +9,7 @@
     </message>
     <message>
         <source>Hexotic_3D_TITLE</source>
-        <translation>Construction de l&apos;hypothèse</translation>
+        <translation>Construction de l&apos;hypothÃ¨se</translation>
     </message>
     <message>
         <source>Hexotic_HEXES_MAX_LEVEL</source>
@@ -21,23 +21,23 @@
     </message>
     <message>
         <source>Hexotic_IGNORE_RIDGES</source>
-        <translation>Générer des maillages lisses sans crête</translation>
+        <translation>GÃ©nÃ©rer des maillages lisses sans crÃªte</translation>
     </message>
     <message>
         <source>Hexotic_INVALID_ELEMENTS</source>
-        <translation>Autoriser des éléments invalides</translation>
+        <translation>Autoriser des Ã©lÃ©ments invalides</translation>
     </message>
     <message>
         <source>Hexotic_QUADRANGLES</source>
-        <translation>Quadrangles Salomé</translation>
+        <translation>Quadrangles SalomÃ©</translation>
     </message>
     <message>
         <source>Hexotic_SHARP_ANGLE_THRESHOLD</source>
-        <translation>Seuil d&apos;un angle aigu en degrés</translation>
+        <translation>Seuil d&apos;un angle aigu en degrÃ©s</translation>
     </message>
     <message>
         <source>Hexotic_INFO</source>
-        <translation>&lt;b&gt;Attention&lt;/b&gt;: l&apos;algorithme Hexotic est encore en train de développement donc, il n&apos;est pas possible de garantir le résultat</translation>
+        <translation>&lt;b&gt;Attention&lt;/b&gt;: l&apos;algorithme Hexotic est encore en train de dÃ©veloppement donc, il n&apos;est pas possible de garantir le rÃ©sultat</translation>
     </message>
 </context>
 </TS>
