@@ -1,20 +1,20 @@
-//  Copyright (C) 2007-2010  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 // ---
@@ -47,6 +47,7 @@
 
 #include <SMESH_Gen.hxx>
 #include <SMESHDS_Mesh.hxx>
+#include <SMESHDS_GroupBase.hxx>
 #include <SMESH_ControlsDef.hxx>
 #include <SMESH_MesherHelper.hxx>
 
@@ -97,6 +98,9 @@ HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, int studyId, SMESH_Gen* 
   _nbShape=0;
   _hexoticFilesKept=false;
   _compatibleHypothesis.push_back("Hexotic_Parameters");
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+  _compute_canceled = false;
+#endif
 }
 
 //=============================================================================
@@ -339,7 +343,7 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
   int nbVertices    = 0;
   int nbTriangles   = 0;
   const char* space = "  ";
-  int dummy_1D      = 0;
+  int dummy_0D      = 0;
   int dummy_2D;
 
   int aSmdsNodeID = 1;
@@ -372,20 +376,20 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
   itOnNode = theMesh->nodesIterator();
   while ( itOnNode->more() ) {
       aNode = itOnNode->next();
-      dummy_1D = aNode->getshapeId();
+      dummy_0D = aNode->getshapeId();
       tabNodeId[ aSmdsNodeID - 1 ] = 0;
       idFound  = false;
       for ( int j=0; j< aSmdsNodeID; j++ ) {
-        if ( dummy_1D == tabNodeId[j] ) {
+        if ( dummy_0D == tabNodeId[j] ) {
           idFound = true;
           break;
         }
       }
       if ( ! idFound )
-        tabNodeId[ aSmdsNodeID - 1 ] = dummy_1D;
+        tabNodeId[ aSmdsNodeID - 1 ] = dummy_0D;
       theSmdsToHexoticIdMap.insert(std::map <int,int>::value_type( aNode->GetID(), aSmdsNodeID ));
       aSmdsNodeID++;
-      theFile << aNode->X() << space << aNode->Y() << space << aNode->Z() << space << dummy_1D << std::endl;
+      theFile << aNode->X() << space << aNode->Y() << space << aNode->Z() << space << dummy_0D << std::endl;
       }
 
 // Writing SMESH faces into Hexotic File
@@ -466,7 +470,7 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
   int nbVertices    = 0;
   int nbTriangles   = 0;
   const char* space = "  ";
-  int dummy_1D      = 0;
+  int dummy_0D      = 0;
   int dummy_2D      = 0;
 
   int aSmdsNodeID = 1;
@@ -495,7 +499,7 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
     aNode = itOnNode->next();
     theSmdsToHexoticIdMap.insert(make_pair( aNode->GetID(), aSmdsNodeID ));
     aSmdsNodeID++;
-    theFile << aNode->X() << space << aNode->Y() << space << aNode->Z() << space << dummy_1D << std::endl;
+    theFile << aNode->X() << space << aNode->Y() << space << aNode->Z() << space << dummy_0D << std::endl;
   }
 
   // Writing SMESH faces into Hexotic File
@@ -556,11 +560,37 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
 //=======================================================================
 
 static bool readResult(std::string         theFile,
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+                       HexoticPlugin_Hexotic*  theAlgo,
+#endif
                        SMESHDS_Mesh*       theMesh,
                        const int           nbShape,
                        const TopoDS_Shape* tabShape,
                        double**            tabBox)
 {
+  // ---------------------------------
+  // Optimisation of the plugin ...
+  // Retrieve the correspondance edge --> shape
+  // (which is very costly) only when user
+  // has defined at least one group of edges
+  // which should be rare for a 3d mesh !
+  // ---------------------------------
+  
+  bool retrieve_edges = false;
+  const std::set<SMESHDS_GroupBase*>& aGroups = theMesh->GetGroups();
+  set<SMESHDS_GroupBase*>::const_iterator GrIt = aGroups.begin();
+  for (; GrIt != aGroups.end(); GrIt++)
+    {
+      SMESHDS_GroupBase* aGrp = *GrIt;
+      if ( !aGrp )
+        continue;
+      if ( aGrp->GetType() == SMDSAbs_Edge )
+        {
+          retrieve_edges = true;
+          break;
+        }
+    }
+  
   // ---------------------------------
   // Read generated elements and nodes
   // ---------------------------------
@@ -652,6 +682,12 @@ static bool readResult(std::string         theFile,
 
         coord = new double[nbRef];
         for ( int iElem = 0; iElem < nbElem; iElem++ ) {
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+          if(theAlgo->computeCanceled())
+            {
+              return false;
+            }
+#endif
           aHexoticID = iElem + 1;
           for ( int iCoord = 0; iCoord < 3; iCoord++ )
             fileRes >> coord[ iCoord ];
@@ -676,6 +712,12 @@ static bool readResult(std::string         theFile,
         node   = new SMDS_MeshNode*[ nbRef ];
         nodeID = new int[ nbRef ];
         for ( int iElem = 0; iElem < nbElem; iElem++ ) {
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+          if(theAlgo->computeCanceled())
+            {
+              return false;
+            }
+#endif
           for ( int iRef = 0; iRef < nbRef; iRef++ ) {
             fileRes >> aHexoticNodeID;                          // read nbRef aHexoticNodeID
             node[ iRef ]   = HexoticNode[ aHexoticNodeID ];
@@ -701,7 +743,10 @@ static bool readResult(std::string         theFile,
               int iNode = 1;
               if ( nodeAssigne[ nodeID[0] ] == 0 || nodeAssigne[ nodeID[0] ] == 2 )
                 iNode = 0;
-              shapeID = findEdge( node[iNode], theMesh, nbShapeEdge, tabEdge );
+              if(retrieve_edges)
+                shapeID = findEdge( node[iNode], theMesh, nbShapeEdge, tabEdge );
+              else
+                shapeID = 0;
               break;
             }
             case 5: { // "Ridges"
@@ -788,7 +833,11 @@ static bool readResult(std::string         theFile,
 //purpose  : 
 //=======================================================================
 
-static bool readResult(std::string theFile, SMESH_MesherHelper* theHelper)
+static bool readResult(std::string theFile,
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+                       HexoticPlugin_Hexotic*  theAlgo,
+#endif
+                       SMESH_MesherHelper* theHelper)
 {
   SMESHDS_Mesh* theMesh = theHelper->GetMeshDS();
 
@@ -860,6 +909,12 @@ static bool readResult(std::string theFile, SMESH_MesherHelper* theHelper)
       SMDS_MeshNode * aHexoticNode;
 
       for ( int iElem = 0; iElem < nbElem; iElem++ ) {
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+        if(theAlgo->computeCanceled())
+          {
+            return false;
+          }
+#endif
         aHexoticID = iElem + 1;
         for ( int iCoord = 0; iCoord < 3; iCoord++ )
           fileRes >> coord[ iCoord ];
@@ -881,6 +936,12 @@ static bool readResult(std::string theFile, SMESH_MesherHelper* theHelper)
 
       for ( int iElem = 0; iElem < nbElem; iElem++ )
       {
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+        if(theAlgo->computeCanceled())
+          {
+            return false;
+          }
+#endif
         for ( int iRef = 0; iRef < nbRef; iRef++ )
         {
           fileRes >> aHexoticNodeID;                          // read nbRef aHexoticNodeID
@@ -1044,6 +1105,9 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
 bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
                                      const TopoDS_Shape& theShape)
 {
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+  _compute_canceled = false;
+#endif
   bool Ok = true;
   SMESHDS_Mesh* meshDS = theMesh.GetMeshDS();
   TCollection_AsciiString hexahedraMessage;
@@ -1134,8 +1198,15 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     modeFile_Out += Hexotic_Out;
     system( modeFile_Out.ToCString() );
     if ( ! fileRes.fail() ) {
-      Ok = readResult( Hexotic_Out.ToCString(), meshDS, _nbShape, tabShape, tabBox );
-      hexahedraMessage = "success";
+      Ok = readResult( Hexotic_Out.ToCString(),
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+                       this,
+#endif
+                       meshDS, _nbShape, tabShape, tabBox );
+      if(Ok)
+        hexahedraMessage = "success";
+      else
+        hexahedraMessage = "failed";
     }
     else {
       hexahedraMessage = "failed";
@@ -1152,6 +1223,10 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     _nbShape = 0;
     _iShape  = 0;
   }
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+  if(_compute_canceled)
+    return error(SMESH_Comment("interruption initiated by user"));
+#endif
   return Ok;
 }
 
@@ -1168,6 +1243,9 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
 
 bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHelper)
 {
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+  _compute_canceled = false;
+#endif
   bool Ok = true;
   TCollection_AsciiString hexahedraMessage;
 
@@ -1212,8 +1290,15 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   modeFile_Out += Hexotic_Out;
   system( modeFile_Out.ToCString() );
   if ( ! fileRes.fail() ) {
-    Ok = readResult( Hexotic_Out.ToCString(), aHelper );
-    hexahedraMessage = "success";
+    Ok = readResult( Hexotic_Out.ToCString(),
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+                     this,
+#endif
+                     aHelper );
+    if(Ok)
+      hexahedraMessage = "success";
+    else
+      hexahedraMessage = "failed";
   }
   else {
     hexahedraMessage = "failed";
@@ -1223,6 +1308,10 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   cout << "Hexahedra meshing " << hexahedraMessage << std::endl;
   cout << std::endl;
 
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+  if(_compute_canceled)
+    return error(SMESH_Comment("interruption initiated by user"));
+#endif
   return Ok;
 }
 
@@ -1246,3 +1335,18 @@ bool HexoticPlugin_Hexotic::Evaluate(SMESH_Mesh& aMesh,
 
   return true;
 }
+
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+void HexoticPlugin_Hexotic::CancelCompute()
+{
+  _compute_canceled = true;
+#ifdef WNT
+#else
+  TCollection_AsciiString aTmpDir = getTmpDir();
+  TCollection_AsciiString Hexotic_In = aTmpDir + "Hexotic_In.mesh";
+  TCollection_AsciiString cmd = TCollection_AsciiString("ps ux | grep ") + Hexotic_In;
+  cmd += TCollection_AsciiString(" | grep -v grep | awk '{print $2}' | xargs kill -9 > /dev/null 2>&1");
+  system( cmd.ToCString() );
+#endif
+}
+#endif
