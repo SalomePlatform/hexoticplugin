@@ -58,10 +58,12 @@ libHexoticPluginGUI_la_CPPFLAGS = 	\
 	-I$(srcdir)/../HexoticPlugin	\
 	-I$(top_builddir)/idl
 
-libHexoticPluginGUI_la_LDFLAGS =		\
-	../HexoticPlugin/libHexoticEngine.la	\
-	${SMESH_LDFLAGS} -lSMESH		\
-	$(CAS_KERNEL)
+libHexoticPluginGUI_la_LDFLAGS =		           \
+	../HexoticPlugin/libHexoticEngine.la	           \
+	${SMESH_LDFLAGS} -lSMESH		           \
+	$(CAS_KERNEL)                                      \
+	$(GUI_LDFLAGS) -lsuit -lqtx -lSalomeApp            \
+	$(QT_LIBS)
 
 # resources files
 nodist_salomeres_DATA =		\
