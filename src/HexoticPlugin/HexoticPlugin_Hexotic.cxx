@@ -345,6 +345,7 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
   const char* space = "  ";
   int dummy_0D      = 0;
   int dummy_2D;
+  int nbNodes = 0;
 
   int aSmdsNodeID = 1;
   const SMDS_MeshNode* aNode;
@@ -394,12 +395,8 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
 
 // Writing SMESH faces into Hexotic File
 
-  nbTriangles = theMesh->NbFaces();
-
-  theFile << std::endl;
-  theFile << "# Set of mesh triangles (v1,v2,v3,tag)" << std::endl;
-  theFile << "Triangles" << std::endl;
-  theFile << nbTriangles << std::endl;
+  ostringstream triaOut;
+  nbTriangles = 0;
 
   expface.ReInit();
   for ( int i = 0; expface.More(); expface.Next(), i++ ) {
@@ -427,17 +424,41 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
       while ( itOnSubFace->more() ) {
         aFace    = itOnSubFace->next();
         dummy_2D = shapeID;
-        itOnSubNode = aFace->nodesIterator();
-        while ( itOnSubNode->more() ) {
-          aSmdsNodeID  = itOnSubNode->next()->GetID();
-          itOnSmdsNode = theSmdsToHexoticIdMap.find( aSmdsNodeID );
-          ASSERT( itOnSmdsNode != theSmdsToHexoticIdMap.end() );
-          theFile << (*itOnSmdsNode).second << space;
+        
+        nbNodes = aFace->IsQuadratic() ? aFace->NbNodes()/2 : aFace->NbNodes();
+        if ( nbNodes == 3 ) // triangle
+        {
+          nbTriangles++;
+          for ( int i = 0; i < nbNodes; ++i )
+          {
+            aSmdsNodeID = aFace->GetNode( i )->GetID();
+            itOnSmdsNode = theSmdsToHexoticIdMap.find( aSmdsNodeID );
+            ASSERT( itOnSmdsNode != theSmdsToHexoticIdMap.end() );
+            triaOut << (*itOnSmdsNode).second << space;
+          }
+          triaOut << dummy_2D << std::endl;
         }
-        theFile << dummy_2D << std::endl;
+        else // polygon
+        {
+          int nbTria = nbNodes - 2, n0 = theSmdsToHexoticIdMap[ aFace->GetNode(0)->GetID() ];
+          nbTriangles += nbTria;
+          for ( int i = 0; i < nbTria; ++i )
+          {
+            triaOut << n0 << space;
+            triaOut << theSmdsToHexoticIdMap[ aFace->GetNode(i+1)->GetID() ] << space;
+            triaOut << theSmdsToHexoticIdMap[ aFace->GetNode(i+2)->GetID() ] << space;
+            triaOut << dummy_2D << std::endl;
+          }
+        }
       }
     }
   }
+
+  theFile << std::endl;
+  theFile << "# Set of mesh triangles (v1,v2,v3,tag)" << std::endl;
+  theFile << "Triangles" << std::endl;
+  theFile << nbTriangles << std::endl;
+  theFile << triaOut.str() << std::endl;
 
   theFile << std::endl;
   theFile << "End" << std::endl;

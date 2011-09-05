@@ -35,9 +35,5 @@
         <source>Hexotic_SHARP_ANGLE_THRESHOLD</source>
         <translation>Sharp angle threshold in degrees</translation>
     </message>
-    <message>
-        <source>Hexotic_INFO</source>
-        <translation>&lt;b&gt;Warning&lt;/b&gt;: Hexotic algorithm is still in the development and no any guarantee can be given about the result</translation>
-    </message>
 </context>
 </TS>

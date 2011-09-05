@@ -128,17 +128,6 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   myHexoticSharpAngleThreshold->setSingleStep( 1 );
   l->addWidget( myHexoticSharpAngleThreshold, row++, 1, 1, 1 );
 
-  QGroupBox* GroupC2 = new QGroupBox( fr );
-  lay->addWidget( GroupC2 );
-
-  QLabel* info = new QLabel( GroupC2 );
-  info->setText( tr( "Hexotic_INFO" ) );
-  info->setWordWrap( true );
-  QVBoxLayout* l2 = new QVBoxLayout( GroupC2 );
-  l2->setSpacing( 6 );
-  l2->setMargin( 11 );
-  l2->addWidget( info );
-
   return fr;
 }
 

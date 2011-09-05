@@ -31,17 +31,17 @@
                gui-lib="HexoticPluginGUI">
   <hypotheses>
     <hypothesis type="Hexotic_Parameters"
-		label-id="Hexotic Parameters"
-		icon-id="mesh_hypo_Hexotic.png"
-		dim="3"/>
+    label-id="Hexotic Parameters"
+    icon-id="mesh_hypo_Hexotic.png"
+    dim="3"/>
   </hypotheses>
   <algorithms>
     <algorithm type="Hexotic_3D"
-               label-id="Hexotic (experimental)"
+               label-id="Hexahedron (Hexotic)"
                icon-id="mesh_algo_Hexotic.png"
                hypos="Hexotic_Parameters"
                input="TRIA,QUAD"
-	       need-geom="false"
+               need-geom="false"
                dim="3"/>
   </algorithms>
 </meshers-group>
