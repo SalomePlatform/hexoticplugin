@@ -65,6 +65,12 @@ class HexoticPlugin_Hypothesis_i:
   
   void SetHexoticSharpAngleThreshold(CORBA::Long theVal);
   CORBA::Long GetHexoticSharpAngleThreshold();
+  
+  void SetHexoticNbProc(CORBA::Long theVal);
+  CORBA::Long GetHexoticNbProc();
+  
+  void SetHexoticWorkingDirectory(const char* path) throw ( SALOME::SALOME_Exception );
+  char* GetHexoticWorkingDirectory();
 
   // Get implementation
   ::HexoticPlugin_Hypothesis* GetImpl();

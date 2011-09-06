@@ -50,6 +50,7 @@
 #include <SMESHDS_GroupBase.hxx>
 #include <SMESH_ControlsDef.hxx>
 #include <SMESH_MesherHelper.hxx>
+#include "SMESH_HypoFilter.hxx"
 
 #include <list>
 #include <cstdlib>
@@ -98,6 +99,9 @@ HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, int studyId, SMESH_Gen* 
   _nbShape=0;
   _hexoticFilesKept=false;
   _compatibleHypothesis.push_back("Hexotic_Parameters");
+#ifdef WITH_BLSURFPLUGIN
+  _blsurfHypo = NULL;
+#endif
 #ifdef WITH_SMESH_CANCEL_COMPUTE
   _compute_canceled = false;
 #endif
@@ -113,6 +117,35 @@ HexoticPlugin_Hexotic::~HexoticPlugin_Hexotic()
 {
   MESSAGE("HexoticPlugin_Hexotic::~HexoticPlugin_Hexotic");
 }
+
+
+#ifdef WITH_BLSURFPLUGIN
+bool HexoticPlugin_Hexotic::CheckBLSURFHypothesis( SMESH_Mesh&         aMesh,
+                                                   const TopoDS_Shape& aShape )
+{
+  // MESSAGE("HexoticPlugin_Hexotic::CheckBLSURFHypothesis");
+  _blsurfHypo = NULL;
+
+  std::list<const SMESHDS_Hypothesis*>::const_iterator itl;
+  const SMESHDS_Hypothesis* theHyp;
+
+  // If a BLSURF hypothesis is applied, get it
+  SMESH_HypoFilter blsurfFilter;
+  blsurfFilter.Init( blsurfFilter.HasName( "BLSURF_Parameters" ));
+  std::list<const SMESHDS_Hypothesis *> appliedHyps;
+  aMesh.GetHypotheses( aShape, blsurfFilter, appliedHyps, false );
+    
+  itl = appliedHyps.begin();
+  theHyp = (*itl); // use only the first hypothesis
+  std::string hypName = theHyp->GetName();
+  if (hypName == "BLSURF_Parameters") {
+    _blsurfHypo = static_cast<const BLSURFPlugin_Hypothesis*> (theHyp);
+    ASSERT(_blsurfHypo);
+    return true;
+  }
+  return false;
+}
+#endif
 
 //=============================================================================
 /*!
@@ -130,7 +163,7 @@ bool HexoticPlugin_Hexotic::CheckHypothesis( SMESH_Mesh&                        
   std::list<const SMESHDS_Hypothesis*>::const_iterator itl;
   const SMESHDS_Hypothesis* theHyp;
 
-  const std::list<const SMESHDS_Hypothesis*>& hyps = GetUsedHypothesis(aMesh, aShape);
+  const std::list<const SMESHDS_Hypothesis*>& hyps = GetUsedHypothesis(aMesh, aShape, false);
   int nbHyp = hyps.size();
   if (!nbHyp) {
     aStatus = SMESH_Hypothesis::HYP_OK;
@@ -148,7 +181,11 @@ bool HexoticPlugin_Hexotic::CheckHypothesis( SMESH_Mesh&                        
   }
   else
     aStatus = SMESH_Hypothesis::HYP_INCOMPATIBLE;
-
+  
+#ifdef WITH_BLSURFPLUGIN
+  CheckBLSURFHypothesis(aMesh, aShape);
+#endif
+  
   return aStatus == SMESH_Hypothesis::HYP_OK;
 }
 
@@ -362,7 +399,7 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
 
   nbVertices = theMesh->NbNodes();
 
-  theFile << "MeshVersionFormatted 1" << std::endl;
+  theFile << "MeshVersionFormatted 2" << std::endl;
   theFile << std::endl;
   theFile << "Dimension" << std::endl;
   theFile << 3 << std::endl;
@@ -506,7 +543,7 @@ static bool writeHexoticFile (std::ofstream&                       theFile,
 
   nbVertices = theHelper->GetMeshDS()->NbNodes();
 
-  theFile << "MeshVersionFormatted 1" << std::endl;
+  theFile << "MeshVersionFormatted 2" << std::endl;
   theFile << std::endl;
   theFile << "Dimension" << std::endl;
   theFile << 3 << std::endl;
@@ -1026,6 +1063,8 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _hexoticIgnoreRidges = hyp->GetHexoticIgnoreRidges();
     _hexoticInvalidElements = hyp->GetHexoticInvalidElements();
     _hexoticSharpAngleThreshold = hyp->GetHexoticSharpAngleThreshold();
+    _hexoticNbProc = hyp->GetHexoticNbProc();
+    _hexoticWorkingDirectory = hyp->GetHexoticWorkingDirectory();
   }
   else {
     cout << std::endl;
@@ -1037,6 +1076,8 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _hexoticIgnoreRidges = hyp->GetDefaultHexoticIgnoreRidges();
     _hexoticInvalidElements = hyp->GetDefaultHexoticInvalidElements();
     _hexoticSharpAngleThreshold = hyp->GetDefaultHexoticSharpAngleThreshold();
+    _hexoticNbProc = hyp->GetDefaultHexoticNbProc();
+    _hexoticWorkingDirectory = hyp->GetDefaultHexoticWorkingDirectory();
   }
 }
 
@@ -1086,21 +1127,24 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   cout << "    " << "Hexotic can ignore ridges : " << (_hexoticIgnoreRidges ? "yes":"no") << std::endl;
   cout << "    " << "Hexotic authorize invalide elements : " << ( _hexoticInvalidElements ? "yes":"no") << std::endl;
   cout << "    " << _name << " Sharp angle threshold = " << _hexoticSharpAngleThreshold << " degrees" << std::endl;
+  cout << "    " << _name << " Number of threads = " << _hexoticNbProc << std::endl;
+  cout << "    " << _name << " Working directory = \"" << _hexoticWorkingDirectory << "\"" << std::endl;
 
-  TCollection_AsciiString aTmpDir = getTmpDir();
   TCollection_AsciiString run_Hexotic( "hexotic" );
 
   TCollection_AsciiString minl = " -minl ", maxl = " -maxl ", angle = " -ra ";
   TCollection_AsciiString in   = " -in ",   out  = " -out ";
   TCollection_AsciiString ignoreRidges = " -nr ", invalideElements = " -inv ";
   TCollection_AsciiString subdom = " -sd ", sharp = " -sharp ";
+  TCollection_AsciiString proc = " -nproc ";
 
-  TCollection_AsciiString minLevel, maxLevel, sharpAngle, mode, subdivision;
+  TCollection_AsciiString minLevel, maxLevel, sharpAngle, mode, subdivision, nbproc;
   minLevel = _hexesMinLevel;
   maxLevel = _hexesMaxLevel;
   sharpAngle = _hexoticSharpAngleThreshold;
   mode = 4;
   subdivision = 3;
+  nbproc = _hexoticNbProc;
 
   if (_hexoticIgnoreRidges)
     run_Hexotic +=  ignoreRidges;
@@ -1110,6 +1154,7 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
 
   run_Hexotic += angle + sharpAngle + minl + minLevel + maxl + maxLevel + in + Hexotic_In + out + Hexotic_Out;
   run_Hexotic += subdom + mode;
+  run_Hexotic += proc + nbproc;
   //     run_Hexotic += subdom + mode + invalideElements;
   //     run_Hexotic += subdom + mode + ignoreRidges;
   //     run_Hexotic += subdom + mode + sharp + subdivision;
@@ -1180,28 +1225,54 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
 
     SetParameters(_hypothesis);
 
-    TCollection_AsciiString aTmpDir = getTmpDir();
-    TCollection_AsciiString Hexotic_In, Hexotic_Out;
+//     TCollection_AsciiString aTmpDir = getTmpDir();
+    TCollection_AsciiString aTmpDir = TCollection_AsciiString(_hexoticWorkingDirectory.c_str());
+#ifdef WIN32
+    if ( aTmpDir.Value(aTmpDir.Length()) != '\\' ) aTmpDir += '\\';
+#else
+    if ( aTmpDir.Value(aTmpDir.Length()) != '/' ) aTmpDir += '/';
+#endif
+    TCollection_AsciiString Hexotic_In(""), Hexotic_Out;
     TCollection_AsciiString modeFile_In( "chmod 666 " ), modeFile_Out( "chmod 666 " );
 
     std::map <int,int> aSmdsToHexoticIdMap;
     std::map <int,const SMDS_MeshNode*> aHexoticIdToNodeMap;
 
-    Hexotic_In  = aTmpDir + "Hexotic_In.mesh";
     Hexotic_Out = aTmpDir + "Hexotic_Out.mesh";
+#ifdef WITH_BLSURFPLUGIN
+    if (_blsurfHypo && !_blsurfHypo->GetQuadAllowed()) {
+      Hexotic_In = TCollection_AsciiString(_blsurfHypo->GetGMFFile().c_str());
+      removeFile( Hexotic_Out );
+      if (Hexotic_In == "") {
+        Hexotic_In  = aTmpDir + "Hexotic_In.mesh";
+        removeFile( Hexotic_In );
+      }
+    }
+    else {
+#endif
+      Hexotic_In  = aTmpDir + "Hexotic_In.mesh";
+      removeHexoticFiles(Hexotic_In, Hexotic_Out);
+      std::ofstream HexoticFile (Hexotic_In.ToCString(), std::ios::out);
+      Ok = ( writeHexoticFile(HexoticFile, meshDS, aSmdsToHexoticIdMap, aHexoticIdToNodeMap, Hexotic_In) );
+      HexoticFile.close();
+#ifdef WITH_BLSURFPLUGIN
+    }
+#endif
+    
 
     std::string run_Hexotic = getHexoticCommand(Hexotic_In, Hexotic_Out);
 
     cout << std::endl;
     cout << "Hexotic command : " << run_Hexotic << std::endl;
 
-    removeHexoticFiles(Hexotic_In, Hexotic_Out);
+    
+//     removeHexoticFiles(Hexotic_In, Hexotic_Out);
+// 
+//     std::ofstream HexoticFile (Hexotic_In.ToCString(), std::ios::out);
+// 
+//     Ok = ( writeHexoticFile(HexoticFile, meshDS, aSmdsToHexoticIdMap, aHexoticIdToNodeMap, Hexotic_In) );
 
-    std::ofstream HexoticFile (Hexotic_In.ToCString(), std::ios::out);
-
-    Ok = ( writeHexoticFile(HexoticFile, meshDS, aSmdsToHexoticIdMap, aHexoticIdToNodeMap, Hexotic_In) );
-
-    HexoticFile.close();
+//     HexoticFile.close();
     modeFile_In += Hexotic_In;
     system( modeFile_In.ToCString() );
     aSmdsToHexoticIdMap.clear();

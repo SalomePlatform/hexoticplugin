@@ -54,6 +54,12 @@ public:
    
   void SetHexoticSharpAngleThreshold(int theVal);
   int GetHexoticSharpAngleThreshold() const { return _hexoticSharpAngleThreshold; }
+   
+  void SetHexoticNbProc(int theVal);
+  int GetHexoticNbProc() const { return _hexoticNbProc; }
+  
+  void SetHexoticWorkingDirectory(const std::string& path);
+  std::string GetHexoticWorkingDirectory() const { return _hexoticWorkingDirectory; }
 
   // the parameters default values 
 
@@ -63,6 +69,8 @@ public:
   static bool GetDefaultHexoticIgnoreRidges();
   static bool GetDefaultHexoticInvalidElements();
   static int GetDefaultHexoticSharpAngleThreshold();
+  static int GetDefaultHexoticNbProc();
+  static std::string GetDefaultHexoticWorkingDirectory();
 
   // Persistence
   virtual std::ostream& SaveTo(std::ostream& save);
@@ -91,6 +99,8 @@ private:
   bool _hexoticIgnoreRidges;
   bool _hexoticInvalidElements;
   int  _hexoticSharpAngleThreshold;
+  int  _hexoticNbProc;
+  std::string _hexoticWorkingDirectory ;
 };
 
 #endif

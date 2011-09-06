@@ -356,6 +356,18 @@ CHECK_SMESH
 
 echo
 echo ---------------------------------------------
+echo Testing BLSURFPlugin
+echo ---------------------------------------------
+echo
+
+CHECK_BLSURFPLUGIN
+if test "${BLSURFplugin_ok}" = "yes"; then
+  AC_DEFINE(WITH_BLSURFPLUGIN)
+fi
+AM_CONDITIONAL(HEXOTICPLUGIN_ENABLE_BLSURFPLUGIN, [test "${BLSURFplugin_ok}" = "yes"])
+
+echo
+echo ---------------------------------------------
 echo Summary
 echo ---------------------------------------------
 echo
@@ -364,13 +376,13 @@ echo
 
 if test "${gui_ok}" = "yes"; then
   variables="cc_ok boost_ok lex_yacc_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok omniORB_ok occ_ok doxygen_ok graphviz_ok Kernel_ok Geom_ok Med_ok SMesh_ok gui_ok"
-  opt_variables="Hexotic_ok"
+  opt_variables="Hexotic_ok BLSURFplugin_ok"
 elif test "${SalomeGUI_need}" != "no"; then
   variables="cc_ok boost_ok lex_yacc_ok python_ok swig_ok threads_ok vtk_ok hdf5_ok omniORB_ok occ_ok doxygen_ok graphviz_ok Kernel_ok Geom_ok Med_ok SMesh_ok gui_ok"
-  opt_variables="Hexotic_ok"
+  opt_variables="Hexotic_ok BLSURFplugin_ok"
 else
   variables="cc_ok boost_ok lex_yacc_ok python_ok swig_ok threads_ok vtk_ok hdf5_ok omniORB_ok occ_ok doxygen_ok graphviz_ok Kernel_ok Geom_ok Med_ok SMesh_ok"
-  opt_variables="Hexotic_ok"
+  opt_variables="Hexotic_ok BLSURFplugin_ok"
 fi
 
 echo

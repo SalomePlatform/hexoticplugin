@@ -29,6 +29,10 @@
 #include "SMESH_Mesh.hxx"
 #include "Utils_SALOME_Exception.hxx"
 
+#ifdef WITH_BLSURFPLUGIN
+#include "BLSURFPlugin_Hypothesis.hxx"
+#endif
+
 #include <string>
 
 class SMESH_Mesh;
@@ -40,6 +44,11 @@ class HexoticPlugin_Hexotic: public SMESH_3D_Algo
 public:
   HexoticPlugin_Hexotic(int hypId, int studyId, SMESH_Gen* gen);
   virtual ~HexoticPlugin_Hexotic();
+
+#ifdef WITH_BLSURFPLUGIN
+  bool CheckBLSURFHypothesis(SMESH_Mesh&         aMesh,
+                             const TopoDS_Shape& aShape);
+#endif
 
   virtual bool CheckHypothesis(SMESH_Mesh&                          aMesh,
                                const TopoDS_Shape&                  aShape,
@@ -76,7 +85,13 @@ private:
   bool _hexoticInvalidElements;
   bool _hexoticFilesKept;
   int  _hexoticSharpAngleThreshold;
+  int  _hexoticNbProc;
+  std::string  _hexoticWorkingDirectory;
   SMDS_MeshNode** _tabNode;
+  
+#ifdef WITH_BLSURFPLUGIN
+  const BLSURFPlugin_Hypothesis* _blsurfHypo;
+#endif
 
 #ifdef WITH_SMESH_CANCEL_COMPUTE
   volatile bool _compute_canceled;

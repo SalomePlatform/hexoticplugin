@@ -35,5 +35,17 @@
         <source>Hexotic_SHARP_ANGLE_THRESHOLD</source>
         <translation>Sharp angle threshold in degrees</translation>
     </message>
+    <message>
+        <source>Hexotic_NB_PROC</source>
+        <translation>Number of threads</translation>
+    </message>
+    <message>
+        <source>Hexotic_WORKING_DIR</source>
+        <translation>Working directory</translation>
+    </message>
+    <message>
+        <source>Hexotic_SELECT_DIR</source>
+        <translation>...</translation>
+    </message>
 </context>
 </TS>

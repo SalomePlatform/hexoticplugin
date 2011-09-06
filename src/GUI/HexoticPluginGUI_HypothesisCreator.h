@@ -39,6 +39,8 @@ typedef struct
   bool     myHexoticInvalidElements;
   bool     myHexoticIgnoreRidges;
   int      myHexoticSharpAngleThreshold;
+  int      myHexoticNbProc;
+  QString  myHexoticWorkingDir;
 } HexoticHypothesisData;
 
 /*!
@@ -63,6 +65,9 @@ protected:
   virtual QString  caption() const;
   virtual QPixmap  icon() const;
   virtual QString  type() const;
+  
+protected slots:
+  void             onDirBtnClicked();
 
 private:
   bool readParamsFromHypo( HexoticHypothesisData& ) const;
@@ -77,6 +82,8 @@ private:
  QCheckBox*       myHexoticIgnoreRidges;
  QCheckBox*       myHexoticInvalidElements;
  QtxIntSpinBox*   myHexoticSharpAngleThreshold;
+ QtxIntSpinBox*   myHexoticNbProc;
+ QLineEdit*       myHexoticWorkingDir;
 
  bool             myIs3D;
 };

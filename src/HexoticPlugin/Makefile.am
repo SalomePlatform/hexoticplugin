@@ -52,7 +52,8 @@ libHexoticEngine_la_CPPFLAGS =			\
 	$(KERNEL_CXXFLAGS)			\
 	$(GUI_CXXFLAGS)				\
 	$(MED_CXXFLAGS)				\
-	$(GEOM_CXXFLAGS)
+	$(GEOM_CXXFLAGS)			\
+	$(BLSURFPLUGIN_CXXFLAGS)
 
 libHexoticEngine_la_LDFLAGS  =			\
 	../../idl/libSalomeIDLHexoticPLUGIN.la	\

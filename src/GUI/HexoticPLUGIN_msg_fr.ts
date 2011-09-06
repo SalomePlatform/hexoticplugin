@@ -35,5 +35,17 @@
         <source>Hexotic_SHARP_ANGLE_THRESHOLD</source>
         <translation>Seuil d&apos;un angle aigu en degrés</translation>
     </message>
+    <message>
+        <source>Hexotic_NB_PROC</source>
+        <translation>Nombre de process</translation>
+    </message>
+    <message>
+        <source>Hexotic_WORKING_DIR</source>
+        <translation>Répertoire de travail</translation>
+    </message>
+    <message>
+        <source>Hexotic_SELECT_DIR</source>
+        <translation>...</translation>
+    </message>
 </context>
 </TS>

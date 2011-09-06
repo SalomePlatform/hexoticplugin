@@ -30,36 +30,46 @@ HexoticPLUGIN_LDFLAGS=""
 HexoticPLUGIN_CXXFLAGS=""
 
 AC_ARG_WITH(Hexoticplugin,
-	    [  --with-Hexoticplugin=DIR root directory path of Hexotic mesh plugin installation ])
+      --with-Hexoticplugin=DIR  root directory path of Hexotic mesh plugin installation,
+      HexoticPLUGIN_DIR="$withval",HexoticPLUGIN_DIR="")
 
-if test "$with_Hexoticplugin" != "no" ; then
-    if test "$with_Hexoticplugin" == "yes" || test "$with_Hexoticplugin" == "auto"; then
-	if test "x$HexoticPLUGIN_ROOT_DIR" != "x" ; then
-            HexoticPLUGIN_DIR=$HexoticPLUGIN_ROOT_DIR
-        fi
-    else
-        HexoticPLUGIN_DIR="$with_Hexoticplugin"
+if test "x$HexoticPLUGIN_DIR" = "x" ; then
+
+# no --with-Hexoticplugin option used
+
+  if test "x$HexoticPLUGIN_ROOT_DIR" != "x" ; then
+
+    # SALOME_ROOT_DIR environment variable defined
+    HexoticPLUGIN_DIR=$HexoticPLUGIN_ROOT_DIR
+
+  else
+
+    # search Salome binaries in PATH variable
+    AC_PATH_PROG(TEMP, libHexoticEngine.so)
+    if test "x$TEMP" != "x" ; then
+      HexoticPLUGIN_DIR=`dirname $TEMP`
     fi
 
-    if test "x$HexoticPLUGIN_DIR" != "x" ; then
-	if test -f ${HexoticPLUGIN_DIR}/lib${LIB_LOCATION_SUFFIX}/salome/libHexoticEngine.so ; then
-	    Hexoticplugin_ok=yes
-	    AC_MSG_RESULT(Using Hexotic mesh plugin distribution in ${HexoticPLUGIN_DIR})
-	    HexoticPLUGIN_ROOT_DIR=${HexoticPLUGIN_DIR}
-	    HexoticPLUGIN_LDFLAGS=-L${HexoticPLUGIN_DIR}/lib${LIB_LOCATION_SUFFIX}/salome
-	    HexoticPLUGIN_CXXFLAGS=-I${HexoticPLUGIN_DIR}/include/salome
-	else
-	    AC_MSG_WARN("Cannot find compiled Hexotic mesh plugin distribution")
-	fi
-    else
-	AC_MSG_WARN("Cannot find compiled Hexotic mesh plugin distribution")
-    fi
+  fi
+
 fi
 
-AC_MSG_RESULT(for Hexotic mesh plugin: $Hexoticplugin_ok)
+if test -f ${HexoticPLUGIN_DIR}/lib${LIB_LOCATION_SUFFIX}/salome/libHexoticEngine.so  ; then
+  Hexoticplugin_ok=yes
+  AC_MSG_RESULT(Using Hexotic mesh plugin distribution in ${HexoticPLUGIN_DIR})
 
-AC_SUBST(HexoticPLUGIN_ROOT_DIR)
-AC_SUBST(HexoticPLUGIN_LDFLAGS)
-AC_SUBST(HexoticPLUGIN_CXXFLAGS)
+  if test "x$HexoticPLUGIN_ROOT_DIR" == "x" ; then
+    HexoticPLUGIN_ROOT_DIR=${HexoticPLUGIN_DIR}
+  fi
+  HexoticPLUGIN_CXXFLAGS+=-I${HexoticPLUGIN_ROOT_DIR}/include/salome
+  HexoticPLUGIN_LDFLAGS+=-L${HexoticPLUGIN_ROOT_DIR}/lib${LIB_LOCATION_SUFFIX}/salome
+  AC_SUBST(HexoticPLUGIN_ROOT_DIR)
+  AC_SUBST(HexoticPLUGIN_LDFLAGS)
+  AC_SUBST(HexoticPLUGIN_CXXFLAGS)
+else
+  AC_MSG_WARN("Cannot find compiled Hexotic mesh plugin distribution")
+fi
+  
+AC_MSG_RESULT(for Hexotic mesh plugin: $Hexoticplugin_ok)
  
 ])dnl

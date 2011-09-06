@@ -61,6 +61,12 @@ module HexoticPlugin
    
     void SetHexoticSharpAngleThreshold(in long value);
     long GetHexoticSharpAngleThreshold();
+   
+    void SetHexoticNbProc(in long value);
+    long GetHexoticNbProc();
+
+    void SetHexoticWorkingDirectory(in string path) raises (SALOME::SALOME_Exception);
+    string GetHexoticWorkingDirectory();
   };
 };
 

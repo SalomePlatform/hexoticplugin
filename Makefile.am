@@ -31,12 +31,18 @@ if HEXOTICPLUGIN_ENABLE_GUI
                     -I ${MED_ROOT_DIR}/adm_local/unix/config_files \
                     -I ${GEOM_ROOT_DIR}/adm_local/unix/config_files \
                     -I ${SMESH_ROOT_DIR}/adm_local/unix/config_files
+#                    -I ${BLSURFPLUGIN_ROOT_DIR}/adm_local/unix/config_files
 else !HEXOTICPLUGIN_ENABLE_GUI
   ACLOCAL_AMFLAGS = -I adm_local/unix/config_files \
                     -I ${KERNEL_ROOT_DIR}/salome_adm/unix/config_files \
                     -I ${MED_ROOT_DIR}/adm_local/unix/config_files \
                     -I ${GEOM_ROOT_DIR}/adm_local/unix/config_files \
                     -I ${SMESH_ROOT_DIR}/adm_local/unix/config_files
+#                    -I ${BLSURFPLUGIN_ROOT_DIR}/adm_local/unix/config_files
+endif
+
+if HEXOTICPLUGIN_ENABLE_BLSURFPLUGIN
+  ACLOCAL_AMFLAGS += -I ${BLSURFPLUGIN_ROOT_DIR}/adm_local/unix/config_files
 endif
 
 SUBDIRS = idl adm_local resources src bin
