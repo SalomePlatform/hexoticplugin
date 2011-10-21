@@ -59,4 +59,5 @@ libHexoticEngine_la_LDFLAGS  =			\
 	../../idl/libSalomeIDLHexoticPLUGIN.la	\
 	$(SMESH_LDFLAGS) -lSMESHimpl -lSMESHEngine -lStdMeshersEngine -lSMDS -lSMESHDS -lSalomeIDLSMESH \
 	$(KERNEL_LDFLAGS) -lSalomeGenericObj -lSALOMELocalTrace \
-	$(CAS_LDPATH) -lTKernel -lTKMath -lTKG3d -lTKTopAlgo -lTKBRep $(MED_LDFLAGS) -lSalomeIDLMED -lSALOMELocalTrace
+	$(CAS_LDPATH) -lTKernel -lTKMath -lTKG3d -lTKTopAlgo -lTKBRep $(MED_LDFLAGS) -lSalomeIDLMED -lSALOMELocalTrace \
+	$(BLSURFPLUGIN_LDFLAGS)

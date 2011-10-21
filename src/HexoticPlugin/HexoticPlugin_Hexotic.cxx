@@ -1240,15 +1240,13 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
 
     Hexotic_Out = aTmpDir + "Hexotic_Out.mesh";
 #ifdef WITH_BLSURFPLUGIN
+    bool defaultInputFile = true;
     if (_blsurfHypo && !_blsurfHypo->GetQuadAllowed()) {
       Hexotic_In = TCollection_AsciiString(_blsurfHypo->GetGMFFile().c_str());
-      removeFile( Hexotic_Out );
-      if (Hexotic_In == "") {
-        Hexotic_In  = aTmpDir + "Hexotic_In.mesh";
-        removeFile( Hexotic_In );
-      }
+      if (Hexotic_In != "")
+        defaultInputFile = false;
     }
-    else {
+    if (defaultInputFile) {
 #endif
       Hexotic_In  = aTmpDir + "Hexotic_In.mesh";
       removeHexoticFiles(Hexotic_In, Hexotic_Out);
@@ -1256,6 +1254,9 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
       Ok = ( writeHexoticFile(HexoticFile, meshDS, aSmdsToHexoticIdMap, aHexoticIdToNodeMap, Hexotic_In) );
       HexoticFile.close();
 #ifdef WITH_BLSURFPLUGIN
+    }
+    else {
+      removeFile( Hexotic_Out );
     }
 #endif
     
