@@ -134,14 +134,16 @@ bool HexoticPlugin_Hexotic::CheckBLSURFHypothesis( SMESH_Mesh&         aMesh,
   blsurfFilter.Init( blsurfFilter.HasName( "BLSURF_Parameters" ));
   std::list<const SMESHDS_Hypothesis *> appliedHyps;
   aMesh.GetHypotheses( aShape, blsurfFilter, appliedHyps, false );
-    
-  itl = appliedHyps.begin();
-  theHyp = (*itl); // use only the first hypothesis
-  std::string hypName = theHyp->GetName();
-  if (hypName == "BLSURF_Parameters") {
-    _blsurfHypo = static_cast<const BLSURFPlugin_Hypothesis*> (theHyp);
-    ASSERT(_blsurfHypo);
-    return true;
+
+  if ( appliedHyps.size() > 0 ) {
+    itl = appliedHyps.begin();
+    theHyp = (*itl); // use only the first hypothesis
+    std::string hypName = theHyp->GetName();
+    if (hypName == "BLSURF_Parameters") {
+      _blsurfHypo = static_cast<const BLSURFPlugin_Hypothesis*> (theHyp);
+      ASSERT(_blsurfHypo);
+      return true;
+    }
   }
   return false;
 }
