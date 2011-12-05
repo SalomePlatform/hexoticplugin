@@ -134,14 +134,16 @@ bool HexoticPlugin_Hexotic::CheckBLSURFHypothesis( SMESH_Mesh&         aMesh,
   blsurfFilter.Init( blsurfFilter.HasName( "BLSURF_Parameters" ));
   std::list<const SMESHDS_Hypothesis *> appliedHyps;
   aMesh.GetHypotheses( aShape, blsurfFilter, appliedHyps, false );
-    
-  itl = appliedHyps.begin();
-  theHyp = (*itl); // use only the first hypothesis
-  std::string hypName = theHyp->GetName();
-  if (hypName == "BLSURF_Parameters") {
-    _blsurfHypo = static_cast<const BLSURFPlugin_Hypothesis*> (theHyp);
-    ASSERT(_blsurfHypo);
-    return true;
+
+  if ( appliedHyps.size() > 0 ) {
+    itl = appliedHyps.begin();
+    theHyp = (*itl); // use only the first hypothesis
+    std::string hypName = theHyp->GetName();
+    if (hypName == "BLSURF_Parameters") {
+      _blsurfHypo = static_cast<const BLSURFPlugin_Hypothesis*> (theHyp);
+      ASSERT(_blsurfHypo);
+      return true;
+    }
   }
   return false;
 }
@@ -198,11 +200,11 @@ static TopoDS_Shape findShape(SMDS_MeshNode**     t_Node,
                               TopoDS_Shape        aShape,
                               const TopoDS_Shape* t_Shape,
                               double**            t_Box,
-                              const int           nShape) {
-  double *pntCoor;
+                              const int           nShape)
+{
+  double pntCoor[3];
   int iShape, nbNode = 8;
 
-  pntCoor = new double[3];
   for ( int i=0; i<3; i++ ) {
     pntCoor[i] = 0;
     for ( int j=0; j<nbNode; j++ ) {
@@ -212,22 +214,22 @@ static TopoDS_Shape findShape(SMDS_MeshNode**     t_Node,
     }
     pntCoor[i] /= nbNode;
   }
-
   gp_Pnt aPnt(pntCoor[0], pntCoor[1], pntCoor[2]);
+
+  if ( aShape.IsNull() ) aShape = t_Shape[0];
   BRepClass3d_SolidClassifier SC (aShape, aPnt, Precision::Confusion());
   if ( !(SC.State() == TopAbs_IN) ) {
-    for (iShape = 0; iShape < nShape; iShape++) {
-      aShape = t_Shape[iShape];
+    aShape.Nullify();
+    for (iShape = 0; iShape < nShape && aShape.IsNull(); iShape++) {
       if ( !( pntCoor[0] < t_Box[iShape][0] || t_Box[iShape][1] < pntCoor[0] ||
               pntCoor[1] < t_Box[iShape][2] || t_Box[iShape][3] < pntCoor[1] ||
               pntCoor[2] < t_Box[iShape][4] || t_Box[iShape][5] < pntCoor[2]) ) {
-        BRepClass3d_SolidClassifier SC (aShape, aPnt, Precision::Confusion());
+        BRepClass3d_SolidClassifier SC (t_Shape[iShape], aPnt, Precision::Confusion());
         if (SC.State() == TopAbs_IN)
-          break;
+          aShape = t_Shape[iShape];
       }
     }
   }
-  delete [] pntCoor;
   return aShape;
 }
 
@@ -658,7 +660,7 @@ static bool readResult(std::string         theFile,
   std::string token;
   int EndOfFile = 0, nbElem = 0, nField = 9, nbRef = 0;
   int aHexoticNodeID = 0, shapeID, hexoticShapeID;
-  int IdShapeRef = 2;
+  const int IdShapeRef = 2;
   int *tabID, *tabRef, *nodeAssigne;
   bool *tabDummy, hasDummy = false;
   double epsilon = Precision::Confusion();
@@ -666,13 +668,17 @@ static bool readResult(std::string         theFile,
   SMDS_MeshNode** HexoticNode;
   TopoDS_Shape *tabCorner, *tabEdge;
 
-  tabID    = new int[nbShape];
+  const int nbDomains = countShape( theMesh, TopAbs_SHELL );
+  const int holeID = -1;
+
+  // tabID    = new int[nbShape];
+  tabID    = new int[nbDomains];
   tabRef   = new int[nField];
   tabDummy = new bool[nField];
 
-  for (int i=0; i<nbShape; i++)
+  for (int i=0; i<nbDomains; i++)
     tabID[i] = 0;
-  if ( nbShape == 1 )
+  if ( nbDomains == 1 )
     tabID[0] = theMesh->ShapeToIndex( tabShape[0] );
 
   mapField["MeshVersionFormatted"] = 0; tabRef[0] = 0; tabDummy[0] = false;
@@ -765,7 +771,7 @@ static bool readResult(std::string         theFile,
         MESSAGE("Read " << nbElem << " " << token);
         SMDS_MeshNode** node;
         int nodeDim, *nodeID;
-        SMDS_MeshElement * aHexoticElement;
+        SMDS_MeshElement * aHexoticElement = 0;
 
         node   = new SMDS_MeshNode*[ nbRef ];
         nodeID = new int[ nbRef ];
@@ -818,22 +824,19 @@ static bool readResult(std::string         theFile,
             }
             case 7: { // "Hexahedra"
               nodeDim = 4;
-              aHexoticElement = theMesh->AddVolume( node[0], node[3], node[2], node[1], node[4], node[7], node[6], node[5] );
-              if ( nbShape > 1 ) {
+              if ( nbDomains > 1 ) {
                 hexoticShapeID = dummy - IdShapeRef;
                 if ( tabID[ hexoticShapeID ] == 0 ) {
-                  if (iElem == 0)
-                    aShape = tabShape[0];
                   aShape = findShape(node, aShape, tabShape, tabBox, nbShape);
-                  shapeID = theMesh->ShapeToIndex( aShape );
+                  shapeID = aShape.IsNull() ? holeID : theMesh->ShapeToIndex( aShape );
                   tabID[ hexoticShapeID ] = shapeID;
                 }
                 else
                   shapeID = tabID[ hexoticShapeID ];
                 if ( iElem == (nbElem - 1) ) {
                   int shapeAssociated = 0;
-                  for ( int i=0; i<nbShape; i++ ) {
-                    if (tabID[i] != 0 )
+                  for ( int i=0; i<nbDomains; i++ ) {
+                    if (tabID[i] > 0 )
                       shapeAssociated += 1;
                   }
                   if ( shapeAssociated != nbShape )
@@ -843,10 +846,13 @@ static bool readResult(std::string         theFile,
               else {
                 shapeID = tabID[0];
               }
+              if ( shapeID != holeID )
+                aHexoticElement = theMesh->AddVolume( node[0], node[3], node[2], node[1], node[4], node[7], node[6], node[5] );
               break;
             }
-          }
-          if ( token != "Ridges" ) {
+          } // switch (nField)
+
+          if ( token != "Ridges" && ( shapeID > 0 || token == "Corners")) {
             for ( int i=0; i<nbRef; i++ ) {
               if ( nodeAssigne[ nodeID[i] ] == 0 ) {
                 if      ( token == "Corners" )        theMesh->SetNodeOnVertex( node[0], aVertex );
@@ -856,7 +862,7 @@ static bool readResult(std::string         theFile,
                 nodeAssigne[ nodeID[i] ] = nodeDim;
               }
             }
-            if ( token != "Corners" )
+            if ( token != "Corners" && aHexoticElement )
               theMesh->SetMeshElementOnShape( aHexoticElement, shapeID );
           }
         }
@@ -875,6 +881,18 @@ static bool readResult(std::string         theFile,
     }
   }
   cout << std::endl;
+
+  // remove nodes in holes
+  if ( nbDomains > 1 )
+  {
+    SMESHDS_SubMesh* subMesh;
+    for ( int i = 1; i <= nbVertices; ++i )
+      if ( HexoticNode[i]->NbInverseElements() == 0 )
+      {
+        subMesh =  HexoticNode[i]->getshapeId() > 0 ? theMesh->MeshElements(HexoticNode[i]->getshapeId() ) : 0;
+        theMesh->RemoveFreeNode( HexoticNode[i], subMesh, /*fromGroups=*/false );
+      }
+  }
   delete [] tabID;
   delete [] tabRef;
   delete [] tabDummy;
