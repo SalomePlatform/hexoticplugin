@@ -32,6 +32,7 @@ lib_LTLIBRARIES = libHexoticPluginGUI.la
 
 dist_libHexoticPluginGUI_la_SOURCES =		\
 	HexoticPluginGUI.cxx			\
+	HexoticPluginGUI.h			\
 	HexoticPluginGUI_HypothesisCreator.h	\
 	HexoticPluginGUI_HypothesisCreator.cxx
 

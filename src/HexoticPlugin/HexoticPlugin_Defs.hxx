@@ -1,4 +1,7 @@
-// Copyright (C) 2007-2011  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2011  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -17,26 +20,20 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-// ---
-// File   : HexoticPluginGUI.cxx
-// Author : Lioka RAZAFINDRAZAKA (CEA)
-// ---
+//=============================================================================
+// File      : HexoticPlugin_Defs.hxx
 //
-#include "HexoticPluginGUI_HypothesisCreator.h"
+#ifndef _HexoticPlugin_DEFS_HXX_
+#define _HexoticPlugin_DEFS_HXX_
 
-//=============================================================================
-/*! GetHypothesisCreator
- *
- */
-//=============================================================================
-extern "C"
-{
-  HEXOTICPLUGIN_GUI_EXPORT
-  SMESHGUI_GenericHypothesisCreator* GetHypothesisCreator( const QString& aHypType )
-  {
-    SMESHGUI_GenericHypothesisCreator* aCreator = NULL;
-    if( aHypType=="Hexotic_Parameters" )
-      aCreator =  new HexoticPluginGUI_HypothesisCreator( aHypType );
-    return aCreator;
-  }
-}
+#ifdef WIN32
+  #if defined HEXOTICPLUGIN_EXPORTS || defined HexoticEngine_EXPORTS
+    #define HEXOTICPLUGIN_EXPORT __declspec( dllexport )
+  #else
+    #define HEXOTICPLUGIN_EXPORT __declspec( dllimport )
+  #endif
+#else
+  #define HEXOTICPLUGIN_EXPORT
+#endif
+
+#endif

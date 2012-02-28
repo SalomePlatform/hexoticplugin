@@ -25,6 +25,8 @@
 #ifndef HexoticPLUGINGUI_HypothesisCreator_H
 #define HexoticPLUGINGUI_HypothesisCreator_H
 
+#include "HexoticPluginGUI.h"
+
 #include <SMESHGUI_Hypotheses.h>
 
 class QtxIntSpinBox;
@@ -46,7 +48,7 @@ typedef struct
 /*!
  * \brief Class for creation of Hexotic hypotheses
 */
-class HexoticPluginGUI_HypothesisCreator : public SMESHGUI_GenericHypothesisCreator
+class HEXOTICPLUGIN_GUI_EXPORT HexoticPluginGUI_HypothesisCreator : public SMESHGUI_GenericHypothesisCreator
 {
   Q_OBJECT
 

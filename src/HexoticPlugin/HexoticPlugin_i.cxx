@@ -43,6 +43,7 @@ template <class T> class HexoticPlugin_Creator_i:public HypothesisCreator_i<T>
 
 extern "C"
 {
+  HEXOTICPLUGIN_EXPORT
   GenericHypothesisCreator_i* GetHypothesisCreator (const char* aHypName)
   {
     MESSAGE("GetHypothesisCreator " << aHypName);

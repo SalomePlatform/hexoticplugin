@@ -25,13 +25,15 @@
 #ifndef _HexoticPlugin_Hypothesis_HXX_
 #define _HexoticPlugin_Hypothesis_HXX_
 
+#include "HexoticPlugin_Defs.hxx"
+
 #include "SMESH_Hypothesis.hxx"
 #include "Utils_SALOME_Exception.hxx"
 
 //  Parameters for work of Hexotic
 //
 
-class HexoticPlugin_Hypothesis: public SMESH_Hypothesis
+class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis: public SMESH_Hypothesis
 {
 public:
 

@@ -35,7 +35,7 @@ class SMESH_Gen;
 
 // HexoticPlugin parameters hypothesis
 
-class HexoticPlugin_Hypothesis_i:
+class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
   public virtual POA_HexoticPlugin::HexoticPlugin_Hypothesis,
   public virtual SMESH_Hypothesis_i
 {

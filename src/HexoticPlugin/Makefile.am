@@ -39,7 +39,8 @@ dist_libHexoticEngine_la_SOURCES =	\
 	HexoticPlugin_Hypothesis.cxx	\
 	HexoticPlugin_Hypothesis_i.hxx	\
 	HexoticPlugin_Hypothesis_i.cxx	\
-	HexoticPlugin_i.cxx
+	HexoticPlugin_i.cxx             \
+	HexoticPlugin_Defs.hxx
 
 libHexoticEngine_la_CPPFLAGS =			\
 	-I$(top_builddir)/idl			\

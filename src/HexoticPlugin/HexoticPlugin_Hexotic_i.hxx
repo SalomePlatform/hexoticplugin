@@ -35,7 +35,7 @@
 // ======================================================
 // Hexotic 3d algorithm
 // ======================================================
-class HexoticPlugin_Hexotic_i:
+class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hexotic_i:
   public virtual POA_HexoticPlugin::HexoticPlugin_Hexotic,
   public virtual SMESH_3D_Algo_i
 {

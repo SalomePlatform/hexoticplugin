@@ -25,6 +25,8 @@
 #ifndef _HexoticPlugin_Hexotic_HXX_
 #define _HexoticPlugin_Hexotic_HXX_
 
+#include "HexoticPlugin_Defs.hxx"
+
 #include "SMESH_3D_Algo.hxx"
 #include "SMESH_Mesh.hxx"
 #include "Utils_SALOME_Exception.hxx"
@@ -39,7 +41,7 @@ class SMESH_Mesh;
 class HexoticPlugin_Hypothesis;
 class TCollection_AsciiString;
 
-class HexoticPlugin_Hexotic: public SMESH_3D_Algo
+class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hexotic: public SMESH_3D_Algo
 {
 public:
   HexoticPlugin_Hexotic(int hypId, int studyId, SMESH_Gen* gen);

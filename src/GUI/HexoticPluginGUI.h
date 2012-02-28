@@ -17,26 +17,15 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-// ---
-// File   : HexoticPluginGUI.cxx
-// Author : Lioka RAZAFINDRAZAKA (CEA)
-// ---
+//  File   : HexoticPluginGUI.h
 //
-#include "HexoticPluginGUI_HypothesisCreator.h"
 
-//=============================================================================
-/*! GetHypothesisCreator
- *
- */
-//=============================================================================
-extern "C"
-{
-  HEXOTICPLUGIN_GUI_EXPORT
-  SMESHGUI_GenericHypothesisCreator* GetHypothesisCreator( const QString& aHypType )
-  {
-    SMESHGUI_GenericHypothesisCreator* aCreator = NULL;
-    if( aHypType=="Hexotic_Parameters" )
-      aCreator =  new HexoticPluginGUI_HypothesisCreator( aHypType );
-    return aCreator;
-  }
-}
+#ifdef WIN32
+  #if defined HEXOTICPLUGIN_GUI_EXPORTS || defined HexoticPluginGUI_EXPORTS 
+    #define HEXOTICPLUGIN_GUI_EXPORT __declspec( dllexport )
+  #else
+    #define HEXOTICPLUGIN_GUI_EXPORT __declspec( dllimport )
+  #endif
+#else
+  #define HEXOTICPLUGIN_GUI_EXPORT
+#endif
