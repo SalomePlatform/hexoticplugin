@@ -51,6 +51,7 @@
 #include <SMESH_ControlsDef.hxx>
 #include <SMESH_MesherHelper.hxx>
 #include "SMESH_HypoFilter.hxx"
+#include <SMESH_File.hxx>
 
 #include <list>
 #include <cstdlib>
@@ -1252,6 +1253,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
 #endif
     TCollection_AsciiString Hexotic_In(""), Hexotic_Out;
     TCollection_AsciiString modeFile_In( "chmod 666 " ), modeFile_Out( "chmod 666 " );
+    TCollection_AsciiString aLogFileName = aTmpDir + "Hexotic.log";    // log
 
     std::map <int,int> aSmdsToHexoticIdMap;
     std::map <int,const SMDS_MeshNode*> aHexoticIdToNodeMap;
@@ -1280,6 +1282,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     
 
     std::string run_Hexotic = getHexoticCommand(Hexotic_In, Hexotic_Out);
+    run_Hexotic += std::string(" 1>") + aLogFileName.ToCString();  // dump into file
 
     cout << std::endl;
     cout << "Hexotic command : " << run_Hexotic << std::endl;
@@ -1323,6 +1326,15 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
       hexahedraMessage = "failed";
       cout << "Problem with Hexotic output file " << Hexotic_Out.ToCString() << std::endl;
       Ok = false;
+      // analyse log file
+      SMESH_File logFile( aLogFileName.ToCString() );
+      if ( !logFile.eof() )
+      {
+        char msgLic[] = " Dlim ";
+        const char* fileBeg = logFile.getPos(), *fileEnd = fileBeg + logFile.size();
+        if ( std::search( fileBeg, fileEnd, msgLic, msgLic+strlen(msgLic)) != fileEnd )
+          error("Licence problems.");
+      }
     }
     cout << "Hexahedra meshing " << hexahedraMessage << std::endl;
     cout << std::endl;
@@ -1365,6 +1377,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   TCollection_AsciiString aTmpDir = getTmpDir();
   TCollection_AsciiString Hexotic_In, Hexotic_Out;
   TCollection_AsciiString modeFile_In( "chmod 666 " ), modeFile_Out( "chmod 666 " );
+  TCollection_AsciiString aLogFileName = aTmpDir + "Hexotic.log";    // log
 
   std::map <int,int> aSmdsToHexoticIdMap;
   std::map <int,const SMDS_MeshNode*> aHexoticIdToNodeMap;
@@ -1373,6 +1386,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   Hexotic_Out = aTmpDir + "Hexotic_Out.mesh";
 
   std::string run_Hexotic = getHexoticCommand(Hexotic_In, Hexotic_Out);
+  run_Hexotic += std::string(" 1>") + aLogFileName.ToCString();  // dump into file
 
   cout << std::endl;
   cout << "Hexotic command : " << run_Hexotic << std::endl;
@@ -1414,6 +1428,15 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   else {
     hexahedraMessage = "failed";
     cout << "Problem with Hexotic output file " << Hexotic_Out << std::endl;
+    // analyse log file
+    SMESH_File logFile( aLogFileName.ToCString() );
+    if ( !logFile.eof() )
+    {
+      char msgLic[] = " Dlim ";
+      const char* fileBeg = logFile.getPos(), *fileEnd = fileBeg + logFile.size();
+      if ( std::search( fileBeg, fileEnd, msgLic, msgLic+strlen(msgLic)) != fileEnd )
+        return error("Licence problems.");
+    }
     return error(SMESH_Comment("Problem with Hexotic output file ")<<Hexotic_Out);
   }
   cout << "Hexahedra meshing " << hexahedraMessage << std::endl;
