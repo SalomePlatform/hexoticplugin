@@ -62,3 +62,7 @@ libHexoticEngine_la_LDFLAGS  =			\
 	$(KERNEL_LDFLAGS) -lSalomeGenericObj -lSALOMELocalTrace \
 	$(CAS_LDPATH) -lTKernel -lTKMath -lTKG3d -lTKTopAlgo -lTKBRep $(MED_LDFLAGS) -lSalomeIDLMED -lSALOMELocalTrace \
 	$(BLSURFPLUGIN_LDFLAGS)
+
+# Scripts to be installed.
+dist_salomescript_DATA=HexoticPLUGINDC.py
+
