@@ -36,13 +36,20 @@
     dim="3"/>
   </hypotheses>
   <algorithms>
+
     <algorithm type="Hexotic_3D"
                label-id="Hexahedron (Hexotic)"
                icon-id="mesh_algo_Hexotic.png"
                hypos="Hexotic_Parameters"
                input="TRIA,QUAD"
                need-geom="false"
-               dim="3"/>
+               dim="3">
+      <python-wrap>
+        <algo>Hexotic_3D=Hexahedron(algo=smesh.Hexotic)</algo>
+        <hypo>Hexotic_Parameters=MinMaxQuad(SetHexesMinLevel(),SetHexesMaxLevel(),SetHexoticQuadrangles())</hypo>
+      </python-wrap>
+    </algorithm>
+
   </algorithms>
 </meshers-group>
 
