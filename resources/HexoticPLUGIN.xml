@@ -26,7 +26,7 @@
 <meshers>
 
 <meshers-group name="Hexotic"
-               resources="HexoticPlugin"
+               resources="HexoticPLUGIN"
                server-lib="HexoticEngine"
                gui-lib="HexoticPluginGUI">
   <hypotheses>
