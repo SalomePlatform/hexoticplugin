@@ -1208,7 +1208,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
   _tabNode[_iShape] = meshDS->AddNode(0, 0, 0);
   // issue 0020972
   //meshDS->SetNodeInVolume( _tabNode[_iShape], meshDS->ShapeToIndex(theShape) );
-  meshDS->NewSubMesh( meshDS->ShapeToIndex(theShape))->AddElement( _tabNode[_iShape] );
+  meshDS->NewSubMesh( meshDS->ShapeToIndex(theShape))->AddNode( _tabNode[_iShape] );
 
   _iShape++;
 
