@@ -465,5 +465,13 @@ AC_OUTPUT([ \
   src/HexoticPlugin/Makefile \
   src/GUI/Makefile \
   HexoticPLUGIN_version.h \
+  doc/Makefile \
+  doc/salome/Makefile \
+  doc/salome/gui/Makefile \
+  doc/salome/gui/HexoticPLUGIN/Makefile \
+  doc/salome/gui/HexoticPLUGIN/doxyfile \
+  doc/salome/gui/HexoticPLUGIN/doxyfile_py \
+  doc/salome/gui/HexoticPLUGIN/static/header.html \
+  doc/salome/gui/HexoticPLUGIN/static/header_py.html \		 
   Makefile \
 ])

@@ -33,7 +33,6 @@ Hexotic = "Hexotic_3D"
 
 ## Defines a hexahedron 3D algorithm
 #
-#  @ingroup l3_algos_basic
 class Hexotic_Algorithm(Mesh_Algorithm):
 
     meshMethod = "Hexahedron"
@@ -47,7 +46,6 @@ class Hexotic_Algorithm(Mesh_Algorithm):
         pass
 
     ## Defines "MinMaxQuad" hypothesis to give three hexotic parameters
-    #  @ingroup l3_hypos_hexotic
     def MinMaxQuad(self, min=3, max=8, quad=True):
         self.params = self.Hypothesis("Hexotic_Parameters", [], "libHexoticEngine.so",
                                       UseExisting=0)

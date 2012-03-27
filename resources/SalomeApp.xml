@@ -26,4 +26,7 @@
     <!-- Default SMESH module plugins -->
     <parameter name="plugins" value="NETGENPlugin,GHS3DPlugin,HexoticPLUGIN"/>
   </section>
+  <section name="smesh_help" >
+    <parameter name="Plug-ins/Hexotic plugin User's Guide" value="${HEXOTICPLUGIN_ROOT_DIR}/share/doc/salome/gui/HEXOTICPLUGIN/index.html"/>
+  </section>
 </document>

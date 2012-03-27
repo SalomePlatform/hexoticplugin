@@ -45,9 +45,9 @@ if HEXOTICPLUGIN_ENABLE_BLSURFPLUGIN
   ACLOCAL_AMFLAGS += -I ${BLSURFPLUGIN_ROOT_DIR}/adm_local/unix/config_files
 endif
 
-SUBDIRS = idl adm_local resources src bin
+SUBDIRS = idl adm_local resources src bin doc
 
-DIST_SUBDIRS = idl adm_local resources src bin 
+DIST_SUBDIRS = idl adm_local resources src bin doc
 
 DISTCLEANFILES = a.out aclocal.m4 configure hack_libtool
 
