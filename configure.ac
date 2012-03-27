@@ -472,6 +472,6 @@ AC_OUTPUT([ \
   doc/salome/gui/HexoticPLUGIN/doxyfile \
   doc/salome/gui/HexoticPLUGIN/doxyfile_py \
   doc/salome/gui/HexoticPLUGIN/static/header.html \
-  doc/salome/gui/HexoticPLUGIN/static/header_py.html \		 
+  doc/salome/gui/HexoticPLUGIN/static/header_py.html \
   Makefile \
 ])
