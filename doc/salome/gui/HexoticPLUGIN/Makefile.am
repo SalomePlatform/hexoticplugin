@@ -52,17 +52,17 @@ clean-local:
 	done ;
 
 install-data-local: usr_docs
-	$(INSTALL) -d $(DESTDIR)$(docdir)/gui/HexoticPLUGIN
+	$(INSTALL) -d $(DESTDIR)$(guidocdir)
 	@for filen in `find . -maxdepth 1` ; do							\
 	  case $${filen} in									\
 	    ./Makefile | ./doxyfile | ./doxyfile_py ) ;;					\
 	    ./doxyfile.bak | ./doxyfile_py.bak ) ;;						\
 	    . | .. | ./static ) ;;								\
-	    *) echo "Installing $${filen}" ; cp -rp $${filen} $(DESTDIR)$(docdir)/gui/HexoticPLUGIN ;;	\
+	    *) echo "Installing $${filen}" ; cp -rp $${filen} $(DESTDIR)$(guidocdir) ;;	\
 	  esac ;										\
 	done ;
-	cp -rp $(srcdir)/images/head.png $(DESTDIR)$(docdir)/gui/HexoticPLUGIN/hexoticpluginpy_doc/ ;
+	cp -rp $(srcdir)/images/head.png $(DESTDIR)$(guidocdir)/hexoticpluginpy_doc/ ;
 
 uninstall-local:
-	rm -rf $(DESTDIR)$(docdir)/gui/HexoticPLUGIN
+	rm -rf $(DESTDIR)$(guidocdir)
 
