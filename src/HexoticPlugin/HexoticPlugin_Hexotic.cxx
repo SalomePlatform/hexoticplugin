@@ -1199,24 +1199,31 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
 
   if (_iShape == 0 && _nbShape == 0) {
     _nbShape = countShape( meshDS, TopAbs_SOLID );  // we count the number of shapes
-    _tabNode = new SMDS_MeshNode*[_nbShape];        // we declare the size of the node array
+    //_tabNode = new SMDS_MeshNode*[_nbShape];        // we declare the size of the node array
   }
 
   // to prevent from displaying error message after computing,
-  // we need to create one node for each shape theShape.
-
-  _tabNode[_iShape] = meshDS->AddNode(0, 0, 0);
-  // issue 0020972
-  //meshDS->SetNodeInVolume( _tabNode[_iShape], meshDS->ShapeToIndex(theShape) );
-  meshDS->NewSubMesh( meshDS->ShapeToIndex(theShape))->AddNode( _tabNode[_iShape] );
+  // SetIsAlwaysComputed( true ) to empty sub-meshes
+  for ( int i = 0; i < _nbShape; ++i )
+    if ( SMESH_subMesh* sm = theMesh.GetSubMeshContaining( theShape ))
+    {
+      SMESH_subMeshIteratorPtr smIt = sm->getDependsOnIterator(/*includeSelf=*/true,
+                                                               /*complexShapeFirst=*/false);
+      while ( smIt->more() )
+      {
+        sm = smIt->next();
+        if ( !sm->IsMeshComputed() )
+          sm->SetIsAlwaysComputed( true );
+      }
+    }
 
   _iShape++;
 
   if (_iShape == _nbShape ) {
 
-    for (int i=0; i<_nbShape; i++)        // we destroy the (_nbShape - 1) nodes created and used
-      meshDS->RemoveNode( _tabNode[i] );  // to simulate successful mesh computing.
-    delete [] _tabNode;
+    // for (int i=0; i<_nbShape; i++)        // we destroy the (_nbShape - 1) nodes created and used
+    //   meshDS->RemoveNode( _tabNode[i] );  // to simulate successful mesh computing.
+    // delete [] _tabNode;
 
     // create bounding box for each shape of the compound
 
