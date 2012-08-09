@@ -1,21 +1,22 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 # ---
 # File   : Makefile.am
 # Author : Vadim SANDLER, Open CASCADE S.A.S (vadim.sandler@opencascade.com)
@@ -31,6 +32,7 @@ lib_LTLIBRARIES = libHexoticPluginGUI.la
 
 dist_libHexoticPluginGUI_la_SOURCES =		\
 	HexoticPluginGUI.cxx			\
+	HexoticPluginGUI.h			\
 	HexoticPluginGUI_HypothesisCreator.h	\
 	HexoticPluginGUI_HypothesisCreator.cxx
 
@@ -55,15 +57,17 @@ libHexoticPluginGUI_la_CPPFLAGS = 	\
 	$(CORBA_CXXFLAGS)		\
 	$(CORBA_INCLUDES)		\
 	-I$(srcdir)/../HexoticPlugin	\
-	-I$(top_builddir)/idl		\
-	-I$(top_builddir)/salome_adm/unix
+	-I$(top_builddir)/idl
 
-libHexoticPluginGUI_la_LDFLAGS =		\
-	../HexoticPlugin/libHexoticEngine.la	\
-	${SMESH_LDFLAGS} -lSMESH		\
-	$(CAS_KERNEL)
+libHexoticPluginGUI_la_LDFLAGS =		           \
+	../HexoticPlugin/libHexoticEngine.la	           \
+	${SMESH_LDFLAGS} -lSMESH		           \
+	$(CAS_KERNEL)                                      \
+	$(GUI_LDFLAGS) -lsuit -lqtx -lSalomeApp            \
+	$(QT_LIBS)
 
 # resources files
-nodist_salomeres_DATA =			\
+nodist_salomeres_DATA =		\
 	HexoticPLUGIN_images.qm	\
-	HexoticPLUGIN_msg_en.qm
+	HexoticPLUGIN_msg_en.qm \
+	HexoticPLUGIN_msg_fr.qm

@@ -1,28 +1,31 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // ---
 // File   : HexoticPlugin_Hypothesis.cxx
 // Author : Lioka RAZAFINDRAZAKA (CEA)
 // ---
 //
-#include <HexoticPlugin_Hypothesis.hxx>
+#include "HexoticPlugin_Hypothesis.hxx"
 #include <utilities.h>
+
+#include <TCollection_AsciiString.hxx>
 
 //=============================================================================
 /*!
@@ -30,14 +33,16 @@
  */
 //=============================================================================
 HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, int studyId,
-						    SMESH_Gen* gen)
+                                                    SMESH_Gen* gen)
   : SMESH_Hypothesis(hypId, studyId, gen),
     _hexesMinLevel( GetDefaultHexesMinLevel() ),
     _hexesMaxLevel( GetDefaultHexesMaxLevel() ),
     _hexoticQuadrangles( GetDefaultHexoticQuadrangles() ),
     _hexoticIgnoreRidges( GetDefaultHexoticIgnoreRidges() ),
     _hexoticInvalidElements( GetDefaultHexoticInvalidElements() ), 
-    _hexoticSharpAngleThreshold( GetDefaultHexoticSharpAngleThreshold() )
+    _hexoticSharpAngleThreshold( GetDefaultHexoticSharpAngleThreshold() ),
+    _hexoticNbProc( GetDefaultHexoticNbProc() ),
+    _hexoticWorkingDirectory( GetDefaultHexoticWorkingDirectory() )
 {
   MESSAGE("HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis");
   _name = "Hexotic_Parameters";
@@ -92,6 +97,21 @@ void HexoticPlugin_Hypothesis::SetHexoticSharpAngleThreshold(int theVal) {
   }
 }
 
+void HexoticPlugin_Hypothesis::SetHexoticNbProc(int theVal) {
+  if (theVal != _hexoticNbProc) {
+    _hexoticNbProc = theVal;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
+void HexoticPlugin_Hypothesis::SetHexoticWorkingDirectory(const std::string& path)
+{
+  if ( _hexoticWorkingDirectory != path ) {
+    _hexoticWorkingDirectory = path;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
 //=============================================================================
 /*!
  *  
@@ -116,6 +136,8 @@ std::ostream& HexoticPlugin_Hypothesis::SaveTo(std::ostream& save)
   save<<"hexoticIgnoreRidges="<<(int)_hexoticIgnoreRidges<<";";
   save<<"hexoticInvalidElements="<<(int)_hexoticInvalidElements<<";";
   save<<"hexoticSharpAngleThreshold="<<_hexoticSharpAngleThreshold<<";";
+  save<<"hexoticNbProc="<<_hexoticNbProc<<";";
+  save<<"hexoticWorkingDirectory="<<_hexoticWorkingDirectory<<";";
   return save;
 }
 
@@ -153,6 +175,8 @@ std::istream& HexoticPlugin_Hypothesis::LoadFrom(std::istream& load)
       if (str3=="hexoticIgnoreRidges") _hexoticIgnoreRidges = (bool) atoi(str4.c_str());
       if (str3=="hexoticInvalidElements") _hexoticInvalidElements = (bool) atoi(str4.c_str());
       if (str3=="hexoticSharpAngleThreshold") _hexoticSharpAngleThreshold = atoi(str4.c_str());
+      if (str3=="hexoticNbProc") _hexoticNbProc = atoi(str4.c_str());
+      if (str3=="hexoticWorkingDirectory") _hexoticWorkingDirectory = str4;
    }
    return load;
 }
@@ -187,7 +211,7 @@ std::istream& operator >>(std::istream& load, HexoticPlugin_Hypothesis& hyp)
  */
 //================================================================================
 bool HexoticPlugin_Hypothesis::SetParametersByMesh(const SMESH_Mesh*   theMesh,
-						   const TopoDS_Shape& theShape)
+                                                   const TopoDS_Shape& theShape)
 {
   return false;
 }
@@ -207,12 +231,12 @@ bool HexoticPlugin_Hypothesis::SetParametersByDefaults(const TDefaults&  /*dflts
 //=============================================================================
 int HexoticPlugin_Hypothesis::GetDefaultHexesMinLevel()
 {
-  return 3;
+  return 6;
 }
 
 int HexoticPlugin_Hypothesis::GetDefaultHexesMaxLevel()
 {
-  return 8;
+  return 10;
 }
 
 bool HexoticPlugin_Hypothesis::GetDefaultHexoticQuadrangles()
@@ -233,4 +257,27 @@ bool HexoticPlugin_Hypothesis::GetDefaultHexoticInvalidElements()
 int HexoticPlugin_Hypothesis::GetDefaultHexoticSharpAngleThreshold()
 {
   return 60;
+}
+
+int HexoticPlugin_Hypothesis::GetDefaultHexoticNbProc()
+{
+  return 1;
+}
+
+std::string HexoticPlugin_Hypothesis::GetDefaultHexoticWorkingDirectory()
+{
+  TCollection_AsciiString aTmpDir;
+
+  char *Tmp_dir = getenv("SALOME_TMP_DIR");
+  if(Tmp_dir != NULL) {
+    aTmpDir = Tmp_dir;
+  }
+  else {
+#ifdef WIN32
+    aTmpDir = TCollection_AsciiString("C:\\");
+#else
+    aTmpDir = TCollection_AsciiString("/tmp/");
+#endif
+  }
+  return aTmpDir.ToCString();
 }

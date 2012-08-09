@@ -1,27 +1,29 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // ---
 // File   : HexoticPlugin_Hypothesis_i.cxx
 // Author : Lioka RAZAFINDRAZAKA (CEA)
 // ---
 //
 #include "HexoticPlugin_Hypothesis_i.hxx"
+#include "SMESH_Mesh_i.hxx"
 #include "SMESH_Gen.hxx"
 #include "SMESH_PythonDump.hxx"
 
@@ -68,6 +70,8 @@ HexoticPlugin_Hypothesis_i::~HexoticPlugin_Hypothesis_i()
  *  HexoticPlugin_Hypothesis_i::SetHexoticIgnoreRidges
  *  HexoticPlugin_Hypothesis_i::SetHexoticInvalidElements
  *  HexoticPlugin_Hypothesis_i::SetHexoticSharpAngleThreshold
+ *  HexoticPlugin_Hypothesis_i::SetHexoticNbProc 
+ *  HexoticPlugin_Hypothesis_i::SetHexoticWorkingDirectory 
  */
 //=============================================================================
 
@@ -119,6 +123,34 @@ void HexoticPlugin_Hypothesis_i::SetHexoticSharpAngleThreshold (CORBA::Long theV
   SMESH::TPythonDump() << _this() << ".SetHexoticSharpAngleThreshold( " << theValue << " )";
 }
 
+void HexoticPlugin_Hypothesis_i::SetHexoticNbProc (CORBA::Long theValue)
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexoticNbProc");
+  ASSERT(myBaseImpl);
+  this->GetImpl()->SetHexoticNbProc(theValue);
+  SMESH::TPythonDump() << _this() << ".SetHexoticNbProc( " << theValue << " )";
+}
+
+void HexoticPlugin_Hypothesis_i::SetHexoticWorkingDirectory(const char* path) throw ( SALOME::SALOME_Exception )
+{
+  if (!path )
+    THROW_SALOME_CORBA_EXCEPTION( "Null working directory",SALOME::BAD_PARAM );
+
+  string file(path);
+  const char lastChar = *file.rbegin();
+#ifdef WIN32
+  if ( lastChar != '\\' ) file += '\\';
+#else
+  if ( lastChar != '/' ) file += '/';
+#endif
+  file += "Hexotic_In.mesh";
+  SMESH_Mesh_i::PrepareForWriting (file.c_str());
+
+  ASSERT(myBaseImpl);
+  this->GetImpl()->SetHexoticWorkingDirectory(path);
+  SMESH::TPythonDump() << _this() << ".SetHexoticWorkingDirectory( '" << path << "' )";
+}
+
 //=============================================================================
 /*!
  *  HexoticPlugin_Hypothesis_i::GetHexesMinLevel
@@ -127,6 +159,8 @@ void HexoticPlugin_Hypothesis_i::SetHexoticSharpAngleThreshold (CORBA::Long theV
  *  HexoticPlugin_Hypothesis_i::GetHexoticIgnoreRidges
  *  HexoticPlugin_Hypothesis_i::GetHexoticInvalidElements
  *  HexoticPlugin_Hypothesis_i::GetHexoticSharpAngleThreshold 
+ *  HexoticPlugin_Hypothesis_i::GetHexoticNbProc 
+ *  HexoticPlugin_Hypothesis_i::GetHexoticWorkingDirectory 
  */
 //=============================================================================
 
@@ -170,6 +204,19 @@ CORBA::Long HexoticPlugin_Hypothesis_i::GetHexoticSharpAngleThreshold()
   // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexoticSharpAngleThreshold");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetHexoticSharpAngleThreshold();
+}
+
+CORBA::Long HexoticPlugin_Hypothesis_i::GetHexoticNbProc()
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexoticNbProc");
+  ASSERT(myBaseImpl);
+  return this->GetImpl()->GetHexoticNbProc();
+}
+
+char* HexoticPlugin_Hypothesis_i::GetHexoticWorkingDirectory()
+{
+  ASSERT(myBaseImpl);
+  return CORBA::string_dup( this->GetImpl()->GetHexoticWorkingDirectory().c_str() );
 }
 
 //=============================================================================

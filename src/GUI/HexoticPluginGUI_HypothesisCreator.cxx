@@ -1,21 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // ---
 // File   : HexoticPluginGUI_HypothesisCreator.cxx
 // Author : Lioka RAZAFINDRAZAKA (CEA)
@@ -30,6 +31,7 @@
 
 #include <SUIT_Session.h>
 #include <SUIT_ResourceMgr.h>
+#include <SUIT_FileDlg.h>
 #include <SalomeApp_Tools.h>
 #include <QtxIntSpinBox.h>
 
@@ -40,6 +42,7 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <QCheckBox>
+#include <QPushButton>
 
 enum Fineness {
   VeryCoarse,
@@ -73,8 +76,8 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
 {
   QFrame* fr = new QFrame( 0 );
   QVBoxLayout* lay = new QVBoxLayout( fr );
-  lay->setMargin( 5 );
-  lay->setSpacing( 0 );
+  lay->setMargin( 0 );
+  lay->setSpacing( 6 );
 
   QGroupBox* GroupC1 = new QGroupBox( tr( "SMESH_ARGUMENTS" ), fr );
   lay->addWidget( GroupC1 );
@@ -86,46 +89,63 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   int row = 0;
   myName = 0;
   if( isCreation() ) {
-    l->addWidget( new QLabel( tr( "SMESH_NAME" ), GroupC1 ), row, 0, 1, 1 );
+    l->addWidget( new QLabel( tr( "SMESH_NAME" ), GroupC1 ), row, 0, 1, 2 );
     myName = new QLineEdit( GroupC1 );
-    l->addWidget( myName, row++, 1, 1, 1 );
+    l->addWidget( myName, row++, 2, 1, 1 );
+    myName->setMinimumWidth( 150 );
   }
 
   HexoticPlugin::HexoticPlugin_Hypothesis_var h =
   HexoticPlugin::HexoticPlugin_Hypothesis::_narrow( initParamsHypothesis() );
   
-  l->addWidget( new QLabel( tr( "Hexotic_HEXES_MIN_LEVEL" ), GroupC1 ), row, 0, 1, 1 );
+  l->addWidget( new QLabel( tr( "Hexotic_HEXES_MIN_LEVEL" ), GroupC1 ), row, 0, 1, 2 );
   myHexesMinLevel = new QtxIntSpinBox( GroupC1 );
-  // myHexesMinLevel->setMinimum( 3 );
-  myHexesMinLevel->setMinimum( h->GetHexesMinLevel() );
+  myHexesMinLevel->setMinimum( 3 );
+  //myHexesMinLevel->setMinimum( h->GetHexesMinLevel() );
   myHexesMinLevel->setMaximum( 10 );
   myHexesMinLevel->setSingleStep( 1 );
-  l->addWidget( myHexesMinLevel, row++, 1, 1, 1 );
+  l->addWidget( myHexesMinLevel, row++, 2, 1, 1 );
   
-  l->addWidget( new QLabel( tr( "Hexotic_HEXES_MAX_LEVEL" ), GroupC1 ), row, 0, 1, 1 );
+  l->addWidget( new QLabel( tr( "Hexotic_HEXES_MAX_LEVEL" ), GroupC1 ), row, 0, 1, 2 );
   myHexesMaxLevel = new QtxIntSpinBox( GroupC1 );
   myHexesMaxLevel->setMinimum( 3 );
   myHexesMaxLevel->setMaximum( 10 );
   myHexesMaxLevel->setSingleStep( 1 );
-  l->addWidget( myHexesMaxLevel, row++, 1, 1, 1 );
+  l->addWidget( myHexesMaxLevel, row++, 2, 1, 1 );
 
   myHexoticQuadrangles = new QCheckBox( tr( "Hexotic_QUADRANGLES" ), GroupC1 );
-  l->addWidget( myHexoticQuadrangles, row++, 0, 1, 2 );
+  l->addWidget( myHexoticQuadrangles, row++, 0, 1, 3 );
   myIs3D = true;
 
   myHexoticIgnoreRidges = new QCheckBox( tr( "Hexotic_IGNORE_RIDGES" ), GroupC1 );
-  l->addWidget( myHexoticIgnoreRidges, row++, 0, 1, 2 );
+  l->addWidget( myHexoticIgnoreRidges, row++, 0, 1, 3 );
 
   myHexoticInvalidElements = new QCheckBox( tr( "Hexotic_INVALID_ELEMENTS" ), GroupC1 );
-  l->addWidget( myHexoticInvalidElements, row++, 0, 1, 2 );
+  l->addWidget( myHexoticInvalidElements, row++, 0, 1, 3 );
 
-  l->addWidget( new QLabel( tr( "Hexotic_SHARP_ANGLE_THRESHOLD" ), GroupC1 ), row, 0, 1, 1 );
+  l->addWidget( new QLabel( tr( "Hexotic_SHARP_ANGLE_THRESHOLD" ), GroupC1 ), row, 0, 1, 2 );
   myHexoticSharpAngleThreshold = new QtxIntSpinBox( GroupC1 );
   myHexoticSharpAngleThreshold->setMinimum( 0 );
   myHexoticSharpAngleThreshold->setMaximum( 90 );
   myHexoticSharpAngleThreshold->setSingleStep( 1 );
-  l->addWidget( myHexoticSharpAngleThreshold, row++, 1, 1, 1 );
+  l->addWidget( myHexoticSharpAngleThreshold, row++, 2, 1, 1 );
 
+  l->addWidget( new QLabel( tr( "Hexotic_NB_PROC" ), GroupC1 ), row, 0, 1, 2 );
+  myHexoticNbProc = new QtxIntSpinBox( GroupC1 );
+  myHexoticNbProc->setMinimum( 1 );
+  myHexoticNbProc->setMaximum( 256 );
+  myHexoticNbProc->setSingleStep( 1 );
+  l->addWidget( myHexoticNbProc, row++, 2, 1, 1 );
+
+  l->addWidget( new QLabel( tr( "Hexotic_WORKING_DIR" ), GroupC1 ), row, 0, 1, 1 );
+  QPushButton* dirBtn = new QPushButton( tr( "Hexotic_SELECT_DIR" ), GroupC1 );
+  dirBtn->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
+  l->addWidget( dirBtn, row, 1, 1, 1 );  
+  myHexoticWorkingDir = new QLineEdit( GroupC1 );
+  l->addWidget( myHexoticWorkingDir, row++, 2, 1, 1 );
+
+  connect( dirBtn,                  SIGNAL( clicked() ),       this, SLOT( onDirBtnClicked() ) );
+  
   return fr;
 }
 
@@ -147,6 +167,9 @@ void HexoticPluginGUI_HypothesisCreator::retrieveParams() const
   myHexesMinLevel->setEnabled(true);
   myHexesMaxLevel->setEnabled(true);
   myHexoticSharpAngleThreshold->setEnabled(true);
+  
+  myHexoticNbProc->setValue( data.myHexoticNbProc );
+  myHexoticWorkingDir->setText( data.myHexoticWorkingDir );
 }
 
 QString HexoticPluginGUI_HypothesisCreator::storeParams() const
@@ -162,6 +185,8 @@ QString HexoticPluginGUI_HypothesisCreator::storeParams() const
   valStr += tr("Hexotic_IGNORE_RIDGES")  + " = " + QString::number( data.myHexoticIgnoreRidges ) + "; ";
   valStr += tr("Hexotic_INVALID_ELEMENTS")  + " = " + QString::number( data.myHexoticInvalidElements ) + "; ";
   valStr += tr("Hexotic_SHARP_ANGLE_THRESHOLD") + " = " + QString::number( data.myHexoticSharpAngleThreshold ) + "; ";
+  valStr += tr("Hexotic_NB_PROC") + " = " + QString::number( data.myHexoticNbProc ) + "; ";
+  valStr += tr("Hexotic_WORKING_DIR") + " = " + data.myHexoticWorkingDir + "; ";
 
   return valStr;
 }
@@ -179,6 +204,8 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromHypo( HexoticHypothesisDa
   h_data.myHexoticIgnoreRidges = h->GetHexoticIgnoreRidges();
   h_data.myHexoticInvalidElements = h->GetHexoticInvalidElements();
   h_data.myHexoticSharpAngleThreshold = h->GetHexoticSharpAngleThreshold();
+  h_data.myHexoticNbProc = h->GetHexoticNbProc();
+  h_data.myHexoticWorkingDir = h->GetHexoticWorkingDirectory();
 
   return true;
 }
@@ -200,6 +227,8 @@ bool HexoticPluginGUI_HypothesisCreator::storeParamsToHypo( const HexoticHypothe
     h->SetHexoticIgnoreRidges( h_data.myHexoticIgnoreRidges );
     h->SetHexoticInvalidElements( h_data.myHexoticInvalidElements );
     h->SetHexoticSharpAngleThreshold( h_data.myHexoticSharpAngleThreshold );
+    h->SetHexoticNbProc( h_data.myHexoticNbProc );
+    h->SetHexoticWorkingDirectory( h_data.myHexoticWorkingDir.toLatin1().constData() );
   }
   catch(const SALOME::SALOME_Exception& ex)
   {
@@ -218,6 +247,8 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromWidgets( HexoticHypothesi
   h_data.myHexoticIgnoreRidges = myHexoticIgnoreRidges->isChecked();
   h_data.myHexoticInvalidElements = myHexoticInvalidElements->isChecked();
   h_data.myHexoticSharpAngleThreshold = myHexoticSharpAngleThreshold->value();
+  h_data.myHexoticNbProc = myHexoticNbProc->value();
+  h_data.myHexoticWorkingDir = myHexoticWorkingDir->text();
 
   return true;
 }
@@ -236,4 +267,16 @@ QPixmap HexoticPluginGUI_HypothesisCreator::icon() const
 QString HexoticPluginGUI_HypothesisCreator::type() const
 {
   return myIs3D ? tr( "Hexotic_3D_HYPOTHESIS" ) : tr( "Hexotic_3D_HYPOTHESIS" ); // ??? 3D/2D ???
+}
+
+QString HexoticPluginGUI_HypothesisCreator::helpPage() const
+{
+  return "hexotic_hypo_page.html";
+}
+
+void HexoticPluginGUI_HypothesisCreator::onDirBtnClicked()
+{
+  QString dir = SUIT_FileDlg::getExistingDirectory( dlg(), myHexoticWorkingDir->text(), QString() );
+  if ( !dir.isEmpty() )
+    myHexoticWorkingDir->setText( dir );
 }

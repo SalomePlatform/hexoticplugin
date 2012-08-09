@@ -1,5 +1,5 @@
 <!--
-  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+  Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -25,5 +25,8 @@
   <section name="SMESH">
     <!-- Default SMESH module plugins -->
     <parameter name="plugins" value="NETGENPlugin,GHS3DPlugin,HexoticPLUGIN"/>
+  </section>
+  <section name="smesh_help" >
+    <parameter name="Plug-ins/Hexotic plugin User's Guide" value="${HexoticPLUGIN_ROOT_DIR}/share/doc/salome/gui/HexoticPLUGIN/index.html"/>
   </section>
 </document>

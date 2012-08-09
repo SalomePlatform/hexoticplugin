@@ -1,21 +1,22 @@
-#  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 #
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
 #
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #
-#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 # ---
 # File   : Makefile.am
 # Author : Vadim SANDLER, Open CASCADE S.A.S (vadim.sandler@opencascade.com)
@@ -30,19 +31,25 @@ if HEXOTICPLUGIN_ENABLE_GUI
                     -I ${MED_ROOT_DIR}/adm_local/unix/config_files \
                     -I ${GEOM_ROOT_DIR}/adm_local/unix/config_files \
                     -I ${SMESH_ROOT_DIR}/adm_local/unix/config_files
+#                    -I ${BLSURFPLUGIN_ROOT_DIR}/adm_local/unix/config_files
 else !HEXOTICPLUGIN_ENABLE_GUI
   ACLOCAL_AMFLAGS = -I adm_local/unix/config_files \
                     -I ${KERNEL_ROOT_DIR}/salome_adm/unix/config_files \
                     -I ${MED_ROOT_DIR}/adm_local/unix/config_files \
                     -I ${GEOM_ROOT_DIR}/adm_local/unix/config_files \
                     -I ${SMESH_ROOT_DIR}/adm_local/unix/config_files
+#                    -I ${BLSURFPLUGIN_ROOT_DIR}/adm_local/unix/config_files
 endif
 
-SUBDIRS = idl adm_local resources src bin
+if HEXOTICPLUGIN_ENABLE_BLSURFPLUGIN
+  ACLOCAL_AMFLAGS += -I ${BLSURFPLUGIN_ROOT_DIR}/adm_local/unix/config_files
+endif
 
-DIST_SUBDIRS = idl adm_local resources src bin 
+SUBDIRS = idl adm_local resources src bin doc
 
-DISTCLEANFILES = a.out aclocal.m4 configure
+DIST_SUBDIRS = idl adm_local resources src bin doc
+
+DISTCLEANFILES = a.out aclocal.m4 configure hack_libtool
 
 salomeinclude_DATA = HexoticPLUGIN_version.h
 

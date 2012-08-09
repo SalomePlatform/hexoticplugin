@@ -1,21 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // ---
 // File   : HexoticPlugin_Hypothesis.hxx
 // Author : Lioka RAZAFINDRAZAKA (CEA)
@@ -24,13 +25,15 @@
 #ifndef _HexoticPlugin_Hypothesis_HXX_
 #define _HexoticPlugin_Hypothesis_HXX_
 
+#include "HexoticPlugin_Defs.hxx"
+
 #include "SMESH_Hypothesis.hxx"
 #include "Utils_SALOME_Exception.hxx"
 
 //  Parameters for work of Hexotic
 //
 
-class HexoticPlugin_Hypothesis: public SMESH_Hypothesis
+class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis: public SMESH_Hypothesis
 {
 public:
 
@@ -53,6 +56,12 @@ public:
    
   void SetHexoticSharpAngleThreshold(int theVal);
   int GetHexoticSharpAngleThreshold() const { return _hexoticSharpAngleThreshold; }
+   
+  void SetHexoticNbProc(int theVal);
+  int GetHexoticNbProc() const { return _hexoticNbProc; }
+  
+  void SetHexoticWorkingDirectory(const std::string& path);
+  std::string GetHexoticWorkingDirectory() const { return _hexoticWorkingDirectory; }
 
   // the parameters default values 
 
@@ -62,6 +71,8 @@ public:
   static bool GetDefaultHexoticIgnoreRidges();
   static bool GetDefaultHexoticInvalidElements();
   static int GetDefaultHexoticSharpAngleThreshold();
+  static int GetDefaultHexoticNbProc();
+  static std::string GetDefaultHexoticWorkingDirectory();
 
   // Persistence
   virtual std::ostream& SaveTo(std::ostream& save);
@@ -90,6 +101,8 @@ private:
   bool _hexoticIgnoreRidges;
   bool _hexoticInvalidElements;
   int  _hexoticSharpAngleThreshold;
+  int  _hexoticNbProc;
+  std::string _hexoticWorkingDirectory ;
 };
 
 #endif

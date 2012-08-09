@@ -1,21 +1,22 @@
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
 //
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License.
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
 //
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
 // ---
 // File   : HexoticPluginGUI_HypothesisCreator.h
 // Author : Lioka RAZAFINDRAZAKA (CEA)
@@ -23,6 +24,8 @@
 //
 #ifndef HexoticPLUGINGUI_HypothesisCreator_H
 #define HexoticPLUGINGUI_HypothesisCreator_H
+
+#include "HexoticPluginGUI.h"
 
 #include <SMESHGUI_Hypotheses.h>
 
@@ -38,12 +41,14 @@ typedef struct
   bool     myHexoticInvalidElements;
   bool     myHexoticIgnoreRidges;
   int      myHexoticSharpAngleThreshold;
+  int      myHexoticNbProc;
+  QString  myHexoticWorkingDir;
 } HexoticHypothesisData;
 
 /*!
  * \brief Class for creation of Hexotic hypotheses
 */
-class HexoticPluginGUI_HypothesisCreator : public SMESHGUI_GenericHypothesisCreator
+class HEXOTICPLUGIN_GUI_EXPORT HexoticPluginGUI_HypothesisCreator : public SMESHGUI_GenericHypothesisCreator
 {
   Q_OBJECT
 
@@ -52,6 +57,7 @@ public:
   virtual ~HexoticPluginGUI_HypothesisCreator();
 
   virtual bool checkParams() const;
+  virtual QString  helpPage() const;
 
 protected:
   virtual QFrame*  buildFrame    ();
@@ -61,6 +67,9 @@ protected:
   virtual QString  caption() const;
   virtual QPixmap  icon() const;
   virtual QString  type() const;
+  
+protected slots:
+  void             onDirBtnClicked();
 
 private:
   bool readParamsFromHypo( HexoticHypothesisData& ) const;
@@ -75,6 +84,8 @@ private:
  QCheckBox*       myHexoticIgnoreRidges;
  QCheckBox*       myHexoticInvalidElements;
  QtxIntSpinBox*   myHexoticSharpAngleThreshold;
+ QtxIntSpinBox*   myHexoticNbProc;
+ QLineEdit*       myHexoticWorkingDir;
 
  bool             myIs3D;
 };
