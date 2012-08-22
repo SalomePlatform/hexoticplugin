@@ -2,13 +2,9 @@
 
 \mainpage Introduction to HexoticPLUGIN
 
-\n \b HexoticPLUGIN plugin is destined for:
-
-
-<ul>
-<li>Meshing 3D geometric entities.</li>
-<li>Generating 3D meshes from 2D meshes, working without geometrical objects.</li>
-</ul>
+\b HexoticPLUGIN plugin is destined for:
+- Meshing 3D geometric entities.
+- Generating 3D meshes from 2D meshes, working without geometrical objects.
 
 To manage parameters of the HexoticPLUGIN use \subpage hexotic_hypo_page.
 

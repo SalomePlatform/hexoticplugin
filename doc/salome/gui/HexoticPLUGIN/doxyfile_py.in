@@ -96,7 +96,7 @@ EXAMPLE_RECURSIVE      = NO
 #---------------------------------------------------------------------------
 #Input related options
 #---------------------------------------------------------------------------
-INPUT             = @top_srcdir@/src/HexoticPlugin/HexoticPLUGINDC.py
+INPUT             = @top_srcdir@/src/HexoticPlugin/HexoticPLUGINDC.py smesh.py
 FILE_PATTERNS     = 
 IMAGE_PATH        = @srcdir@/images
 RECURSIVE         = NO

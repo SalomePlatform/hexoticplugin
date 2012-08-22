@@ -17,6 +17,10 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+##
+# @package HexoticPLUGINDC
+# Python API for the Hexotic meshing plug-in module.
+
 from smesh import Mesh_Algorithm, AssureGeomPublished
 
 # import HexoticPlugin module if possible
@@ -27,17 +31,36 @@ except ImportError:
     noHexoticPlugin = 1
     pass
 
+#----------------------------
+# Mesh algo type identifiers
+#----------------------------
+
+## Algorithm type: Hexotic hexahedron 3D algorithm, see Hexotic_Algorithm
 Hexotic = "Hexotic_3D"
 
+#----------------------------
+# Algorithms
+#----------------------------
 
 ## Defines a hexahedron 3D algorithm
 #
+#  It is created by calling smesh.Mesh.Hexahedron( smesh.Hexotic, geom=0 )
 class Hexotic_Algorithm(Mesh_Algorithm):
 
+    ## name of the dynamic method in smesh.Mesh class
+    #  @internal
     meshMethod = "Hexahedron"
+    ## type of algorithm used with helper function in smesh.Mesh class
+    #  @internal
     algoType   = Hexotic
+    ## doc string of the method in smesh.Mesh class
+    #  @internal
+    docHelper  = "Creates hexahedron 3D algorithm for volumes"
 
     ## Private constructor.
+    #  @param mesh parent mesh object algorithm is assigned to
+    #  @param geom geometry (shape/sub-shape) algorithm is assigned to;
+    #              if it is @c 0 (default), the algorithm is assigned to the main shape
     def __init__(self, mesh, geom=0):
         Mesh_Algorithm.__init__(self)
         if noHexoticPlugin: print "Warning: HexoticPlugin module unavailable"
@@ -45,6 +68,10 @@ class Hexotic_Algorithm(Mesh_Algorithm):
         pass
 
     ## Defines "MinMaxQuad" hypothesis to give three hexotic parameters
+    #  @param min minimal level of recursive partitioning on the initial octree cube
+    #  @param max maximal level of recursive partitioning on the initial octree cube
+    #  @param quad not documented
+    #  @return hypothesis object
     def MinMaxQuad(self, min=3, max=8, quad=True):
         self.params = self.Hypothesis("Hexotic_Parameters", [], "libHexoticEngine.so",
                                       UseExisting=0)
@@ -52,3 +79,5 @@ class Hexotic_Algorithm(Mesh_Algorithm):
         self.params.SetHexesMaxLevel(max)
         self.params.SetHexoticQuadrangles(quad)
         return self.params
+
+    pass # end of Hexotic_Algorithm class
