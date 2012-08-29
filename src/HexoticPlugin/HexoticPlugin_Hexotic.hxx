@@ -27,7 +27,7 @@
 
 #include "HexoticPlugin_Defs.hxx"
 
-#include "SMESH_3D_Algo.hxx"
+#include "SMESH_Algo.hxx"
 #include "SMESH_Mesh.hxx"
 #include "Utils_SALOME_Exception.hxx"
 

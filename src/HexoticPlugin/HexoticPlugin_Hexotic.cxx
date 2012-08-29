@@ -45,13 +45,14 @@
 #define DUMP(txt)
 #endif
 
-#include <SMESH_Gen.hxx>
-#include <SMESHDS_Mesh.hxx>
 #include <SMESHDS_GroupBase.hxx>
+#include <SMESHDS_Mesh.hxx>
 #include <SMESH_ControlsDef.hxx>
-#include <SMESH_MesherHelper.hxx>
-#include "SMESH_HypoFilter.hxx"
 #include <SMESH_File.hxx>
+#include <SMESH_Gen.hxx>
+#include <SMESH_HypoFilter.hxx>
+#include <SMESH_MesherHelper.hxx>
+#include <SMESH_subMesh.hxx>
 
 #include <list>
 #include <cstdlib>
