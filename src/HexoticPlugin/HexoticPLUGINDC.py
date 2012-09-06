@@ -66,19 +66,44 @@ class Hexotic_Algorithm(Mesh_Algorithm):
         Mesh_Algorithm.__init__(self)
         if noHexoticPlugin: print "Warning: HexoticPlugin module unavailable"
         self.Create(mesh, geom, Hexotic, "libHexoticEngine.so")
+        self.params = None
         pass
 
-    ## Defines "MinMaxQuad" hypothesis to give three hexotic parameters
+    ## Defines "SetMinMaxHexes" hypothesis to give two hexotic parameters
+    #  @param min minimal level of recursive partitioning on the initial octree cube
+    #  @param max maximal level of recursive partitioning on the initial octree cube
+    #  @return hypothesis object
+    def SetMinMaxHexes(self, min=3, max=8):
+        self.Parameters().SetHexesMinLevel(min)
+        self.Parameters().SetHexesMaxLevel(max)
+        return self.Parameters()
+
+    ## Defines "SetMinMaxSize" hypothesis to give two hexotic parameters
+    #  @param min minimal element's size
+    #  @param max maximal element's size
+    #  @return hypothesis object
+    def SetMinMaxSize(self, min, max):
+        self.Parameters().SetMinSize(min)
+        self.Parameters().SetMaxSize(max)
+        return self.Parameters()
+
+    ## (OBSOLETE) Defines "MinMaxQuad" hypothesis to give three hexotic parameters
     #  @param min minimal level of recursive partitioning on the initial octree cube
     #  @param max maximal level of recursive partitioning on the initial octree cube
     #  @param quad not documented
     #  @return hypothesis object
     def MinMaxQuad(self, min=3, max=8, quad=True):
-        self.params = self.Hypothesis("Hexotic_Parameters", [], "libHexoticEngine.so",
-                                      UseExisting=0)
-        self.params.SetHexesMinLevel(min)
-        self.params.SetHexesMaxLevel(max)
-        self.params.SetHexoticQuadrangles(quad)
+        print "WARNING: Function MinMaxQuad is deprecated, use SetMinMaxHexes instead"
+        return self.SetMinMaxHexes(min, max)
+
+    ## Defines hypothesis having several parameters
+    #  @return hypothesis object
+    def Parameters(self):
+        if not self.params:
+            self.params = self.Hypothesis("Hexotic_Parameters", [],
+                                          "libHexoticEngine.so", UseExisting=0)
+            pass
         return self.params
+
 
     pass # end of Hexotic_Algorithm class

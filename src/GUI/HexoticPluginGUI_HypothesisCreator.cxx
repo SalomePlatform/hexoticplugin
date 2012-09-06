@@ -23,6 +23,7 @@
 // ---
 //
 #include "HexoticPluginGUI_HypothesisCreator.h"
+#include "HexoticPluginGUI_Dlg.h"
 
 #include <SMESHGUI_Utils.h>
 #include <SMESHGUI_HypothesesUtils.h>
@@ -44,14 +45,6 @@
 #include <QCheckBox>
 #include <QPushButton>
 
-enum Fineness {
-  VeryCoarse,
-  Coarse,
-  Moderate,
-  Fine,
-  VeryFine,
-  UserDefined
-};
 
 HexoticPluginGUI_HypothesisCreator::HexoticPluginGUI_HypothesisCreator( const QString& theHypType )
 : SMESHGUI_GenericHypothesisCreator( theHypType ),
@@ -63,13 +56,33 @@ HexoticPluginGUI_HypothesisCreator::~HexoticPluginGUI_HypothesisCreator()
 {
 }
 
-bool HexoticPluginGUI_HypothesisCreator::checkParams() const
+bool HexoticPluginGUI_HypothesisCreator::checkParams(QString& msg) const
 {
+  msg.clear();
   HexoticHypothesisData data_old, data_new;
   readParamsFromHypo( data_old );
   readParamsFromWidgets( data_new );
+
   bool res = storeParamsToHypo( data_new );
-  return res;
+  if ( !res ) {
+    storeParamsToHypo( data_old );
+    return res;
+  }
+
+  res = data_new.myMinSize <= data_new.myMaxSize;
+  if ( !res ) {
+    msg = tr(QString("Min size (%1) is higher than max size (%2)").arg(data_new.myMinSize).arg(data_new.myMaxSize).toStdString().c_str());
+    return res;
+  }
+
+  res = data_new.myHexesMinLevel == 0  || \
+      ( data_new.myHexesMinLevel != 0  && (data_new.myHexesMinLevel < data_new.myHexesMaxLevel) );
+  if ( !res ) {
+    msg = tr(QString("Min hexes level (%1) is higher than max hexes level (%2)").arg(data_new.myHexesMinLevel).arg(data_new.myHexesMaxLevel).toStdString().c_str());
+    return res;
+  }
+
+  return true;
 }
 
 QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
@@ -89,87 +102,110 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   int row = 0;
   myName = 0;
   if( isCreation() ) {
-    l->addWidget( new QLabel( tr( "SMESH_NAME" ), GroupC1 ), row, 0, 1, 2 );
+    l->addWidget( new QLabel( tr( "SMESH_NAME" ), GroupC1 ), row, 0, 1, 1 );
     myName = new QLineEdit( GroupC1 );
-    l->addWidget( myName, row++, 2, 1, 1 );
+    l->addWidget( myName, row++, 1, 1, 2 );
     myName->setMinimumWidth( 150 );
   }
 
   HexoticPlugin::HexoticPlugin_Hypothesis_var h =
   HexoticPlugin::HexoticPlugin_Hypothesis::_narrow( initParamsHypothesis() );
   
-  l->addWidget( new QLabel( tr( "Hexotic_HEXES_MIN_LEVEL" ), GroupC1 ), row, 0, 1, 2 );
-  myHexesMinLevel = new QtxIntSpinBox( GroupC1 );
-  myHexesMinLevel->setMinimum( 3 );
-  //myHexesMinLevel->setMinimum( h->GetHexesMinLevel() );
-  myHexesMinLevel->setMaximum( 10 );
-  myHexesMinLevel->setSingleStep( 1 );
-  l->addWidget( myHexesMinLevel, row++, 2, 1, 1 );
-  
-  l->addWidget( new QLabel( tr( "Hexotic_HEXES_MAX_LEVEL" ), GroupC1 ), row, 0, 1, 2 );
-  myHexesMaxLevel = new QtxIntSpinBox( GroupC1 );
-  myHexesMaxLevel->setMinimum( 3 );
-  myHexesMaxLevel->setMaximum( 10 );
-  myHexesMaxLevel->setSingleStep( 1 );
-  l->addWidget( myHexesMaxLevel, row++, 2, 1, 1 );
+  myStdWidget = new HexoticPluginGUI_StdWidget(GroupC1);
+  l->addWidget( myStdWidget, row++, 0, 1, 3 );
+  myStdWidget->onSdModeSelected(SD_MODE_4);
 
-  myHexoticQuadrangles = new QCheckBox( tr( "Hexotic_QUADRANGLES" ), GroupC1 );
-  l->addWidget( myHexoticQuadrangles, row++, 0, 1, 3 );
   myIs3D = true;
-
-  myHexoticIgnoreRidges = new QCheckBox( tr( "Hexotic_IGNORE_RIDGES" ), GroupC1 );
-  l->addWidget( myHexoticIgnoreRidges, row++, 0, 1, 3 );
-
-  myHexoticInvalidElements = new QCheckBox( tr( "Hexotic_INVALID_ELEMENTS" ), GroupC1 );
-  l->addWidget( myHexoticInvalidElements, row++, 0, 1, 3 );
-
-  l->addWidget( new QLabel( tr( "Hexotic_SHARP_ANGLE_THRESHOLD" ), GroupC1 ), row, 0, 1, 2 );
-  myHexoticSharpAngleThreshold = new QtxIntSpinBox( GroupC1 );
-  myHexoticSharpAngleThreshold->setMinimum( 0 );
-  myHexoticSharpAngleThreshold->setMaximum( 90 );
-  myHexoticSharpAngleThreshold->setSingleStep( 1 );
-  l->addWidget( myHexoticSharpAngleThreshold, row++, 2, 1, 1 );
-
-  l->addWidget( new QLabel( tr( "Hexotic_NB_PROC" ), GroupC1 ), row, 0, 1, 2 );
-  myHexoticNbProc = new QtxIntSpinBox( GroupC1 );
-  myHexoticNbProc->setMinimum( 1 );
-  myHexoticNbProc->setMaximum( 256 );
-  myHexoticNbProc->setSingleStep( 1 );
-  l->addWidget( myHexoticNbProc, row++, 2, 1, 1 );
-
-  l->addWidget( new QLabel( tr( "Hexotic_WORKING_DIR" ), GroupC1 ), row, 0, 1, 1 );
-  QPushButton* dirBtn = new QPushButton( tr( "Hexotic_SELECT_DIR" ), GroupC1 );
-  dirBtn->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
-  l->addWidget( dirBtn, row, 1, 1, 1 );  
-  myHexoticWorkingDir = new QLineEdit( GroupC1 );
-  l->addWidget( myHexoticWorkingDir, row++, 2, 1, 1 );
-
-  connect( dirBtn,                  SIGNAL( clicked() ),       this, SLOT( onDirBtnClicked() ) );
-  
+//  resizeEvent();
   return fr;
+}
+
+//=================================================================================
+// function : resizeEvent [REDEFINED]
+// purpose  :
+//=================================================================================
+void HexoticPluginGUI_HypothesisCreator::resizeEvent(QResizeEvent */*event*/) {
+    QSize scaledSize = myStdWidget->imageSdMode.size();
+    scaledSize.scale(myStdWidget->sdModeLabel->size(), Qt::KeepAspectRatioByExpanding);
+    if (!myStdWidget->sdModeLabel->pixmap() || scaledSize != myStdWidget->sdModeLabel->pixmap()->size())
+    	myStdWidget->sdModeLabel->setPixmap(myStdWidget->imageSdMode.scaled(myStdWidget->sdModeLabel->size(),
+    			Qt::KeepAspectRatio,
+    			Qt::SmoothTransformation));
 }
 
 void HexoticPluginGUI_HypothesisCreator::retrieveParams() const
 {
   HexoticHypothesisData data;
   readParamsFromHypo( data );
+  printData(data);
 
   if( myName )
     myName->setText( data.myName );
-  myHexesMinLevel->setValue( data.myHexesMinLevel );
-  myHexesMaxLevel->setValue( data.myHexesMaxLevel );
-  myHexoticSharpAngleThreshold->setValue( data.myHexoticSharpAngleThreshold );
 
-  myHexoticQuadrangles->setChecked( data.myHexoticQuadrangles );
-  myHexoticIgnoreRidges->setChecked( data.myHexoticIgnoreRidges );
-  myHexoticInvalidElements->setChecked( data.myHexoticInvalidElements );
+  myStdWidget->myMinSize->setCleared(data.myMinSize == 0);
+  if (data.myMinSize == 0)
+    myStdWidget->myMinSize->setText("");
+  else
+    myStdWidget->myMinSize->setValue( data.myMinSize );
 
-  myHexesMinLevel->setEnabled(true);
-  myHexesMaxLevel->setEnabled(true);
-  myHexoticSharpAngleThreshold->setEnabled(true);
+  myStdWidget->myMaxSize->setCleared(data.myMaxSize == 0);
+  if (data.myMaxSize == 0)
+    myStdWidget->myMaxSize->setText("");
+  else
+    myStdWidget->myMaxSize->setValue( data.myMaxSize );
+
+  myStdWidget->myHexesMinLevel->setCleared(data.myHexesMinLevel == 0);
+  if (data.myHexesMinLevel == 0)
+    myStdWidget->myHexesMinLevel->setText("");
+  else
+    myStdWidget->myHexesMinLevel->setValue( data.myHexesMinLevel );
+
+  myStdWidget->myHexesMaxLevel->setCleared(data.myHexesMaxLevel == 0);
+  if (data.myHexesMaxLevel == 0)
+    myStdWidget->myHexesMaxLevel->setText("");
+  else
+    myStdWidget->myHexesMaxLevel->setValue( data.myHexesMaxLevel );
+
+  myStdWidget->myHexoticIgnoreRidges->setChecked( data.myHexoticIgnoreRidges );
+  myStdWidget->myHexoticInvalidElements->setChecked( data.myHexoticInvalidElements );
   
-  myHexoticNbProc->setValue( data.myHexoticNbProc );
-  myHexoticWorkingDir->setText( data.myHexoticWorkingDir );
+  myStdWidget->myHexoticSharpAngleThreshold->setCleared(data.myHexoticSharpAngleThreshold == 0);
+  if (data.myHexoticSharpAngleThreshold == 0)
+    myStdWidget->myHexoticSharpAngleThreshold->setText("");
+  else
+    myStdWidget->myHexoticSharpAngleThreshold->setValue( data.myHexoticSharpAngleThreshold );
+
+  myStdWidget->myHexoticNbProc->setValue( data.myHexoticNbProc );
+  myStdWidget->myHexoticWorkingDir->setText( data.myHexoticWorkingDir );
+
+  myStdWidget->myHexoticVerbosity->setValue( data.myHexoticVerbosity );
+
+  myStdWidget->myHexoticSdMode->setCurrentIndex(data.myHexoticSdMode);
+
+  std::cout << "myStdWidget->myMinSize->value(): " << myStdWidget->myMinSize->value() << std::endl;
+  std::cout << "myStdWidget->myMaxSize->value(): " << myStdWidget->myMaxSize->value() << std::endl;
+  std::cout << "myStdWidget->myHexesMinLevel->value(): " << myStdWidget->myHexesMinLevel->value() << std::endl;
+  std::cout << "myStdWidget->myHexesMaxLevel->value(): " << myStdWidget->myHexesMaxLevel->value() << std::endl;
+  std::cout << "myStdWidget->myHexoticSharpAngleThreshold->value(): " << myStdWidget->myHexoticSharpAngleThreshold->value() << std::endl;
+
+}
+
+void HexoticPluginGUI_HypothesisCreator::printData( HexoticHypothesisData& data) const
+{
+  QString valStr;
+  valStr += tr("Hexotic_MIN_SIZE") + " = " + QString::number( data.myMinSize )   + "; ";
+  valStr += tr("Hexotic_MAX_SIZE") + " = " + QString::number( data.myMaxSize ) + "; ";
+  valStr += tr("Hexotic_HEXES_MIN_LEVEL") + " = " + QString::number( data.myHexesMinLevel )   + "; ";
+  valStr += tr("Hexotic_HEXES_MAX_LEVEL") + " = " + QString::number( data.myHexesMaxLevel ) + "; ";
+  valStr += tr("Hexotic_IGNORE_RIDGES")  + " = " + QString::number( data.myHexoticIgnoreRidges ) + "; ";
+  valStr += tr("Hexotic_INVALID_ELEMENTS")  + " = " + QString::number( data.myHexoticInvalidElements ) + "; ";
+  valStr += tr("Hexotic_SHARP_ANGLE_THRESHOLD") + " = " + QString::number( data.myHexoticSharpAngleThreshold ) + "; ";
+  valStr += tr("Hexotic_NB_PROC") + " = " + QString::number( data.myHexoticNbProc ) + "; ";
+  valStr += tr("Hexotic_WORKING_DIR") + " = " + data.myHexoticWorkingDir + "; ";
+  valStr += tr("Hexotic_VERBOSITY") + " = " + QString::number( data.myHexoticVerbosity ) + "; ";
+  valStr += tr("Hexotic_SD_MODE") + " = " + QString::number( data.myHexoticSdMode ) + "; ";
+
+  std::cout << "Data: " << valStr.toStdString() << std::endl;
 }
 
 QString HexoticPluginGUI_HypothesisCreator::storeParams() const
@@ -179,14 +215,19 @@ QString HexoticPluginGUI_HypothesisCreator::storeParams() const
   storeParamsToHypo( data );
 
   QString valStr;
-  valStr += tr("Hexotic_SEG_MIN_SIZE") + " = " + QString::number( data.myHexesMinLevel )   + "; ";
-  valStr += tr("Hexotic_SEG_MAX_SIZE") + " = " + QString::number( data.myHexesMaxLevel ) + "; ";
-  valStr += tr("Hexotic_QUADRANGLES")  + " = " + QString::number( data.myHexoticQuadrangles ) + "; ";
+  valStr += tr("Hexotic_MIN_SIZE") + " = " + QString::number( data.myMinSize )   + "; ";
+  valStr += tr("Hexotic_MAX_SIZE") + " = " + QString::number( data.myMaxSize ) + "; ";
+  valStr += tr("Hexotic_HEXES_MIN_LEVEL") + " = " + QString::number( data.myHexesMinLevel )   + "; ";
+  valStr += tr("Hexotic_HEXES_MAX_LEVEL") + " = " + QString::number( data.myHexesMaxLevel ) + "; ";
   valStr += tr("Hexotic_IGNORE_RIDGES")  + " = " + QString::number( data.myHexoticIgnoreRidges ) + "; ";
   valStr += tr("Hexotic_INVALID_ELEMENTS")  + " = " + QString::number( data.myHexoticInvalidElements ) + "; ";
   valStr += tr("Hexotic_SHARP_ANGLE_THRESHOLD") + " = " + QString::number( data.myHexoticSharpAngleThreshold ) + "; ";
   valStr += tr("Hexotic_NB_PROC") + " = " + QString::number( data.myHexoticNbProc ) + "; ";
   valStr += tr("Hexotic_WORKING_DIR") + " = " + data.myHexoticWorkingDir + "; ";
+  valStr += tr("Hexotic_VERBOSITY") + " = " + QString::number( data.myHexoticVerbosity) + "; ";
+  valStr += tr("Hexotic_SD_MODE") + " = " + QString::number( data.myHexoticSdMode) + "; ";
+
+//  std::cout << "Data: " << valStr.toStdString() << std::endl;
 
   return valStr;
 }
@@ -198,14 +239,17 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromHypo( HexoticHypothesisDa
 
   HypothesisData* data = SMESH::GetHypothesisData( hypType() );
   h_data.myName = isCreation() && data ? data->Label : "";
+  h_data.myMinSize = h->GetMinSize();
+  h_data.myMaxSize = h->GetMaxSize();
   h_data.myHexesMinLevel = h->GetHexesMinLevel();
   h_data.myHexesMaxLevel = h->GetHexesMaxLevel();
-  h_data.myHexoticQuadrangles = h->GetHexoticQuadrangles();
   h_data.myHexoticIgnoreRidges = h->GetHexoticIgnoreRidges();
   h_data.myHexoticInvalidElements = h->GetHexoticInvalidElements();
   h_data.myHexoticSharpAngleThreshold = h->GetHexoticSharpAngleThreshold();
   h_data.myHexoticNbProc = h->GetHexoticNbProc();
   h_data.myHexoticWorkingDir = h->GetHexoticWorkingDirectory();
+  h_data.myHexoticVerbosity = h->GetHexoticVerbosity();
+  h_data.myHexoticSdMode = h->GetHexoticSdMode()-1;
 
   return true;
 }
@@ -216,19 +260,23 @@ bool HexoticPluginGUI_HypothesisCreator::storeParamsToHypo( const HexoticHypothe
     HexoticPlugin::HexoticPlugin_Hypothesis::_narrow( hypothesis() );
 
   bool ok = true;
+
   try
   {
     if( isCreation() )
       SMESH::SetName( SMESH::FindSObject( h ), h_data.myName.toLatin1().constData() );
 
+    h->SetMinSize( h_data.myMinSize );
+    h->SetMaxSize( h_data.myMaxSize );
     h->SetHexesMinLevel( h_data.myHexesMinLevel );
     h->SetHexesMaxLevel( h_data.myHexesMaxLevel );
-    h->SetHexoticQuadrangles( h_data.myHexoticQuadrangles );
     h->SetHexoticIgnoreRidges( h_data.myHexoticIgnoreRidges );
     h->SetHexoticInvalidElements( h_data.myHexoticInvalidElements );
     h->SetHexoticSharpAngleThreshold( h_data.myHexoticSharpAngleThreshold );
     h->SetHexoticNbProc( h_data.myHexoticNbProc );
     h->SetHexoticWorkingDirectory( h_data.myHexoticWorkingDir.toLatin1().constData() );
+    h->SetHexoticVerbosity( h_data.myHexoticVerbosity );
+    h->SetHexoticSdMode( h_data.myHexoticSdMode+1 );
   }
   catch(const SALOME::SALOME_Exception& ex)
   {
@@ -240,15 +288,23 @@ bool HexoticPluginGUI_HypothesisCreator::storeParamsToHypo( const HexoticHypothe
 
 bool HexoticPluginGUI_HypothesisCreator::readParamsFromWidgets( HexoticHypothesisData& h_data ) const
 {
-  h_data.myName          = myName ? myName->text() : "";
-  h_data.myHexesMinLevel = myHexesMinLevel->value();
-  h_data.myHexesMaxLevel = myHexesMaxLevel->value();
-  h_data.myHexoticQuadrangles = myHexoticQuadrangles->isChecked();
-  h_data.myHexoticIgnoreRidges = myHexoticIgnoreRidges->isChecked();
-  h_data.myHexoticInvalidElements = myHexoticInvalidElements->isChecked();
-  h_data.myHexoticSharpAngleThreshold = myHexoticSharpAngleThreshold->value();
-  h_data.myHexoticNbProc = myHexoticNbProc->value();
-  h_data.myHexoticWorkingDir = myHexoticWorkingDir->text();
+  h_data.myName    = myName ? myName->text() : "";
+
+  h_data.myHexoticIgnoreRidges = myStdWidget->myHexoticIgnoreRidges->isChecked();
+  h_data.myHexoticInvalidElements = myStdWidget->myHexoticInvalidElements->isChecked();
+
+  h_data.myHexoticNbProc = myStdWidget->myHexoticNbProc->value();
+  h_data.myHexoticWorkingDir = myStdWidget->myHexoticWorkingDir->text();
+  h_data.myHexoticVerbosity = myStdWidget->myHexoticVerbosity->value();
+	h_data.myHexoticSdMode = myStdWidget->myHexoticSdMode->currentIndex();
+
+  h_data.myMinSize = myStdWidget->myMinSize->text().isEmpty() ? 0.0 : myStdWidget->myMinSize->value();
+  h_data.myMaxSize = myStdWidget->myMaxSize->text().isEmpty() ? 0.0 : myStdWidget->myMaxSize->value();
+  h_data.myHexesMinLevel = myStdWidget->myHexesMinLevel->text().isEmpty() ? 0 : myStdWidget->myHexesMinLevel->value();
+  h_data.myHexesMaxLevel = myStdWidget->myHexesMaxLevel->text().isEmpty() ? 0 : myStdWidget->myHexesMaxLevel->value();
+  h_data.myHexoticSharpAngleThreshold = myStdWidget->myHexoticSharpAngleThreshold->text().isEmpty() ? 0 : myStdWidget->myHexoticSharpAngleThreshold->value();
+
+  printData(h_data);
 
   return true;
 }
@@ -272,11 +328,4 @@ QString HexoticPluginGUI_HypothesisCreator::type() const
 QString HexoticPluginGUI_HypothesisCreator::helpPage() const
 {
   return "hexotic_hypo_page.html";
-}
-
-void HexoticPluginGUI_HypothesisCreator::onDirBtnClicked()
-{
-  QString dir = SUIT_FileDlg::getExistingDirectory( dlg(), myHexoticWorkingDir->text(), QString() );
-  if ( !dir.isEmpty() )
-    myHexoticWorkingDir->setText( dir );
 }

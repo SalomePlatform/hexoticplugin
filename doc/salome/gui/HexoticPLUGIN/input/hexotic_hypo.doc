@@ -4,7 +4,7 @@
 
 \n Hexotic Parameters hypothesis works only with <b>Hexotic</b> 
 algorithm. This algorithm is a commercial software.
-\n To get a licence, visit http://www.distene.com/corp/eval-distene.html
+\n To get a licence, visit http://www.distene.com/en/corp/eval-distene.html
 
 \image html hexotic_parameters.png
 
@@ -12,11 +12,13 @@ algorithm. This algorithm is a commercial software.
 <li><b>Name</b> - allows to define the name of the hypothesis (Hexotic 
 Parameters by default).</li>
 
+<li><b>Min size</b> - allows defining the minimal size of the elements (overrides "Nb. Hexes Max Level" value).</li>
+
+<li><b>Max size</b> - allows defining the maximal size of the elements (overrides "Nb. Hexes Min Level" value).</li>
+
 <li><b>Nb. Hexes Min Level</b> - allows defining the minimal level of recursive partitioning on the initial octree cube.</li>
 
 <li><b>Nb. Hexes Max Level</b> - allows defining the maximal level of recursive partitioning on the initial octree cube.</li>
-
-<li><b>Salome Quadrangles</b> - not documented.</li>
 
 <li><b>Generate smooth meshes no ridges</b> - specifies that the mesher can ignore ridges. A ridge is a geometrical entity (a sharp edge). The resulting meshes will have better quality elements, at the price of "smoothing" out the geometry.
 </li>
@@ -31,6 +33,18 @@ Parameters by default).</li>
 </li>
 
 <li><b>Working directory</b> - specifies the directory where the input/output files will be created.
+</li>
+
+<li><b>Verbosity</b> - specifies the verbose level to print information on meshing steps.
+</li>
+
+<li><b>Sub-domains mesh mode</b> - This option allows the user to mesh or not mesh internal subdomains (such as holes), or to mesh non-manifold domains.
+<ul>
+<li>sd 1 : meshes in inside/out mode: the internal cavities are ignored, the whole domain is meshed into a single domain;</li>
+<li>sd 2 : meshes only the internal main component. Internal holes (cavities) will not be meshed;</li>
+<li>sd 3 : meshes all cavities and generates subdomains accordingly;</li>
+<li>sd 4 : meshes non-manifold geometries as such and generates subdomains accordingly.</li>
+</ul>
 </li>
 </ul>
 

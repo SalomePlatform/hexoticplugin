@@ -12,6 +12,22 @@
         <translation>Hypothesis Construction</translation>
     </message>
     <message>
+        <source>Hexotic_INPUT_SIZE</source>
+        <translation>Sizes</translation>
+    </message>
+    <message>
+        <source>Hexotic_INPUT_LEVEL</source>
+        <translation>Subdivision levels</translation>
+    </message>
+    <message>
+        <source>Hexotic_MAX_SIZE</source>
+        <translation>Max size</translation>
+    </message>
+    <message>
+        <source>Hexotic_MIN_SIZE</source>
+        <translation>Min size</translation>
+    </message>
+    <message>
         <source>Hexotic_HEXES_MAX_LEVEL</source>
         <translation>Nb. Hexes Max Level</translation>
     </message>
@@ -28,10 +44,6 @@
         <translation>Authorize invalid elements</translation>
     </message>
     <message>
-        <source>Hexotic_QUADRANGLES</source>
-        <translation>Salome Quadrangles</translation>
-    </message>
-    <message>
         <source>Hexotic_SHARP_ANGLE_THRESHOLD</source>
         <translation>Sharp angle threshold in degrees</translation>
     </message>
@@ -45,7 +57,31 @@
     </message>
     <message>
         <source>Hexotic_SELECT_DIR</source>
-        <translation>...</translation>
+        <translation>Select ...</translation>
+    </message>
+    <message>
+        <source>Hexotic_VERBOSITY</source>
+        <translation>Verbosity</translation>
+    </message>
+    <message>
+        <source>Hexotic_SUBDOMAIN_MESH_MODE</source>
+        <translation>Sub-domains mesh mode</translation>
+    </message>
+    <message>
+        <source>Hexotic_SD_MODE_1</source>
+        <translation>Single domain</translation>
+    </message>
+    <message>
+        <source>Hexotic_SD_MODE_2</source>
+        <translation>Cavities ignored</translation>
+    </message>
+    <message>
+        <source>Hexotic_SD_MODE_3</source>
+        <translation>Cavities meshed</translation>
+    </message>
+    <message>
+        <source>Hexotic_SD_MODE_4</source>
+        <translation>Non-manifold geometries</translation>
     </message>
 </context>
 </TS>

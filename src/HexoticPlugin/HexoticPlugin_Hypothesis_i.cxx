@@ -66,12 +66,15 @@ HexoticPlugin_Hypothesis_i::~HexoticPlugin_Hypothesis_i()
 /*!
  *  HexoticPlugin_Hypothesis_i::SetHexesMinLevel
  *  HexoticPlugin_Hypothesis_i::SetHexesMaxLevel
- *  HexoticPlugin_Hypothesis_i::SetHexoticQuadrangles
+ *  HexoticPlugin_Hypothesis_i::SetMinSize
+ *  HexoticPlugin_Hypothesis_i::SetMaxSize
  *  HexoticPlugin_Hypothesis_i::SetHexoticIgnoreRidges
  *  HexoticPlugin_Hypothesis_i::SetHexoticInvalidElements
  *  HexoticPlugin_Hypothesis_i::SetHexoticSharpAngleThreshold
  *  HexoticPlugin_Hypothesis_i::SetHexoticNbProc 
  *  HexoticPlugin_Hypothesis_i::SetHexoticWorkingDirectory 
+ *  HexoticPlugin_Hypothesis_i::SetHexoticSdMode
+ *  HexoticPlugin_Hypothesis_i::SetVerbosity
  */
 //=============================================================================
 
@@ -79,56 +82,80 @@ void HexoticPlugin_Hypothesis_i::SetHexesMinLevel (CORBA::Long theValue)
 {
   // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexesMinLevel");
   ASSERT(myBaseImpl);
+  CORBA::Long oldValue = GetHexesMinLevel();
   this->GetImpl()->SetHexesMinLevel(theValue);
-  SMESH::TPythonDump() << _this() << ".SetHexesMinLevel( " << theValue << " )";
+  if (theValue != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetHexesMinLevel( " << theValue << " )";
 }
 
 void HexoticPlugin_Hypothesis_i::SetHexesMaxLevel (CORBA::Long theValue)
 {
   // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexesMaxLevel");
   ASSERT(myBaseImpl);
+  CORBA::Long oldValue = GetHexesMaxLevel();
   this->GetImpl()->SetHexesMaxLevel(theValue);
-  SMESH::TPythonDump() << _this() << ".SetHexesMaxLevel( " << theValue << " )";
+  if (theValue != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetHexesMaxLevel( " << theValue << " )";
 }
 
-void HexoticPlugin_Hypothesis_i::SetHexoticQuadrangles (CORBA::Boolean theValue)
+void HexoticPlugin_Hypothesis_i::SetMinSize (CORBA::Double theValue)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexoticQuadrangles");
+  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexesMaxLevel");
   ASSERT(myBaseImpl);
-  this->GetImpl()->SetHexoticQuadrangles(theValue);
-  SMESH::TPythonDump() << _this() << ".SetHexoticQuadrangles( " << theValue << " )";
+  CORBA::Double oldValue = GetMinSize();
+  this->GetImpl()->SetMinSize(theValue);
+  if (theValue != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetMinSize( " << theValue << " )";
+}
+
+void HexoticPlugin_Hypothesis_i::SetMaxSize (CORBA::Double theValue)
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexesMaxLevel");
+  ASSERT(myBaseImpl);
+  CORBA::Double oldValue = GetMaxSize();
+  this->GetImpl()->SetMaxSize(theValue);
+  if (theValue != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetMaxSize( " << theValue << " )";
 }
 
 void HexoticPlugin_Hypothesis_i::SetHexoticIgnoreRidges (CORBA::Boolean theValue)
 {
   // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexoticIgnoreRidges");
   ASSERT(myBaseImpl);
+  CORBA::Boolean oldValue = GetHexoticIgnoreRidges();
   this->GetImpl()->SetHexoticIgnoreRidges(theValue);
-  SMESH::TPythonDump() << _this() << ".SetHexoticIgnoreRidges( " << theValue << " )";
+  if (theValue != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetHexoticIgnoreRidges( " << theValue << " )";
 }
 
 void HexoticPlugin_Hypothesis_i::SetHexoticInvalidElements (CORBA::Boolean theValue)
 {
   // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexoticInvalidElements");
   ASSERT(myBaseImpl);
+  CORBA::Boolean oldValue = GetHexoticInvalidElements();
   this->GetImpl()->SetHexoticInvalidElements(theValue);
-  SMESH::TPythonDump() << _this() << ".SetHexoticInvalidElements( " << theValue << " )";
+  if (theValue != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetHexoticInvalidElements( " << theValue << " )";
 }
 
-void HexoticPlugin_Hypothesis_i::SetHexoticSharpAngleThreshold (CORBA::Long theValue)
+void HexoticPlugin_Hypothesis_i::SetHexoticSharpAngleThreshold (CORBA::Double theValue)
 {
   // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexoticSharpAngleThreshold");
   ASSERT(myBaseImpl);
+  CORBA::Double oldValue = GetHexoticSharpAngleThreshold();
   this->GetImpl()->SetHexoticSharpAngleThreshold(theValue);
-  SMESH::TPythonDump() << _this() << ".SetHexoticSharpAngleThreshold( " << theValue << " )";
+  if (theValue != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetHexoticSharpAngleThreshold( " << theValue << " )";
 }
 
 void HexoticPlugin_Hypothesis_i::SetHexoticNbProc (CORBA::Long theValue)
 {
   // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexoticNbProc");
   ASSERT(myBaseImpl);
+  CORBA::Long oldValue = GetHexoticNbProc();
   this->GetImpl()->SetHexoticNbProc(theValue);
-  SMESH::TPythonDump() << _this() << ".SetHexoticNbProc( " << theValue << " )";
+  if (theValue != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetHexoticNbProc( " << theValue << " )";
 }
 
 void HexoticPlugin_Hypothesis_i::SetHexoticWorkingDirectory(const char* path) throw ( SALOME::SALOME_Exception )
@@ -136,7 +163,13 @@ void HexoticPlugin_Hypothesis_i::SetHexoticWorkingDirectory(const char* path) th
   if (!path )
     THROW_SALOME_CORBA_EXCEPTION( "Null working directory",SALOME::BAD_PARAM );
 
+  ASSERT(myBaseImpl);
   string file(path);
+  string oldValue(GetHexoticWorkingDirectory());
+  bool doDump = false;
+  if (oldValue != file)
+    doDump = true;
+
   const char lastChar = *file.rbegin();
 #ifdef WIN32
   if ( lastChar != '\\' ) file += '\\';
@@ -146,21 +179,44 @@ void HexoticPlugin_Hypothesis_i::SetHexoticWorkingDirectory(const char* path) th
   file += "Hexotic_In.mesh";
   SMESH_Mesh_i::PrepareForWriting (file.c_str());
 
-  ASSERT(myBaseImpl);
   this->GetImpl()->SetHexoticWorkingDirectory(path);
-  SMESH::TPythonDump() << _this() << ".SetHexoticWorkingDirectory( '" << path << "' )";
+  if (doDump)
+    SMESH::TPythonDump() << _this() << ".SetHexoticWorkingDirectory( '" << path << "' )";
+}
+
+void HexoticPlugin_Hypothesis_i::SetHexoticSdMode (CORBA::Long theValue)
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexoticSdMode");
+  ASSERT(myBaseImpl);
+  CORBA::Long oldValue = GetHexoticSdMode();
+  this->GetImpl()->SetHexoticSdMode(theValue);
+  if (theValue != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetHexoticSdMode( " << theValue << " )";
+}
+
+void HexoticPlugin_Hypothesis_i::SetHexoticVerbosity (CORBA::Long theValue)
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::SetVerbosity");
+  ASSERT(myBaseImpl);
+  CORBA::Long oldValue = GetHexoticVerbosity();
+  this->GetImpl()->SetHexoticVerbosity(theValue);
+  if (theValue != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetHexoticVerbosity( " << theValue << " )";
 }
 
 //=============================================================================
 /*!
  *  HexoticPlugin_Hypothesis_i::GetHexesMinLevel
  *  HexoticPlugin_Hypothesis_i::GetHexesMaxLevel
- *  HexoticPlugin_Hypothesis_i::GetHexoticQuadrangles
+ *  HexoticPlugin_Hypothesis_i::GetMinSize
+ *  HexoticPlugin_Hypothesis_i::GetMaxSize
  *  HexoticPlugin_Hypothesis_i::GetHexoticIgnoreRidges
  *  HexoticPlugin_Hypothesis_i::GetHexoticInvalidElements
  *  HexoticPlugin_Hypothesis_i::GetHexoticSharpAngleThreshold 
  *  HexoticPlugin_Hypothesis_i::GetHexoticNbProc 
  *  HexoticPlugin_Hypothesis_i::GetHexoticWorkingDirectory 
+ *  HexoticPlugin_Hypothesis_i::GetHexoticSdMode
+ *  HexoticPlugin_Hypothesis_i::GetVerbosity
  */
 //=============================================================================
 
@@ -178,11 +234,18 @@ CORBA::Long HexoticPlugin_Hypothesis_i::GetHexesMaxLevel()
   return this->GetImpl()->GetHexesMaxLevel();
 }
 
-CORBA::Boolean HexoticPlugin_Hypothesis_i::GetHexoticQuadrangles()
+CORBA::Double HexoticPlugin_Hypothesis_i::GetMinSize()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexoticQuadrangles");
+  // MESSAGE("HexoticPlugin_Hypothesis_i::GetMinSize");
   ASSERT(myBaseImpl);
-  return this->GetImpl()->GetHexoticQuadrangles();
+  return this->GetImpl()->GetMinSize();
+}
+
+CORBA::Double HexoticPlugin_Hypothesis_i::GetMaxSize()
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::GetMaxSize");
+  ASSERT(myBaseImpl);
+  return this->GetImpl()->GetMaxSize();
 }
 
 CORBA::Boolean HexoticPlugin_Hypothesis_i::GetHexoticIgnoreRidges()
@@ -199,7 +262,7 @@ CORBA::Boolean HexoticPlugin_Hypothesis_i::GetHexoticInvalidElements()
   return this->GetImpl()->GetHexoticInvalidElements();
 }
 
-CORBA::Long HexoticPlugin_Hypothesis_i::GetHexoticSharpAngleThreshold()
+CORBA::Double HexoticPlugin_Hypothesis_i::GetHexoticSharpAngleThreshold()
 {
   // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexoticSharpAngleThreshold");
   ASSERT(myBaseImpl);
@@ -217,6 +280,20 @@ char* HexoticPlugin_Hypothesis_i::GetHexoticWorkingDirectory()
 {
   ASSERT(myBaseImpl);
   return CORBA::string_dup( this->GetImpl()->GetHexoticWorkingDirectory().c_str() );
+}
+
+CORBA::Long HexoticPlugin_Hypothesis_i::GetHexoticSdMode ()
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexoticSdMode");
+  ASSERT(myBaseImpl);
+  return this->GetImpl()->GetHexoticSdMode();
+}
+
+CORBA::Long HexoticPlugin_Hypothesis_i::GetHexoticVerbosity()
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::GetVerbosity");
+  ASSERT(myBaseImpl);
+  return this->GetImpl()->GetHexoticVerbosity();
 }
 
 //=============================================================================

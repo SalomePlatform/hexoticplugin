@@ -25,20 +25,28 @@
 include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
 # header files 
-salomeinclude_HEADERS =
+salomeinclude_HEADERS = \
+    HexoticPluginGUI.h          \
+    HexoticPluginGUI_Dlg.h    \
+    HexoticPluginGUI_HypothesisCreator.h
 
 # Libraries targets
 lib_LTLIBRARIES = libHexoticPluginGUI.la
 
 dist_libHexoticPluginGUI_la_SOURCES =		\
 	HexoticPluginGUI.cxx			\
-	HexoticPluginGUI.h			\
-	HexoticPluginGUI_HypothesisCreator.h	\
-	HexoticPluginGUI_HypothesisCreator.cxx
+	HexoticPluginGUI_StdWidget.cxx \
+    HexoticPluginGUI_HypothesisCreator.cxx
 
 MOC_FILES = \
-	HexoticPluginGUI_HypothesisCreator_moc.cxx
+	HexoticPluginGUI_HypothesisCreator_moc.cxx \
+    HexoticPluginGUI_Dlg_moc.cxx
 
+UIC_FILES =     \
+        ui_HexoticPluginGUI_StdWidget_QTD.h
+
+BUILT_SOURCES = $(UIC_FILES)
+        
 nodist_libHexoticPluginGUI_la_SOURCES = \
 	$(MOC_FILES)
 
@@ -71,3 +79,7 @@ nodist_salomeres_DATA =		\
 	HexoticPLUGIN_images.qm	\
 	HexoticPLUGIN_msg_en.qm \
 	HexoticPLUGIN_msg_fr.qm
+
+SUBDIRS = resources
+
+DIST_SUBDIRS = resources

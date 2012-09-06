@@ -46,7 +46,7 @@
                dim="3">
       <python-wrap>
         <algo>Hexotic_3D=Hexahedron(algo=smesh.Hexotic)</algo>
-        <hypo>Hexotic_Parameters=MinMaxQuad(SetHexesMinLevel(),SetHexesMaxLevel(),SetHexoticQuadrangles())</hypo>
+        <hypo>Hexotic_Parameters=Parameters()</hypo>
       </python-wrap>
     </algorithm>
 

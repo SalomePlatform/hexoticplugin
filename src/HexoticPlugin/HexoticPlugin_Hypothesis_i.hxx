@@ -54,8 +54,11 @@ class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
   void SetHexesMaxLevel(CORBA::Long theVal);
   CORBA::Long GetHexesMaxLevel();
 
-  void SetHexoticQuadrangles(CORBA::Boolean theVal);
-  CORBA::Boolean GetHexoticQuadrangles();
+  void SetMinSize(CORBA::Double theVal);
+  CORBA::Double GetMinSize();
+
+  void SetMaxSize(CORBA::Double theVal);
+  CORBA::Double GetMaxSize();
 
   void SetHexoticIgnoreRidges(CORBA::Boolean theVal);
   CORBA::Boolean GetHexoticIgnoreRidges();
@@ -63,14 +66,20 @@ class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
   void SetHexoticInvalidElements(CORBA::Boolean theVal);
   CORBA::Boolean GetHexoticInvalidElements();
   
-  void SetHexoticSharpAngleThreshold(CORBA::Long theVal);
-  CORBA::Long GetHexoticSharpAngleThreshold();
+  void SetHexoticSharpAngleThreshold(CORBA::Double theVal);
+  CORBA::Double GetHexoticSharpAngleThreshold();
   
   void SetHexoticNbProc(CORBA::Long theVal);
   CORBA::Long GetHexoticNbProc();
   
   void SetHexoticWorkingDirectory(const char* path) throw ( SALOME::SALOME_Exception );
   char* GetHexoticWorkingDirectory();
+
+  void SetHexoticSdMode(CORBA::Long value);
+  CORBA::Long GetHexoticSdMode();
+
+  void SetHexoticVerbosity(CORBA::Long theVal);
+  CORBA::Long GetHexoticVerbosity();
 
   // Get implementation
   ::HexoticPlugin_Hypothesis* GetImpl();

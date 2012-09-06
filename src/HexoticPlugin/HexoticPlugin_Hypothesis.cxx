@@ -37,12 +37,15 @@ HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, int studyId,
   : SMESH_Hypothesis(hypId, studyId, gen),
     _hexesMinLevel( GetDefaultHexesMinLevel() ),
     _hexesMaxLevel( GetDefaultHexesMaxLevel() ),
-    _hexoticQuadrangles( GetDefaultHexoticQuadrangles() ),
+    _minSize( GetDefaultMinSize() ),
+    _maxSize( GetDefaultMaxSize() ),
     _hexoticIgnoreRidges( GetDefaultHexoticIgnoreRidges() ),
     _hexoticInvalidElements( GetDefaultHexoticInvalidElements() ), 
     _hexoticSharpAngleThreshold( GetDefaultHexoticSharpAngleThreshold() ),
     _hexoticNbProc( GetDefaultHexoticNbProc() ),
-    _hexoticWorkingDirectory( GetDefaultHexoticWorkingDirectory() )
+    _hexoticWorkingDirectory( GetDefaultHexoticWorkingDirectory() ),
+    _hexoticSdMode(GetDefaultHexoticSdMode()),
+    _hexoticVerbosity(GetDefaultHexoticVerbosity())
 {
   MESSAGE("HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis");
   _name = "Hexotic_Parameters";
@@ -69,9 +72,16 @@ void HexoticPlugin_Hypothesis::SetHexesMaxLevel(int theVal) {
   }
 }
 
-void HexoticPlugin_Hypothesis::SetHexoticQuadrangles(bool theVal) {
-  if (theVal != _hexoticQuadrangles) {
-    _hexoticQuadrangles = theVal;
+void HexoticPlugin_Hypothesis::SetMinSize(double theVal) {
+  if (theVal != _minSize) {
+	  _minSize = theVal;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
+void HexoticPlugin_Hypothesis::SetMaxSize(double theVal) {
+  if (theVal != _maxSize) {
+	  _maxSize = theVal;
     NotifySubMeshesHypothesisModification();
   }
 }
@@ -90,7 +100,7 @@ void HexoticPlugin_Hypothesis::SetHexoticInvalidElements(bool theVal) {
   }
 }
 
-void HexoticPlugin_Hypothesis::SetHexoticSharpAngleThreshold(int theVal) {
+void HexoticPlugin_Hypothesis::SetHexoticSharpAngleThreshold(double theVal) {
   if (theVal != _hexoticSharpAngleThreshold) {
     _hexoticSharpAngleThreshold = theVal;
     NotifySubMeshesHypothesisModification();
@@ -112,6 +122,20 @@ void HexoticPlugin_Hypothesis::SetHexoticWorkingDirectory(const std::string& pat
   }
 }
 
+void HexoticPlugin_Hypothesis::SetHexoticSdMode(int theVal) {
+  if (theVal != _hexoticSdMode) {
+	  _hexoticSdMode = theVal;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
+void HexoticPlugin_Hypothesis::SetHexoticVerbosity(int theVal) {
+  if (theVal != _hexoticVerbosity) {
+    _hexoticVerbosity = theVal;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
 //=============================================================================
 /*!
  *  
@@ -119,25 +143,20 @@ void HexoticPlugin_Hypothesis::SetHexoticWorkingDirectory(const std::string& pat
 //=============================================================================
 std::ostream& HexoticPlugin_Hypothesis::SaveTo(std::ostream& save)
 {
-  /*save << _hexesMinLevel << " " << _hexesMaxLevel;
-  save << " " << (int)_hexoticQuadrangles;
-  save << " " << (int)_hexoticIgnoreRidges;
-  save << " " << (int)_hexoticInvalidElements;
-  save << " " << _hexoticSharpAngleThreshold;
-  std::cout <<std::endl;
-  std::cout << "save : " << save << std::endl;
-  std::cout << std::endl;*/
-
   //explicit outputs for future code compatibility of saved .hdf
   //save without any whitespaces!
+  int dummy = -1;
   save<<"hexesMinLevel="<<_hexesMinLevel<<";"; 
   save<<"hexesMaxLevel="<<_hexesMaxLevel<<";";
-  save<<"hexoticQuadrangles="<<(int)_hexoticQuadrangles<<";";
   save<<"hexoticIgnoreRidges="<<(int)_hexoticIgnoreRidges<<";";
   save<<"hexoticInvalidElements="<<(int)_hexoticInvalidElements<<";";
   save<<"hexoticSharpAngleThreshold="<<_hexoticSharpAngleThreshold<<";";
   save<<"hexoticNbProc="<<_hexoticNbProc<<";";
   save<<"hexoticWorkingDirectory="<<_hexoticWorkingDirectory<<";";
+  save<<"minSize="<<_minSize<<";";
+  save<<"maxSize="<<_maxSize<<";";
+  save<<"hexoticSdMode="<<_hexoticSdMode<<";";
+  save<<"hexoticVerbosity="<<_hexoticVerbosity<<";";
   return save;
 }
 
@@ -171,12 +190,16 @@ std::istream& HexoticPlugin_Hypothesis::LoadFrom(std::istream& load)
 
       if (str3=="hexesMinLevel") _hexesMinLevel = atoi(str4.c_str());
       if (str3=="hexesMaxLevel") _hexesMaxLevel = atoi(str4.c_str());
-      if (str3=="hexoticQuadrangles") _hexoticQuadrangles = (bool) atoi(str4.c_str());
+      if (str3=="hexoticQuadrangles") {}
       if (str3=="hexoticIgnoreRidges") _hexoticIgnoreRidges = (bool) atoi(str4.c_str());
       if (str3=="hexoticInvalidElements") _hexoticInvalidElements = (bool) atoi(str4.c_str());
-      if (str3=="hexoticSharpAngleThreshold") _hexoticSharpAngleThreshold = atoi(str4.c_str());
+      if (str3=="hexoticSharpAngleThreshold") _hexoticSharpAngleThreshold = atof(str4.c_str());
       if (str3=="hexoticNbProc") _hexoticNbProc = atoi(str4.c_str());
       if (str3=="hexoticWorkingDirectory") _hexoticWorkingDirectory = str4;
+      if (str3=="minSize") _minSize = atof(str4.c_str());
+      if (str3=="maxSize") _maxSize = atof(str4.c_str());
+      if (str3=="hexoticSdMode") _hexoticSdMode = atoi(str4.c_str());
+      if (str3=="hexoticVerbosity") _hexoticVerbosity = atoi(str4.c_str());
    }
    return load;
 }
@@ -239,9 +262,14 @@ int HexoticPlugin_Hypothesis::GetDefaultHexesMaxLevel()
   return 10;
 }
 
-bool HexoticPlugin_Hypothesis::GetDefaultHexoticQuadrangles()
+double HexoticPlugin_Hypothesis::GetDefaultMinSize()
 {
-  return true;
+  return 0.0;
+}
+
+double HexoticPlugin_Hypothesis::GetDefaultMaxSize()
+{
+  return 0.0;
 }
 
 bool HexoticPlugin_Hypothesis::GetDefaultHexoticIgnoreRidges()
@@ -254,14 +282,14 @@ bool HexoticPlugin_Hypothesis::GetDefaultHexoticInvalidElements()
   return false;
 }
 
-int HexoticPlugin_Hypothesis::GetDefaultHexoticSharpAngleThreshold()
+double HexoticPlugin_Hypothesis::GetDefaultHexoticSharpAngleThreshold()
 {
-  return 60;
+  return 60.0;
 }
 
 int HexoticPlugin_Hypothesis::GetDefaultHexoticNbProc()
 {
-  return 1;
+  return 4;
 }
 
 std::string HexoticPlugin_Hypothesis::GetDefaultHexoticWorkingDirectory()
@@ -281,3 +309,15 @@ std::string HexoticPlugin_Hypothesis::GetDefaultHexoticWorkingDirectory()
   }
   return aTmpDir.ToCString();
 }
+
+int HexoticPlugin_Hypothesis::GetDefaultHexoticSdMode()
+{
+  return 4;
+}
+
+int HexoticPlugin_Hypothesis::GetDefaultHexoticVerbosity()
+{
+  return 1;
+}
+
+
