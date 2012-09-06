@@ -50,4 +50,6 @@ Parameters by default).</li>
 
 \note If BLSURF is used as 2D algo, and if a GMF file is defined as output file (using SetGMFFile(my2Dmesh.mesh)), then Hexotic will use this file as input.
 This allows to avoid the reconstruction of the GMF file from the SMESH structure and can improve the global computation time.
+
+<br><b>See Also</b> a sample TUI Script of the \ref tui_hexotic "creation of an Hexotic mesh"
 */

@@ -1,9 +1,0 @@
-/*!
-
-\page hexoticplugin_python_intarface_page Python Interface
-
-Python package HexoticPLUGINDC defines several classes, destined for creation of the 3D meshes.
-
-Hexotic meshing plugin dynamically adds several methods to the smesh.Mesh class to create meshing algorithms.
-
-*/
