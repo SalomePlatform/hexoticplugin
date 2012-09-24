@@ -72,9 +72,6 @@ protected:
   virtual QPixmap  icon() const;
   virtual QString  type() const;
   
-protected slots:
-  void             onDirBtnClicked();
-
 private:
   bool readParamsFromHypo( HexoticHypothesisData& ) const;
   bool readParamsFromWidgets( HexoticHypothesisData& ) const;

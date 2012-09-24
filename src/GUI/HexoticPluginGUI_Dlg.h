@@ -23,16 +23,6 @@
 #ifndef HEXOTICPLUGINGUI_H
 #define HEXOTICPLUGINGUI_H
 
-#ifdef WIN32
-  #if defined HEXOTICPLUGIN_GUI_DLG_EXPORTS || defined HEXOTICPluginGUI_Dlg_EXPORTS
-    #define HEXOTICPLUGIN_GUI_DLG_EXPORT __declspec( dllexport )
-  #else
-    #define HEXOTICPLUGIN_GUI_DLG_EXPORT __declspec( dllimport )
-  #endif
-#else
-  #define HEXOTICPLUGIN_GUI_DLG_EXPORT
-#endif
-
 class QPixmap;
 
 enum {
@@ -47,8 +37,9 @@ enum {
 //////////////////////////////////////////
 
 #include "ui_HexoticPluginGUI_StdWidget_QTD.h"
+#include "HexoticPluginGUI.h"
 
-class HEXOTICPLUGIN_GUI_DLG_EXPORT HexoticPluginGUI_StdWidget : public QWidget,
+class HEXOTICPLUGIN_GUI_EXPORT HexoticPluginGUI_StdWidget : public QWidget,
                                             public Ui::HexoticPluginGUI_StdWidget_QTD
 {
   Q_OBJECT
