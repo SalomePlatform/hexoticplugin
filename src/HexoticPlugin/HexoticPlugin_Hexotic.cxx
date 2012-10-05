@@ -695,19 +695,24 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   modeFile_Out += Hexotic_Out;
   system( modeFile_Out.ToCString() );
   if ( ! fileRes.fail() ) {
-    // Remove previous nodes
+    // Remove previous nodes and elements
+    SMDS_ElemIteratorPtr itElement = aHelper->GetMeshDS()->elementsIterator();
     SMDS_NodeIteratorPtr itNode = aHelper->GetMeshDS()->nodesIterator();
+    
+    while ( itElement->more() )
+      aHelper->GetMeshDS()->RemoveElement( itElement->next() );
     while ( itNode->more() )
       aHelper->GetMeshDS()->RemoveNode( itNode->next() );
 
     // Import GMF mesh
     myError = aMesh.GMFToMesh(Hexotic_Out.ToCString());
+    
+    itElement = aHelper->GetMeshDS()->elementsIterator();
+    itNode = aHelper->GetMeshDS()->nodesIterator();
 
     // Assign nodes and elements to the pseudo shape
     while ( itNode->more() )
       aHelper->GetMeshDS()->SetNodeInVolume(itNode->next(), 1);
-
-    SMDS_ElemIteratorPtr itElement = aHelper->GetMeshDS()->elementsIterator();
     while ( itElement->more() )
       aHelper->GetMeshDS()->SetMeshElementOnShape(itElement->next(), 1);
 
