@@ -1090,6 +1090,7 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _hexoticNbProc = hyp->GetHexoticNbProc();
     _hexoticWorkingDirectory = hyp->GetHexoticWorkingDirectory();
     _hexoticVerbosity = hyp->GetHexoticVerbosity();
+    _hexoticMaxMemory = hyp->GetHexoticMaxMemory();
     _hexoticSdMode = hyp->GetHexoticSdMode();
   }
   else {
@@ -1106,6 +1107,7 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _hexoticNbProc = hyp->GetDefaultHexoticNbProc();
     _hexoticWorkingDirectory = hyp->GetDefaultHexoticWorkingDirectory();
     _hexoticVerbosity = hyp->GetDefaultHexoticVerbosity();
+    _hexoticMaxMemory = hyp->GetDefaultHexoticMaxMemory();
     _hexoticSdMode = hyp->GetDefaultHexoticSdMode();
   }
 }
@@ -1151,6 +1153,7 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   cout << "Hexotic execution..." << std::endl;
   cout << _name << " parameters :" << std::endl;
   cout << "    " << _name << " Verbosity = " << _hexoticVerbosity << std::endl;
+  cout << "    " << _name << " Max Memory = " << _hexoticMaxMemory << std::endl;
   cout << "    " << _name << " Segments Min Level = " << _hexesMinLevel << std::endl;
   cout << "    " << _name << " Segments Max Level = " << _hexesMaxLevel << std::endl;
   cout << "    " << _name << " Segments Min Size = " << _hexesMinSize << std::endl;
@@ -1171,8 +1174,9 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   TCollection_AsciiString subdom = " -sd ", sharp = " -sharp ";
   TCollection_AsciiString proc = " -nproc ";
   TCollection_AsciiString verb = " -v ";
+  TCollection_AsciiString maxmem = " -m ";
 
-  TCollection_AsciiString minLevel, maxLevel, minSize, maxSize, sharpAngle, mode, nbproc, verbosity;
+  TCollection_AsciiString minLevel, maxLevel, minSize, maxSize, sharpAngle, mode, nbproc, verbosity, maxMemory;
   minLevel = _hexesMinLevel;
   maxLevel = _hexesMaxLevel;
   minSize = _hexesMinSize;
@@ -1181,6 +1185,7 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   mode = _hexoticSdMode;
   nbproc = _hexoticNbProc;
   verbosity = _hexoticVerbosity;
+  maxMemory = _hexoticMaxMemory;
 
   if (_hexoticIgnoreRidges)
     run_Hexotic +=  ignoreRidges;
@@ -1207,6 +1212,7 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   run_Hexotic += subdom + mode;
   run_Hexotic += proc + nbproc;
   run_Hexotic += verb + verbosity;
+  run_Hexotic += maxmem + maxMemory;
 
   return run_Hexotic.ToCString();
 }

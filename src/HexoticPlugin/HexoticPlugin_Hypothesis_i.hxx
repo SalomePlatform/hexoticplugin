@@ -81,6 +81,9 @@ class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
   void SetHexoticVerbosity(CORBA::Long theVal);
   CORBA::Long GetHexoticVerbosity();
 
+  void SetHexoticMaxMemory(CORBA::Long theVal);
+  CORBA::Long GetHexoticMaxMemory();
+
   // Get implementation
   ::HexoticPlugin_Hypothesis* GetImpl();
   

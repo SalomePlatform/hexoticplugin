@@ -75,6 +75,7 @@ HexoticPlugin_Hypothesis_i::~HexoticPlugin_Hypothesis_i()
  *  HexoticPlugin_Hypothesis_i::SetHexoticWorkingDirectory 
  *  HexoticPlugin_Hypothesis_i::SetHexoticSdMode
  *  HexoticPlugin_Hypothesis_i::SetVerbosity
+ *  HexoticPlugin_Hypothesis_i::SetHexoticMaxMemory
  */
 //=============================================================================
 
@@ -204,6 +205,16 @@ void HexoticPlugin_Hypothesis_i::SetHexoticVerbosity (CORBA::Long theValue)
     SMESH::TPythonDump() << _this() << ".SetHexoticVerbosity( " << theValue << " )";
 }
 
+void HexoticPlugin_Hypothesis_i::SetHexoticMaxMemory (CORBA::Long theValue)
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexoticMaxMemory");
+  ASSERT(myBaseImpl);
+  CORBA::Long oldValue = GetHexoticMaxMemory();
+  this->GetImpl()->SetHexoticMaxMemory(theValue);
+  if (theValue != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetHexoticMaxMemory( " << theValue << " )";
+}
+
 //=============================================================================
 /*!
  *  HexoticPlugin_Hypothesis_i::GetHexesMinLevel
@@ -217,6 +228,7 @@ void HexoticPlugin_Hypothesis_i::SetHexoticVerbosity (CORBA::Long theValue)
  *  HexoticPlugin_Hypothesis_i::GetHexoticWorkingDirectory 
  *  HexoticPlugin_Hypothesis_i::GetHexoticSdMode
  *  HexoticPlugin_Hypothesis_i::GetVerbosity
+ *  HexoticPlugin_Hypothesis_i::GetHexoticMaxMemory
  */
 //=============================================================================
 
@@ -294,6 +306,13 @@ CORBA::Long HexoticPlugin_Hypothesis_i::GetHexoticVerbosity()
   // MESSAGE("HexoticPlugin_Hypothesis_i::GetVerbosity");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetHexoticVerbosity();
+}
+
+CORBA::Long HexoticPlugin_Hypothesis_i::GetHexoticMaxMemory()
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexoticMaxMemory");
+  ASSERT(myBaseImpl);
+  return this->GetImpl()->GetHexoticMaxMemory();
 }
 
 //=============================================================================

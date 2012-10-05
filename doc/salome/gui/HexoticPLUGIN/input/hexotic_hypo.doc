@@ -38,6 +38,9 @@ Parameters by default).</li>
 <li><b>Verbosity</b> - specifies the verbose level to print information on meshing steps.
 </li>
 
+<li><b>Max memory (MB)</b> - specifies the maximum allocatable memory in MegaBytes.
+</li>
+
 <li><b>Sub-domains mesh mode</b> - This option allows the user to mesh or not mesh internal subdomains (such as holes), or to mesh non-manifold domains.
 <ul>
 <li>sd 1 : meshes in inside/out mode: the internal cavities are ignored, the whole domain is meshed into a single domain;</li>

@@ -72,6 +72,9 @@ public:
   void SetHexoticVerbosity(int theVal);
   int GetHexoticVerbosity() const { return _hexoticVerbosity; }
 
+  void SetHexoticMaxMemory(int theVal);
+  int GetHexoticMaxMemory() const { return _hexoticMaxMemory; }
+
   // the parameters default values 
 
   static int GetDefaultHexesMinLevel();
@@ -85,6 +88,7 @@ public:
   static std::string GetDefaultHexoticWorkingDirectory();
   static int GetDefaultHexoticSdMode();
   static int GetDefaultHexoticVerbosity();
+  static int GetDefaultHexoticMaxMemory();
 
   // Persistence
   virtual std::ostream& SaveTo(std::ostream& save);
@@ -117,6 +121,7 @@ private:
   int    _hexoticNbProc;
   int    _hexoticSdMode;
   int    _hexoticVerbosity;
+  int    _hexoticMaxMemory;
   std::string _hexoticWorkingDirectory ;
 };
 

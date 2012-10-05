@@ -46,6 +46,7 @@ typedef struct
   int      myHexoticNbProc;
   QString  myHexoticWorkingDir;
   int      myHexoticVerbosity;
+  int      myHexoticMaxMemory;
   int      myHexoticSdMode;
 } HexoticHypothesisData;
 

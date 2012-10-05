@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>HexoticPluginGUI_StdWidget_QTD</class>
  <widget class="QWidget" name="HexoticPluginGUI_StdWidget_QTD">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>561</width>
+    <height>581</height>
+   </rect>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="margin">
     <number>0</number>
@@ -114,14 +122,14 @@
    <item row="5" column="3">
     <widget class="QLineEdit" name="myHexoticWorkingDir"/>
    </item>
-   <item row="6" column="0">
+   <item row="7" column="0">
     <widget class="QLabel" name="label_8">
      <property name="text">
       <string>Hexotic_VERBOSITY</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="3">
+   <item row="7" column="3">
     <widget class="QSpinBox" name="myHexoticVerbosity">
      <property name="maximum">
       <number>2</number>
@@ -131,7 +139,7 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="0" colspan="4">
+   <item row="8" column="0" colspan="4">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
       <string>Hexotic_SUBDOMAIN_MESH_MODE</string>
@@ -199,6 +207,26 @@
      </property>
     </widget>
    </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>Hexotic_MAX_MEMORY</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="3">
+    <widget class="QSpinBox" name="myHexoticMaxMemory">
+     <property name="maximum">
+      <number>99999</number>
+     </property>
+     <property name="singleStep">
+      <number>128</number>
+     </property>
+     <property name="value">
+      <number>2048</number>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -214,11 +242,17 @@
   </customwidget>
  </customwidgets>
  <tabstops>
+  <tabstop>myMinSize</tabstop>
+  <tabstop>myMaxSize</tabstop>
+  <tabstop>myHexesMinLevel</tabstop>
+  <tabstop>myHexesMaxLevel</tabstop>
   <tabstop>myHexoticIgnoreRidges</tabstop>
+  <tabstop>myHexoticInvalidElements</tabstop>
   <tabstop>myHexoticSharpAngleThreshold</tabstop>
   <tabstop>myHexoticNbProc</tabstop>
   <tabstop>dirBtn</tabstop>
   <tabstop>myHexoticWorkingDir</tabstop>
+  <tabstop>myHexoticMaxMemory</tabstop>
   <tabstop>myHexoticVerbosity</tabstop>
   <tabstop>myHexoticSdMode</tabstop>
  </tabstops>

@@ -91,6 +91,7 @@ private:
   int  _hexoticNbProc;
   std::string  _hexoticWorkingDirectory;
   int _hexoticVerbosity;
+  int _hexoticMaxMemory;
   int _hexoticSdMode;
   SMDS_MeshNode** _tabNode;
   
