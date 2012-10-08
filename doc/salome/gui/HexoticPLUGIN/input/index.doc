@@ -2,18 +2,18 @@
 
 \mainpage Introduction to HexoticPLUGIN
 
-\n \b HexoticPLUGIN plugin is destined for:
+\b HexoticPLUGIN plugin is destined for:
+- Meshing 3D geometric entities.
+- Generating 3D meshes from 2D meshes, working without geometrical objects.
 
-
-<ul>
-<li>Meshing 3D geometric entities.</li>
-<li>Generating 3D meshes from 2D meshes, working without geometrical objects.</li>
-</ul>
+\note HexoticPLUGIN plugin uses DISTENE Hexotic commercial meshing
+software and requires a license at the run time (to work within the
+Mesh module).
 
 To manage parameters of the HexoticPLUGIN use \subpage hexotic_hypo_page.
 
 Also all HexoticPLUGIN functionalities are accessible via
-\subpage hexoticplugin_python_intarface_page "HexoticPLUGIN Python interface".
+\subpage hexoticplugin_python_interface_page "HexoticPLUGIN Python interface".
 
 
 */

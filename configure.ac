@@ -464,6 +464,7 @@ AC_OUTPUT([ \
   src/Makefile \
   src/HexoticPlugin/Makefile \
   src/GUI/Makefile \
+  src/GUI/resources/Makefile \
   HexoticPLUGIN_version.h \
   doc/Makefile \
   doc/salome/Makefile \

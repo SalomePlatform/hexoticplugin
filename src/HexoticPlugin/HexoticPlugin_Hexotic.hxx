@@ -27,7 +27,7 @@
 
 #include "HexoticPlugin_Defs.hxx"
 
-#include "SMESH_3D_Algo.hxx"
+#include "SMESH_Algo.hxx"
 #include "SMESH_Mesh.hxx"
 #include "Utils_SALOME_Exception.hxx"
 
@@ -82,13 +82,16 @@ private:
   int  _nbShape;
   int  _hexesMinLevel;
   int  _hexesMaxLevel;
-  bool _hexoticQuadrangles;
+  double _hexesMinSize;
+  double _hexesMaxSize;
   bool _hexoticIgnoreRidges;
   bool _hexoticInvalidElements;
   bool _hexoticFilesKept;
   int  _hexoticSharpAngleThreshold;
   int  _hexoticNbProc;
   std::string  _hexoticWorkingDirectory;
+  int _hexoticVerbosity;
+  int _hexoticSdMode;
   SMDS_MeshNode** _tabNode;
   
 #ifdef WITH_BLSURFPLUGIN

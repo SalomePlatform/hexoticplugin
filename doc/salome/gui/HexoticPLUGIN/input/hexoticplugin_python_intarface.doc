@@ -1,9 +1,0 @@
-/*!
-
-\page hexoticplugin_python_intarface_page Python Interface
-
-Python package \ref HexoticPLUGINDC "HexoticPLUGIN" defines several classes, destined for creation of the 3D meshes.
-
-Documentation for HexoticPLUGIN package is available in linear form grouped by classes, declared in the HexoticPLUGINDC.py file.
-
-*/

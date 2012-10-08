@@ -33,16 +33,20 @@ class QtxIntSpinBox;
 class QCheckBox;
 class QLineEdit;
 
+class HexoticPluginGUI_StdWidget;
+
 typedef struct
 {
   QString  myName;
   int      myHexesMinLevel, myHexesMaxLevel;
-  bool     myHexoticQuadrangles;
+  double   myMinSize, myMaxSize;
   bool     myHexoticInvalidElements;
   bool     myHexoticIgnoreRidges;
-  int      myHexoticSharpAngleThreshold;
+  double   myHexoticSharpAngleThreshold;
   int      myHexoticNbProc;
   QString  myHexoticWorkingDir;
+  int      myHexoticVerbosity;
+  int      myHexoticSdMode;
 } HexoticHypothesisData;
 
 /*!
@@ -56,7 +60,7 @@ public:
   HexoticPluginGUI_HypothesisCreator( const QString& );
   virtual ~HexoticPluginGUI_HypothesisCreator();
 
-  virtual bool checkParams() const;
+  virtual bool checkParams(QString&) const;
   virtual QString  helpPage() const;
 
 protected:
@@ -68,24 +72,18 @@ protected:
   virtual QPixmap  icon() const;
   virtual QString  type() const;
   
-protected slots:
-  void             onDirBtnClicked();
-
 private:
   bool readParamsFromHypo( HexoticHypothesisData& ) const;
   bool readParamsFromWidgets( HexoticHypothesisData& ) const;
   bool storeParamsToHypo( const HexoticHypothesisData& ) const;
+  void resizeEvent(QResizeEvent *event);
+  void printData(HexoticHypothesisData&) const;
 
 private:
- QLineEdit*       myName;
- QtxIntSpinBox*   myHexesMinLevel;
- QtxIntSpinBox*   myHexesMaxLevel;
- QCheckBox*       myHexoticQuadrangles;
- QCheckBox*       myHexoticIgnoreRidges;
- QCheckBox*       myHexoticInvalidElements;
- QtxIntSpinBox*   myHexoticSharpAngleThreshold;
- QtxIntSpinBox*   myHexoticNbProc;
- QLineEdit*       myHexoticWorkingDir;
+
+//  QWidget* 		myStdGroup;
+  QLineEdit* 	myName;
+  HexoticPluginGUI_StdWidget*	myStdWidget;
 
  bool             myIs3D;
 };

@@ -45,13 +45,14 @@
 #define DUMP(txt)
 #endif
 
-#include <SMESH_Gen.hxx>
-#include <SMESHDS_Mesh.hxx>
 #include <SMESHDS_GroupBase.hxx>
+#include <SMESHDS_Mesh.hxx>
 #include <SMESH_ControlsDef.hxx>
-#include <SMESH_MesherHelper.hxx>
-#include "SMESH_HypoFilter.hxx"
 #include <SMESH_File.hxx>
+#include <SMESH_Gen.hxx>
+#include <SMESH_HypoFilter.hxx>
+#include <SMESH_MesherHelper.hxx>
+#include <SMESH_subMesh.hxx>
 
 #include <list>
 #include <cstdlib>
@@ -627,7 +628,8 @@ static bool readResult(std::string         theFile,
                        SMESHDS_Mesh*       theMesh,
                        const int           nbShape,
                        const TopoDS_Shape* tabShape,
-                       double**            tabBox)
+                       double**            tabBox,
+                       const int           sdMode)
 {
   // ---------------------------------
   // Optimisation of the plugin ...
@@ -670,6 +672,7 @@ static bool readResult(std::string         theFile,
   TopoDS_Shape *tabCorner, *tabEdge;
 
   const int nbDomains = countShape( theMesh, TopAbs_SHELL );
+  MESSAGE("Nb domains in the meshed shape: " << nbDomains );
   const int holeID = -1;
 
   // tabID    = new int[nbShape];
@@ -847,7 +850,7 @@ static bool readResult(std::string         theFile,
               else {
                 shapeID = tabID[0];
               }
-              if ( shapeID != holeID )
+              if ( (sdMode == 4 && shapeID != holeID) || sdMode != 2 )
                 aHexoticElement = theMesh->AddVolume( node[0], node[3], node[2], node[1], node[4], node[7], node[6], node[5] );
               break;
             }
@@ -910,11 +913,12 @@ static bool readResult(std::string         theFile,
 //purpose  : 
 //=======================================================================
 
-static bool readResult(std::string theFile,
+static bool readResult(std::string            theFile,
 #ifdef WITH_SMESH_CANCEL_COMPUTE
-                       HexoticPlugin_Hexotic*  theAlgo,
+                       HexoticPlugin_Hexotic* theAlgo,
 #endif
-                       SMESH_MesherHelper* theHelper)
+                       SMESH_MesherHelper*    theHelper,
+                       const int              sdMode)
 {
   SMESHDS_Mesh* theMesh = theHelper->GetMeshDS();
 
@@ -1078,12 +1082,15 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
   if (hyp) {
     _hexesMinLevel = hyp->GetHexesMinLevel();
     _hexesMaxLevel = hyp->GetHexesMaxLevel();
-    _hexoticQuadrangles = hyp->GetHexoticQuadrangles();
+    _hexesMinSize = hyp->GetMinSize();
+    _hexesMaxSize = hyp->GetMaxSize();
     _hexoticIgnoreRidges = hyp->GetHexoticIgnoreRidges();
     _hexoticInvalidElements = hyp->GetHexoticInvalidElements();
     _hexoticSharpAngleThreshold = hyp->GetHexoticSharpAngleThreshold();
     _hexoticNbProc = hyp->GetHexoticNbProc();
     _hexoticWorkingDirectory = hyp->GetHexoticWorkingDirectory();
+    _hexoticVerbosity = hyp->GetHexoticVerbosity();
+    _hexoticSdMode = hyp->GetHexoticSdMode();
   }
   else {
     cout << std::endl;
@@ -1091,12 +1098,15 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     cout << "=======" << std::endl;
     _hexesMinLevel = hyp->GetDefaultHexesMinLevel();
     _hexesMaxLevel = hyp->GetDefaultHexesMaxLevel();
-    _hexoticQuadrangles = hyp->GetDefaultHexoticQuadrangles();
+    _hexesMinSize = hyp->GetDefaultMinSize();
+    _hexesMaxSize = hyp->GetDefaultMaxSize();
     _hexoticIgnoreRidges = hyp->GetDefaultHexoticIgnoreRidges();
     _hexoticInvalidElements = hyp->GetDefaultHexoticInvalidElements();
     _hexoticSharpAngleThreshold = hyp->GetDefaultHexoticSharpAngleThreshold();
     _hexoticNbProc = hyp->GetDefaultHexoticNbProc();
     _hexoticWorkingDirectory = hyp->GetDefaultHexoticWorkingDirectory();
+    _hexoticVerbosity = hyp->GetDefaultHexoticVerbosity();
+    _hexoticSdMode = hyp->GetDefaultHexoticSdMode();
   }
 }
 
@@ -1140,30 +1150,37 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   cout << std::endl;
   cout << "Hexotic execution..." << std::endl;
   cout << _name << " parameters :" << std::endl;
+  cout << "    " << _name << " Verbosity = " << _hexoticVerbosity << std::endl;
   cout << "    " << _name << " Segments Min Level = " << _hexesMinLevel << std::endl;
   cout << "    " << _name << " Segments Max Level = " << _hexesMaxLevel << std::endl;
-  cout << "    " << "Salome Quadrangles : " << (_hexoticQuadrangles ? "yes":"no") << std::endl;
+  cout << "    " << _name << " Segments Min Size = " << _hexesMinSize << std::endl;
+  cout << "    " << _name << " Segments Max Size = " << _hexesMaxSize << std::endl;
   cout << "    " << "Hexotic can ignore ridges : " << (_hexoticIgnoreRidges ? "yes":"no") << std::endl;
   cout << "    " << "Hexotic authorize invalide elements : " << ( _hexoticInvalidElements ? "yes":"no") << std::endl;
   cout << "    " << _name << " Sharp angle threshold = " << _hexoticSharpAngleThreshold << " degrees" << std::endl;
   cout << "    " << _name << " Number of threads = " << _hexoticNbProc << std::endl;
   cout << "    " << _name << " Working directory = \"" << _hexoticWorkingDirectory << "\"" << std::endl;
+  cout << "    " << _name << " Sub. Dom mode = " << _hexoticSdMode << std::endl;
 
   TCollection_AsciiString run_Hexotic( "hexotic" );
 
   TCollection_AsciiString minl = " -minl ", maxl = " -maxl ", angle = " -ra ";
+  TCollection_AsciiString mins = " -mins ", maxs = " -maxs ";
   TCollection_AsciiString in   = " -in ",   out  = " -out ";
   TCollection_AsciiString ignoreRidges = " -nr ", invalideElements = " -inv ";
   TCollection_AsciiString subdom = " -sd ", sharp = " -sharp ";
   TCollection_AsciiString proc = " -nproc ";
+  TCollection_AsciiString verb = " -v ";
 
-  TCollection_AsciiString minLevel, maxLevel, sharpAngle, mode, subdivision, nbproc;
+  TCollection_AsciiString minLevel, maxLevel, minSize, maxSize, sharpAngle, mode, nbproc, verbosity;
   minLevel = _hexesMinLevel;
   maxLevel = _hexesMaxLevel;
+  minSize = _hexesMinSize;
+  maxSize = _hexesMaxSize;
   sharpAngle = _hexoticSharpAngleThreshold;
-  mode = 4;
-  subdivision = 3;
+  mode = _hexoticSdMode;
   nbproc = _hexoticNbProc;
+  verbosity = _hexoticVerbosity;
 
   if (_hexoticIgnoreRidges)
     run_Hexotic +=  ignoreRidges;
@@ -1171,12 +1188,25 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   if (_hexoticInvalidElements)
     run_Hexotic +=  invalideElements;
 
-  run_Hexotic += angle + sharpAngle + minl + minLevel + maxl + maxLevel + in + Hexotic_In + out + Hexotic_Out;
+  if (_hexesMinSize > 0)
+    run_Hexotic +=  mins + minSize;
+
+  if (_hexesMaxSize > 0)
+    run_Hexotic +=  maxs + maxSize;
+
+  if (_hexesMinLevel > 0)
+    run_Hexotic +=  minl + minLevel;
+
+  if (_hexesMaxLevel > 0)
+    run_Hexotic +=  maxl + maxLevel;
+
+  if (_hexoticSharpAngleThreshold > 0)
+    run_Hexotic +=  angle + sharpAngle;
+
+  run_Hexotic += in + Hexotic_In + out + Hexotic_Out;
   run_Hexotic += subdom + mode;
   run_Hexotic += proc + nbproc;
-  //     run_Hexotic += subdom + mode + invalideElements;
-  //     run_Hexotic += subdom + mode + ignoreRidges;
-  //     run_Hexotic += subdom + mode + sharp + subdivision;
+  run_Hexotic += verb + verbosity;
 
   return run_Hexotic.ToCString();
 }
@@ -1289,7 +1319,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     
 
     std::string run_Hexotic = getHexoticCommand(Hexotic_In, Hexotic_Out);
-    run_Hexotic += std::string(" 1>") + aLogFileName.ToCString();  // dump into file
+    run_Hexotic += std::string(" 1 > ") + aLogFileName.ToCString();  // dump into file
 
     cout << std::endl;
     cout << "Hexotic command : " << run_Hexotic << std::endl;
@@ -1323,7 +1353,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
 #ifdef WITH_SMESH_CANCEL_COMPUTE
                        this,
 #endif
-                       meshDS, _nbShape, tabShape, tabBox );
+                       meshDS, _nbShape, tabShape, tabBox, _hexoticSdMode );
       if(Ok)
         hexahedraMessage = "success";
       else
@@ -1393,7 +1423,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   Hexotic_Out = aTmpDir + "Hexotic_Out.mesh";
 
   std::string run_Hexotic = getHexoticCommand(Hexotic_In, Hexotic_Out);
-  run_Hexotic += std::string(" 1>") + aLogFileName.ToCString();  // dump into file
+  run_Hexotic += std::string(" 1 > ") + aLogFileName.ToCString();  // dump into file
 
   cout << std::endl;
   cout << "Hexotic command : " << run_Hexotic << std::endl;
@@ -1426,7 +1456,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
 #ifdef WITH_SMESH_CANCEL_COMPUTE
                      this,
 #endif
-                     aHelper );
+                     aHelper, _hexoticSdMode );
     if(Ok)
       hexahedraMessage = "success";
     else

@@ -31,7 +31,7 @@
  * HexoticPlugin: interfaces to Hexotic related hypotheses and algorithms
  */
 module HexoticPlugin
-{
+{    
   /*!
    * HexoticPlugin_Hexotic: interface of Hexotic algorithm
    */
@@ -49,9 +49,12 @@ module HexoticPlugin
 
     void SetHexesMaxLevel(in long value);
     long GetHexesMaxLevel();
+    
+    void SetMinSize(in double value);
+    double GetMinSize();
 
-    void SetHexoticQuadrangles(in boolean value);
-    boolean GetHexoticQuadrangles();
+    void SetMaxSize(in double value);
+    double GetMaxSize();
 
     void SetHexoticIgnoreRidges(in boolean value);
     boolean GetHexoticIgnoreRidges();
@@ -59,14 +62,20 @@ module HexoticPlugin
     void SetHexoticInvalidElements(in boolean value);
     boolean GetHexoticInvalidElements();
    
-    void SetHexoticSharpAngleThreshold(in long value);
-    long GetHexoticSharpAngleThreshold();
+    void SetHexoticSharpAngleThreshold(in double value);
+    double GetHexoticSharpAngleThreshold();
    
     void SetHexoticNbProc(in long value);
     long GetHexoticNbProc();
 
     void SetHexoticWorkingDirectory(in string path) raises (SALOME::SALOME_Exception);
     string GetHexoticWorkingDirectory();
+   
+    void SetHexoticSdMode(in long value);
+    long GetHexoticSdMode();
+   
+    void SetHexoticVerbosity(in long value);
+    long GetHexoticVerbosity();
   };
 };
 

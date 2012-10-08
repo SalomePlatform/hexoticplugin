@@ -12,6 +12,22 @@
         <translation>Construction de l&apos;hypothèse</translation>
     </message>
     <message>
+        <source>Hexotic_INPUT_SIZE</source>
+        <translation>Tailles</translation>
+    </message>
+    <message>
+        <source>Hexotic_INPUT_LEVEL</source>
+        <translation>Niveaux de subdivision</translation>
+    </message>
+    <message>
+        <source>Hexotic_MAX_SIZE</source>
+        <translation>Taille max</translation>
+    </message>
+    <message>
+        <source>Hexotic_MIN_SIZE</source>
+        <translation>Taille min</translation>
+    </message>
+    <message>
         <source>Hexotic_HEXES_MAX_LEVEL</source>
         <translation>Nb. des hexagones: niveau max</translation>
     </message>
@@ -45,7 +61,31 @@
     </message>
     <message>
         <source>Hexotic_SELECT_DIR</source>
-        <translation>...</translation>
+        <translation>Choisir ...</translation>
+    </message>
+    <message>
+        <source>Hexotic_VERBOSITY</source>
+        <translation>Verbosité</translation>
+    </message>
+    <message>
+        <source>Hexotic_SUBDOMAIN_MESH_MODE</source>
+        <translation>Mode de maillage des sous-domaines</translation>
+    </message>
+    <message>
+        <source>Hexotic_SD_MODE_1</source>
+        <translation>Domaine unique</translation>
+    </message>
+    <message>
+        <source>Hexotic_SD_MODE_2</source>
+        <translation>Cavités ignorées</translation>
+    </message>
+    <message>
+        <source>Hexotic_SD_MODE_3</source>
+        <translation>Cavités maillées</translation>
+    </message>
+    <message>
+        <source>Hexotic_SD_MODE_4</source>
+        <translation>Géométries "non-manifold"</translation>
     </message>
 </context>
 </TS>
