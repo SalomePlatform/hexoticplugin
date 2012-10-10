@@ -59,7 +59,7 @@
 #include <Precision.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopTools_MapOfShape.hxx>
-
+#include <TopoDS.hxx>
 
 static void removeFile( const TCollection_AsciiString& fileName )
 {
