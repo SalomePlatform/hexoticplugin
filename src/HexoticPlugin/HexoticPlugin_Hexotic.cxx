@@ -39,6 +39,7 @@
 #endif
 
 #include <SMESHDS_Mesh.hxx>
+#include <SMESHDS_GroupBase.hxx>
 #include <SMESH_ComputeError.hxx>
 #include <SMESH_File.hxx>
 #include <SMESH_Gen.hxx>
@@ -52,6 +53,7 @@
 
 #include <Standard_ProgramError.hxx>
 
+#include <BRepBndLib.hxx>
 #include <BRepClass3d_SolidClassifier.hxx>
 #include <BRepBuilderAPI_MakeVertex.hxx>
 #include <BRepExtrema_DistShapeShape.hxx>
@@ -343,6 +345,457 @@ static void removeHexoticFiles(TCollection_AsciiString file_In, TCollection_Asci
   removeFile( file_Out );
 }
 
+//=======================================================================
+//function : readResult
+//purpose  : Read GMF file in case of a mesh with geometry
+//=======================================================================
+
+static bool readResult(std::string         theFile,
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+                       HexoticPlugin_Hexotic*  theAlgo,
+#endif
+                       SMESHDS_Mesh*       theMesh,
+                       const int           nbShape,
+                       const TopoDS_Shape* tabShape,
+                       double**            tabBox)
+{
+  // ---------------------------------
+  // Optimisation of the plugin ...
+  // Retrieve the correspondance edge --> shape
+  // (which is very costly) only when user
+  // has defined at least one group of edges
+  // which should be rare for a 3d mesh !
+  // ---------------------------------
+  
+  bool retrieve_edges = false;
+  const std::set<SMESHDS_GroupBase*>& aGroups = theMesh->GetGroups();
+  set<SMESHDS_GroupBase*>::const_iterator GrIt = aGroups.begin();
+  for (; GrIt != aGroups.end(); GrIt++)
+    {
+      SMESHDS_GroupBase* aGrp = *GrIt;
+      if ( !aGrp )
+        continue;
+      if ( aGrp->GetType() == SMDSAbs_Edge )
+        {
+          retrieve_edges = true;
+          break;
+        }
+    }
+  
+  // ---------------------------------
+  // Read generated elements and nodes
+  // ---------------------------------
+
+  TopoDS_Shape aShape;
+  TopoDS_Vertex aVertex;
+  std::string token;
+  int EndOfFile = 0, nbElem = 0, nField = 9, nbRef = 0;
+  int aHexoticNodeID = 0, shapeID, hexoticShapeID;
+  const int IdShapeRef = 2;
+  int *tabID, *tabRef, *nodeAssigne;
+  bool *tabDummy, hasDummy = false;
+  double epsilon = Precision::Confusion();
+  std::map <std::string,int> mapField;
+  SMDS_MeshNode** HexoticNode;
+  TopoDS_Shape *tabCorner, *tabEdge;
+
+  const int nbDomains = countShape( theMesh, TopAbs_SHELL );
+  const int holeID = -1;
+
+  // tabID    = new int[nbShape];
+  tabID    = new int[nbDomains];
+  tabRef   = new int[nField];
+  tabDummy = new bool[nField];
+
+  for (int i=0; i<nbDomains; i++)
+    tabID[i] = 0;
+  if ( nbDomains == 1 )
+    tabID[0] = theMesh->ShapeToIndex( tabShape[0] );
+
+  mapField["MeshVersionFormatted"] = 0; tabRef[0] = 0; tabDummy[0] = false;
+  mapField["Dimension"]            = 1; tabRef[1] = 0; tabDummy[1] = false;
+  mapField["Vertices"]             = 2; tabRef[2] = 3; tabDummy[2] = true;
+  mapField["Corners"]              = 3; tabRef[3] = 1; tabDummy[3] = false;
+  mapField["Edges"]                = 4; tabRef[4] = 2; tabDummy[4] = true;
+  mapField["Ridges"]               = 5; tabRef[5] = 1; tabDummy[5] = false;
+  mapField["Quadrilaterals"]       = 6; tabRef[6] = 4; tabDummy[6] = true;
+  mapField["Hexahedra"]            = 7; tabRef[7] = 8; tabDummy[7] = true;
+  mapField["End"]                  = 8; tabRef[8] = 0; tabDummy[0] = false;
+
+  SMDS_NodeIteratorPtr itOnHexoticInputNode = theMesh->nodesIterator();
+  while ( itOnHexoticInputNode->more() )
+    theMesh->RemoveNode( itOnHexoticInputNode->next() );
+
+  int nbVertices   = getNbShape(theFile, "Vertices");
+  int nbCorners    = getNbShape(theFile, "Corners", countShape( theMesh, TopAbs_VERTEX ));
+  int nbShapeEdge  = countShape( theMesh, TopAbs_EDGE );
+
+  tabCorner   = new TopoDS_Shape[ nbCorners ];
+  tabEdge     = new TopoDS_Shape[ nbShapeEdge ];
+  nodeAssigne = new int[ nbVertices + 1 ];
+  HexoticNode = new SMDS_MeshNode*[ nbVertices + 1 ];
+
+  getShape(theMesh, TopAbs_VERTEX, tabCorner);
+  getShape(theMesh, TopAbs_EDGE,   tabEdge);
+
+  MESSAGE("Read " << theFile << " file");
+  std::ifstream fileRes(theFile.c_str());
+  ASSERT(fileRes);
+
+  while ( EndOfFile == 0  ) {
+    int dummy;
+    fileRes >> token;
+
+    if (mapField.count(token)) {
+      nField   = mapField[token];
+      nbRef    = tabRef[nField];
+      hasDummy = tabDummy[nField];
+    }
+    else {
+      nField = -1;
+      nbRef = 0;
+    }
+
+    nbElem = 0;
+    if ( nField < (mapField.size() - 1) && nField >= 0 )
+      fileRes >> nbElem;
+
+    switch (nField) {
+      case 0: { // "MeshVersionFormatted"
+        MESSAGE(token << " " << nbElem);
+        break;
+      }
+      case 1: { // "Dimension"
+        MESSAGE("Mesh dimension " << nbElem << "D");
+        break;
+      }
+      case 2: { // "Vertices"
+        MESSAGE("Read " << nbElem << " " << token);
+        int aHexoticID;
+        double *coord;
+        SMDS_MeshNode * aHexoticNode;
+
+        coord = new double[nbRef];
+        for ( int iElem = 0; iElem < nbElem; iElem++ ) {
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+          if(theAlgo->computeCanceled())
+            {
+              return false;
+            }
+#endif
+          aHexoticID = iElem + 1;
+          for ( int iCoord = 0; iCoord < 3; iCoord++ )
+            fileRes >> coord[ iCoord ];
+          fileRes >> dummy;
+          aHexoticNode = theMesh->AddNode(coord[0], coord[1], coord[2]);
+          HexoticNode[ aHexoticID ] = aHexoticNode;
+          nodeAssigne[ aHexoticID ] = 0;
+        }
+        delete [] coord;
+        break;
+      }
+      case 3: // "Corners"
+      case 4: // "Edges"
+      case 5: // "Ridges"
+      case 6: // "Quadrilaterals"
+      case 7: { // "Hexahedra"
+        MESSAGE("Read " << nbElem << " " << token);
+        SMDS_MeshNode** node;
+        int nodeDim, *nodeID;
+        SMDS_MeshElement * aHexoticElement = 0;
+
+        node   = new SMDS_MeshNode*[ nbRef ];
+        nodeID = new int[ nbRef ];
+        for ( int iElem = 0; iElem < nbElem; iElem++ ) {
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+          if(theAlgo->computeCanceled())
+            {
+              return false;
+            }
+#endif
+          for ( int iRef = 0; iRef < nbRef; iRef++ ) {
+            fileRes >> aHexoticNodeID;                          // read nbRef aHexoticNodeID
+            node[ iRef ]   = HexoticNode[ aHexoticNodeID ];
+            nodeID[ iRef ] = aHexoticNodeID;
+          }
+          if ( hasDummy )
+            fileRes >> dummy;
+          switch (nField) {
+            case 3: { // "Corners"
+              nodeDim = 1;
+              gp_Pnt HexoticPnt ( node[0]->X(), node[0]->Y(), node[0]->Z() );
+              for ( int i=0; i<nbElem; i++ ) {
+                aVertex = TopoDS::Vertex( tabCorner[i] );
+                gp_Pnt aPnt = BRep_Tool::Pnt( aVertex );
+                if ( aPnt.Distance( HexoticPnt ) < epsilon )
+                  break;
+              }
+              break;
+            }
+            case 4: { // "Edges"
+              nodeDim = 2;
+              aHexoticElement = theMesh->AddEdge( node[0], node[1] );
+              int iNode = 1;
+              if ( nodeAssigne[ nodeID[0] ] == 0 || nodeAssigne[ nodeID[0] ] == 2 )
+                iNode = 0;
+              if(retrieve_edges)
+                shapeID = findEdge( node[iNode], theMesh, nbShapeEdge, tabEdge );
+              else
+                shapeID = 0;
+              break;
+            }
+            case 5: { // "Ridges"
+              break;
+            }
+            case 6: { // "Quadrilaterals"
+              nodeDim = 3;
+              aHexoticElement = theMesh->AddFace( node[0], node[1], node[2], node[3] );
+              shapeID = dummy;
+              break;
+            }
+            case 7: { // "Hexahedra"
+              nodeDim = 4;
+              if ( nbDomains > 1 ) {
+                hexoticShapeID = dummy - IdShapeRef;
+                if ( tabID[ hexoticShapeID ] == 0 ) {
+                  aShape = findShape(node, aShape, tabShape, tabBox, nbShape);
+                  shapeID = aShape.IsNull() ? holeID : theMesh->ShapeToIndex( aShape );
+                  tabID[ hexoticShapeID ] = shapeID;
+                }
+                else
+                  shapeID = tabID[ hexoticShapeID ];
+                if ( iElem == (nbElem - 1) ) {
+                  int shapeAssociated = 0;
+                  for ( int i=0; i<nbDomains; i++ ) {
+                    if (tabID[i] > 0 )
+                      shapeAssociated += 1;
+                  }
+                  if ( shapeAssociated != nbShape )
+                    printWarning(nbShape, "domains", shapeAssociated);
+                }
+              }
+              else {
+                shapeID = tabID[0];
+              }
+              if ( shapeID != holeID )
+                aHexoticElement = theMesh->AddVolume( node[0], node[3], node[2], node[1], node[4], node[7], node[6], node[5] );
+              break;
+            }
+          } // switch (nField)
+
+          if ( token != "Ridges" && ( shapeID > 0 || token == "Corners")) {
+            for ( int i=0; i<nbRef; i++ ) {
+              if ( nodeAssigne[ nodeID[i] ] == 0 ) {
+                if      ( token == "Corners" )        theMesh->SetNodeOnVertex( node[0], aVertex );
+                else if ( token == "Edges" )          theMesh->SetNodeOnEdge( node[i], shapeID );
+                else if ( token == "Quadrilaterals" ) theMesh->SetNodeOnFace( node[i], shapeID );
+                else if ( token == "Hexahedra" )      theMesh->SetNodeInVolume( node[i], shapeID );
+                nodeAssigne[ nodeID[i] ] = nodeDim;
+              }
+            }
+            if ( token != "Corners" && aHexoticElement )
+              theMesh->SetMeshElementOnShape( aHexoticElement, shapeID );
+          }
+        }
+        delete [] node;
+        delete [] nodeID;
+        break;
+      }
+      case 8: { // "End"
+        EndOfFile = 1;
+        MESSAGE("End of " << theFile << " file");
+        break;
+      }
+      default: {
+        MESSAGE("Unknown Token: " << token);
+      }
+    }
+  }
+  cout << std::endl;
+
+  // remove nodes in holes
+  if ( nbDomains > 1 )
+  {
+    SMESHDS_SubMesh* subMesh;
+    for ( int i = 1; i <= nbVertices; ++i )
+      if ( HexoticNode[i]->NbInverseElements() == 0 )
+      {
+        subMesh =  HexoticNode[i]->getshapeId() > 0 ? theMesh->MeshElements(HexoticNode[i]->getshapeId() ) : 0;
+        theMesh->RemoveFreeNode( HexoticNode[i], subMesh, /*fromGroups=*/false );
+      }
+  }
+  delete [] tabID;
+  delete [] tabRef;
+  delete [] tabDummy;
+  delete [] tabCorner;
+  delete [] tabEdge;
+  delete [] nodeAssigne;
+  delete [] HexoticNode;
+  return true;
+}
+
+
+//=======================================================================
+//function : readResult
+//purpose  : Read GMF file in case of a mesh w/o geometry
+//=======================================================================
+
+static bool readResult(std::string theFile,
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+                       HexoticPlugin_Hexotic*  theAlgo,
+#endif
+                       SMESH_MesherHelper* theHelper)
+{
+  SMESHDS_Mesh* theMesh = theHelper->GetMeshDS();
+
+  // ---------------------------------
+  // Read generated elements and nodes
+  // ---------------------------------
+
+  std::string token;
+  const int nbField = 9;
+  int nField, EndOfFile = 0, nbElem = 0, nbRef = 0;
+  int aHexoticNodeID = 0, shapeID;
+  int tabRef[nbField], *nodeAssigne;
+  bool tabDummy[nbField], hasDummy = false;
+  std::map <std::string,int> mapField;
+  SMDS_MeshNode** HexoticNode;
+
+  mapField["MeshVersionFormatted"] = 0; tabRef[0] = 0; tabDummy[0] = false;
+  mapField["Dimension"]            = 1; tabRef[1] = 0; tabDummy[1] = false;
+  mapField["Vertices"]             = 2; tabRef[2] = 3; tabDummy[2] = true;
+  mapField["Corners"]              = 3; tabRef[3] = 1; tabDummy[3] = false;
+  mapField["Edges"]                = 4; tabRef[4] = 2; tabDummy[4] = true;
+  mapField["Ridges"]               = 5; tabRef[5] = 1; tabDummy[5] = false;
+  mapField["Quadrilaterals"]       = 6; tabRef[6] = 4; tabDummy[6] = true;
+  mapField["Hexahedra"]            = 7; tabRef[7] = 8; tabDummy[7] = true;
+  mapField["End"]                  = 8; tabRef[8] = 0; tabDummy[8] = false;
+
+  theHelper->GetMesh()->Clear();
+
+  int nbVertices = getNbShape(theFile, "Vertices");
+  HexoticNode = new SMDS_MeshNode*[ nbVertices + 1 ];
+  nodeAssigne = new int[ nbVertices + 1 ];
+
+  MESSAGE("Read " << theFile << " file");
+  std::ifstream fileRes(theFile.c_str());
+  ASSERT(fileRes);
+
+  while ( !EndOfFile  )
+  {
+    int dummy;
+    fileRes >> token;
+
+    if (mapField.count(token)) {
+      nField   = mapField[token];
+      nbRef    = tabRef[nField];
+      hasDummy = tabDummy[nField];
+    }
+    else {
+      nField = -1;
+      nbRef = 0;
+    }
+
+    nbElem = 0;
+    if ( nField < (mapField.size() - 1) && nField >= 0 )
+      fileRes >> nbElem;
+
+    switch (nField) {
+    case 0: { // "MeshVersionFormatted"
+      MESSAGE(token << " " << nbElem);
+      break;
+    }
+    case 1: { // "Dimension"
+      MESSAGE("Mesh dimension " << nbElem << "D");
+      break;
+    }
+    case 2: { // "Vertices"
+      MESSAGE("Read " << nbElem << " " << token);
+      int aHexoticID;
+      double coord[3];
+      SMDS_MeshNode * aHexoticNode;
+
+      for ( int iElem = 0; iElem < nbElem; iElem++ ) {
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+        if(theAlgo->computeCanceled())
+          {
+            return false;
+          }
+#endif
+        aHexoticID = iElem + 1;
+        for ( int iCoord = 0; iCoord < 3; iCoord++ )
+          fileRes >> coord[ iCoord ];
+        fileRes >> dummy;
+        aHexoticNode = theMesh->AddNode(coord[0], coord[1], coord[2]);
+        HexoticNode[ aHexoticID ] = aHexoticNode;
+        nodeAssigne[ aHexoticID ] = 0;
+      }
+      break;
+    }
+    case 3: // "Corners"
+    case 4: // "Edges"
+    case 5: // "Ridges"
+    case 6: // "Quadrilaterals"
+    case 7: { // "Hexahedra"
+      MESSAGE("Read " << nbElem << " " << token);
+      std::vector< SMDS_MeshNode* > node( nbRef );
+      std::vector< int >          nodeID( nbRef );
+
+      for ( int iElem = 0; iElem < nbElem; iElem++ )
+      {
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+        if(theAlgo->computeCanceled())
+          {
+            return false;
+          }
+#endif
+        for ( int iRef = 0; iRef < nbRef; iRef++ )
+        {
+          fileRes >> aHexoticNodeID;                          // read nbRef aHexoticNodeID
+          node  [ iRef ] = HexoticNode[ aHexoticNodeID ];
+          nodeID[ iRef ] = aHexoticNodeID;
+        }
+        if ( hasDummy )
+          fileRes >> dummy;
+        switch (nField)
+        {
+        case 4: // "Edges"
+          theHelper->AddEdge( node[0], node[1] ); break;
+        case 6:  // "Quadrilaterals"
+          theMesh->AddFace( node[0], node[1], node[2], node[3] ); break;
+        case 7: // "Hexahedra"
+          theHelper->AddVolume( node[0], node[3], node[2], node[1],
+                                node[4], node[7], node[6], node[5] ); break;
+        default: continue;
+        }
+        if ( nField == 6 )
+          for ( int iRef = 0; iRef < nbRef; iRef++ )
+            nodeAssigne[ nodeID[ iRef ]] = 1;
+      }
+      break;
+    }
+    case 8: { // "End"
+      EndOfFile = 1;
+      MESSAGE("End of " << theFile << " file");
+      break;
+    }
+    default: {
+      MESSAGE("Unknown Token: " << token);
+    }
+    }
+  }
+  cout << std::endl;
+
+  shapeID = theHelper->GetSubShapeID();
+  for ( int i = 0; i < nbVertices; ++i )
+    if ( !nodeAssigne[ i+1 ])
+      theMesh->SetNodeInVolume( HexoticNode[ i+1 ], shapeID );
+
+  delete [] HexoticNode;
+  delete [] nodeAssigne;
+  return true;
+}
+
 //=============================================================================
 /*!
  * Pass parameters to Hexotic
@@ -534,7 +987,29 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     //   meshDS->RemoveNode( _tabNode[i] );  // to simulate successful mesh computing.
     // delete [] _tabNode;
 
+    // create bounding box for each shape of the compound
+
     int iShape = 0;
+    TopoDS_Shape *tabShape;
+    double **tabBox;
+
+    tabShape = new TopoDS_Shape[_nbShape];
+    tabBox   = new double*[_nbShape];
+    for (int i=0; i<_nbShape; i++)
+      tabBox[i] = new double[6];
+    double Xmin, Ymin, Zmin, Xmax, Ymax, Zmax;
+
+    TopExp_Explorer expBox (meshDS->ShapeToMesh(), TopAbs_SOLID);
+    for (; expBox.More(); expBox.Next()) {
+      tabShape[iShape] = expBox.Current();
+      Bnd_Box BoundingBox;
+      BRepBndLib::Add(expBox.Current(), BoundingBox);
+      BoundingBox.Get(Xmin, Ymin, Zmin, Xmax, Ymax, Zmax);
+      tabBox[iShape][0] = Xmin; tabBox[iShape][1] = Xmax;
+      tabBox[iShape][2] = Ymin; tabBox[iShape][3] = Ymax;
+      tabBox[iShape][4] = Zmin; tabBox[iShape][5] = Zmax;
+      iShape++;
+    }
 
     SetParameters(_hypothesis);
 
@@ -598,12 +1073,26 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     modeFile_Out += Hexotic_Out;
     system( modeFile_Out.ToCString() );
     if ( ! fileRes.fail() ) {
-      SMDS_NodeIteratorPtr itOnHexoticInputNode = meshDS->nodesIterator();
-      while ( itOnHexoticInputNode->more() )
-        meshDS->RemoveNode( itOnHexoticInputNode->next() );
+      Ok = readResult( Hexotic_Out.ToCString(),
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+                       this,
+#endif
+                       meshDS, _nbShape, tabShape, tabBox );
+      if(Ok)
+/*********************
+// TODO: Detect and remove elements in holes in case of sd mode = 4
+      // Remove previous nodes and elements
+      SMDS_ElemIteratorPtr itElement = meshDS->elementsIterator();
+      SMDS_NodeIteratorPtr itNode = meshDS->nodesIterator();
+    
+      while ( itElement->more() )
+        meshDS->RemoveElement( itElement->next() );
+      while ( itNode->more() )
+        meshDS->RemoveNode( itNode->next() );
   
       SMESH_ComputeErrorPtr myError = aMesh.GMFToMesh(Hexotic_Out.ToCString());
       if (myError)
+*/
         hexahedraMessage = "success";
       else
         hexahedraMessage = "failed";
@@ -625,6 +1114,10 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     cout << "Hexahedra meshing " << hexahedraMessage << std::endl;
     cout << std::endl;
 
+    delete [] tabShape;
+    for (int i=0; i<_nbShape; i++)
+      delete [] tabBox[i];
+    delete [] tabBox;
     _nbShape = 0;
     _iShape  = 0;
   }
@@ -651,8 +1144,10 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
 #ifdef WITH_SMESH_CANCEL_COMPUTE
   _compute_canceled = false;
 #endif
+/*
   SMESH_ComputeErrorPtr myError = SMESH_ComputeError::New();
-//   bool Ok = true;
+*/
+  bool Ok = true;
   TCollection_AsciiString hexahedraMessage;
 
   SetParameters(_hypothesis);
@@ -695,6 +1190,13 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   modeFile_Out += Hexotic_Out;
   system( modeFile_Out.ToCString() );
   if ( ! fileRes.fail() ) {
+    Ok = readResult( Hexotic_Out.ToCString(),
+#ifdef WITH_SMESH_CANCEL_COMPUTE
+                     this,
+#endif
+                     aHelper );
+    if(Ok)
+/*
     // Remove previous nodes and elements
     SMDS_ElemIteratorPtr itElement = aHelper->GetMeshDS()->elementsIterator();
     SMDS_NodeIteratorPtr itNode = aHelper->GetMeshDS()->nodesIterator();
@@ -717,12 +1219,15 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
       aHelper->GetMeshDS()->SetMeshElementOnShape(itElement->next(), 1);
 
     if(myError->IsOK())
+*/
       hexahedraMessage = "success";
     else
       hexahedraMessage = "failed";
   }
   else {
+/*
     myError->myName = COMPERR_EXCEPTION;
+*/
     hexahedraMessage = "failed";
     cout << "Problem with Hexotic output file " << Hexotic_Out << std::endl;
     // analyse log file
@@ -743,7 +1248,10 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   if(_compute_canceled)
     return error(SMESH_Comment("interruption initiated by user"));
 #endif
+  return Ok;
+/*
   return myError->IsOK();
+*/
 }
 
 //=============================================================================
