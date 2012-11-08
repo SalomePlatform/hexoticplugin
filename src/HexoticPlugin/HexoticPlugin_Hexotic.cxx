@@ -53,6 +53,7 @@
 
 #include <Standard_ProgramError.hxx>
 
+#include <BRep_Tool.hxx>
 #include <BRepBndLib.hxx>
 #include <BRepClass3d_SolidClassifier.hxx>
 #include <BRepBuilderAPI_MakeVertex.hxx>
