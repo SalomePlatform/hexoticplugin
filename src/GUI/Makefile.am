@@ -69,6 +69,7 @@ libHexoticPluginGUI_la_CPPFLAGS = 	\
 
 libHexoticPluginGUI_la_LDFLAGS =		           \
 	../HexoticPlugin/libHexoticEngine.la	           \
+	../../idl/libSalomeIDLHexoticPLUGIN.la \
 	${SMESH_LDFLAGS} -lSMESH		           \
 	$(CAS_KERNEL)                                      \
 	$(GUI_LDFLAGS) -lsuit -lqtx -lSalomeApp            \
