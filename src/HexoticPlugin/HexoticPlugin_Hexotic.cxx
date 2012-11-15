@@ -1042,7 +1042,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
       removeHexoticFiles(Hexotic_In, Hexotic_Out);
       cout << std::endl;
       cout << "Creating Hexotic input mesh file : " << Hexotic_In << std::endl;
-      aMesh.ExportGMF(Hexotic_In.ToCString(), meshDS);
+      aMesh.ExportGMF(Hexotic_In.ToCString(), meshDS, true);
 #ifdef WITH_BLSURFPLUGIN
     }
     else {
