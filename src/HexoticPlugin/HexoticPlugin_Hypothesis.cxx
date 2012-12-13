@@ -45,7 +45,8 @@ HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, int studyId,
     _hexoticNbProc( GetDefaultHexoticNbProc() ),
     _hexoticWorkingDirectory( GetDefaultHexoticWorkingDirectory() ),
     _hexoticSdMode(GetDefaultHexoticSdMode()),
-    _hexoticVerbosity(GetDefaultHexoticVerbosity())
+    _hexoticVerbosity(GetDefaultHexoticVerbosity()),
+    _hexoticMaxMemory(GetDefaultHexoticMaxMemory())
 {
   MESSAGE("HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis");
   _name = "Hexotic_Parameters";
@@ -136,6 +137,13 @@ void HexoticPlugin_Hypothesis::SetHexoticVerbosity(int theVal) {
   }
 }
 
+void HexoticPlugin_Hypothesis::SetHexoticMaxMemory(int theVal) {
+  if (theVal != _hexoticMaxMemory) {
+    _hexoticMaxMemory = theVal;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
 //=============================================================================
 /*!
  *  
@@ -157,6 +165,7 @@ std::ostream& HexoticPlugin_Hypothesis::SaveTo(std::ostream& save)
   save<<"maxSize="<<_maxSize<<";";
   save<<"hexoticSdMode="<<_hexoticSdMode<<";";
   save<<"hexoticVerbosity="<<_hexoticVerbosity<<";";
+  save<<"hexoticMaxMemory="<<_hexoticMaxMemory<<";";
   return save;
 }
 
@@ -200,6 +209,7 @@ std::istream& HexoticPlugin_Hypothesis::LoadFrom(std::istream& load)
       if (str3=="maxSize") _maxSize = atof(str4.c_str());
       if (str3=="hexoticSdMode") _hexoticSdMode = atoi(str4.c_str());
       if (str3=="hexoticVerbosity") _hexoticVerbosity = atoi(str4.c_str());
+      if (str3=="hexoticMaxMemory") _hexoticMaxMemory = atoi(str4.c_str());
    }
    return load;
 }
@@ -318,6 +328,11 @@ int HexoticPlugin_Hypothesis::GetDefaultHexoticSdMode()
 int HexoticPlugin_Hypothesis::GetDefaultHexoticVerbosity()
 {
   return 1;
+}
+
+int HexoticPlugin_Hypothesis::GetDefaultHexoticMaxMemory()
+{
+  return 2048;
 }
 
 

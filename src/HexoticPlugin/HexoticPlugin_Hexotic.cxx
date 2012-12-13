@@ -25,13 +25,6 @@
 #include "HexoticPlugin_Hexotic.hxx"
 #include "HexoticPlugin_Hypothesis.hxx"
 
-#include "SMDS_MeshElement.hxx"
-#include "SMDS_MeshNode.hxx"
-
-#include <TopoDS.hxx>
-#include <TopExp_Explorer.hxx>
-#include <OSD_File.hxx>
-
 #include "utilities.h"
 
 #ifndef WIN32
@@ -45,9 +38,9 @@
 #define DUMP(txt)
 #endif
 
-#include <SMESHDS_GroupBase.hxx>
 #include <SMESHDS_Mesh.hxx>
-#include <SMESH_ControlsDef.hxx>
+#include <SMESHDS_GroupBase.hxx>
+#include <SMESH_ComputeError.hxx>
 #include <SMESH_File.hxx>
 #include <SMESH_Gen.hxx>
 #include <SMESH_HypoFilter.hxx>
@@ -60,18 +53,16 @@
 
 #include <Standard_ProgramError.hxx>
 
-#include <BRepClass3d_SolidClassifier.hxx>
-#include <Bnd_Box.hxx>
-#include <BRepBndLib.hxx>
-#include <Precision.hxx>
-
-#include <BRepBuilderAPI_MakeVertex.hxx>
 #include <BRep_Tool.hxx>
+#include <BRepBndLib.hxx>
+#include <BRepClass3d_SolidClassifier.hxx>
+#include <BRepBuilderAPI_MakeVertex.hxx>
+#include <BRepExtrema_DistShapeShape.hxx>
+#include <OSD_File.hxx>
+#include <Precision.hxx>
+#include <TopExp_Explorer.hxx>
 #include <TopTools_MapOfShape.hxx>
-#include <TopTools_Array1OfShape.hxx>
-#include <BRepExtrema_DistShapeShape.hxx>
-#include <TColStd_Array1OfReal.hxx>
-#include <BRepExtrema_DistShapeShape.hxx>
+#include <TopoDS.hxx>
 
 static void removeFile( const TCollection_AsciiString& fileName )
 {
@@ -241,7 +232,7 @@ static TopoDS_Shape findShape(SMDS_MeshNode**     t_Node,
 //=======================================================================
 
 static int findEdge(const SMDS_MeshNode* aNode,
-                    const SMESHDS_Mesh*  theMesh,
+                    const SMESHDS_Mesh*  aMesh,
                     const int            nEdge,
                     const TopoDS_Shape*  t_Edge) {
 
@@ -270,7 +261,7 @@ static int findEdge(const SMDS_MeshNode* aNode,
   }
 
   delete [] t_Dist;
-  return theMesh->ShapeToIndex( foundEdge );
+  return aMesh->ShapeToIndex( foundEdge );
 }
 
 //=======================================================================
@@ -356,269 +347,8 @@ static void removeHexoticFiles(TCollection_AsciiString file_In, TCollection_Asci
 }
 
 //=======================================================================
-//function : writeHexoticFile
-//purpose  : 
-//=======================================================================
-
-static bool writeHexoticFile (std::ofstream&                       theFile,
-                              const SMESHDS_Mesh*                  theMesh,
-                              std::map <int,int>&                  theSmdsToHexoticIdMap,
-                              std::map <int,const SMDS_MeshNode*>& /*theHexoticIdToNodeMap*/,
-                              const TCollection_AsciiString&       Hexotic_In) {
-  cout << std::endl;
-  cout << "Creating Hexotic processed mesh file : " << Hexotic_In << std::endl;
-
-  int nbShape = 0;
-
-  TopExp_Explorer expface(theMesh->ShapeToMesh(), TopAbs_FACE);
-  for ( ; expface.More(); expface.Next() )
-    nbShape++;
-
-  int *tabID;
-  int *tabNodeId;
-  TopoDS_Shape *tabShape, aShape;
-
-  int shapeID;
-  bool idFound;
-
-  int nbVertices    = 0;
-  int nbTriangles   = 0;
-  const char* space = "  ";
-  int dummy_0D      = 0;
-  int dummy_2D;
-  int nbNodes = 0;
-
-  int aSmdsNodeID = 1;
-  const SMDS_MeshNode* aNode;
-  SMDS_NodeIteratorPtr itOnNode;
-
-  std::list< const SMDS_MeshElement* > faces;
-  std::list< const SMDS_MeshElement* >::iterator itListFace;
-  const SMDS_MeshElement* aFace;
-  SMESHDS_SubMesh* theSubMesh;
-  std::map<int,int>::const_iterator itOnSmdsNode;
-  SMDS_ElemIteratorPtr itOnSubNode, itOnSubFace;
-
-// Writing SMESH points into Hexotic File
-
-  nbVertices = theMesh->NbNodes();
-
-  theFile << "MeshVersionFormatted 2" << std::endl;
-  theFile << std::endl;
-  theFile << "Dimension" << std::endl;
-  theFile << 3 << std::endl;
-  theFile << "# Set of mesh vertices" << std::endl;
-  theFile << "Vertices" << std::endl;
-  theFile << nbVertices << std::endl;
-
-  tabID     = new int[nbShape];
-  tabNodeId = new int[ nbVertices ];
-  tabShape  = new TopoDS_Shape[nbShape];
-
-  itOnNode = theMesh->nodesIterator();
-  while ( itOnNode->more() ) {
-      aNode = itOnNode->next();
-      dummy_0D = aNode->getshapeId();
-      tabNodeId[ aSmdsNodeID - 1 ] = 0;
-      idFound  = false;
-      for ( int j=0; j< aSmdsNodeID; j++ ) {
-        if ( dummy_0D == tabNodeId[j] ) {
-          idFound = true;
-          break;
-        }
-      }
-      if ( ! idFound )
-        tabNodeId[ aSmdsNodeID - 1 ] = dummy_0D;
-      theSmdsToHexoticIdMap.insert(std::map <int,int>::value_type( aNode->GetID(), aSmdsNodeID ));
-      aSmdsNodeID++;
-      theFile << aNode->X() << space << aNode->Y() << space << aNode->Z() << space << dummy_0D << std::endl;
-      }
-
-// Writing SMESH faces into Hexotic File
-
-  ostringstream triaOut;
-  nbTriangles = 0;
-
-  expface.ReInit();
-  for ( int i = 0; expface.More(); expface.Next(), i++ ) {
-    tabID[i] = 0;
-    aShape   = expface.Current();
-    shapeID  = theMesh->ShapeToIndex( aShape );
-    idFound  = false;
-    for ( int j=0; j<=i; j++) {
-      if ( shapeID == tabID[j] ) {
-        idFound = true;
-        break;
-      }
-    }
-    if ( ! idFound ) {
-      tabID[i]    = shapeID;
-      tabShape[i] = aShape;
-    }
-  }
-  for ( int i=0; i<nbShape; i++ ) {
-    if ( ! (tabID[i] == 0) ) {
-      aShape      = tabShape[i];
-      shapeID     = tabID[i];
-      theSubMesh  = theMesh->MeshElements( aShape );
-      itOnSubFace = theSubMesh->GetElements();
-      while ( itOnSubFace->more() ) {
-        aFace    = itOnSubFace->next();
-        dummy_2D = shapeID;
-        
-        nbNodes = aFace->IsQuadratic() ? aFace->NbNodes()/2 : aFace->NbNodes();
-        if ( nbNodes == 3 ) // triangle
-        {
-          nbTriangles++;
-          for ( int i = 0; i < nbNodes; ++i )
-          {
-            aSmdsNodeID = aFace->GetNode( i )->GetID();
-            itOnSmdsNode = theSmdsToHexoticIdMap.find( aSmdsNodeID );
-            ASSERT( itOnSmdsNode != theSmdsToHexoticIdMap.end() );
-            triaOut << (*itOnSmdsNode).second << space;
-          }
-          triaOut << dummy_2D << std::endl;
-        }
-        else // polygon
-        {
-          int nbTria = nbNodes - 2, n0 = theSmdsToHexoticIdMap[ aFace->GetNode(0)->GetID() ];
-          nbTriangles += nbTria;
-          for ( int i = 0; i < nbTria; ++i )
-          {
-            triaOut << n0 << space;
-            triaOut << theSmdsToHexoticIdMap[ aFace->GetNode(i+1)->GetID() ] << space;
-            triaOut << theSmdsToHexoticIdMap[ aFace->GetNode(i+2)->GetID() ] << space;
-            triaOut << dummy_2D << std::endl;
-          }
-        }
-      }
-    }
-  }
-
-  theFile << std::endl;
-  theFile << "# Set of mesh triangles (v1,v2,v3,tag)" << std::endl;
-  theFile << "Triangles" << std::endl;
-  theFile << nbTriangles << std::endl;
-  theFile << triaOut.str() << std::endl;
-
-  theFile << std::endl;
-  theFile << "End" << std::endl;
-
-  cout << "Processed mesh file created, it contains :" << std::endl;
-  cout << "    " << nbVertices  << " vertices"  << std::endl;
-  cout << "    " << nbTriangles << " triangles" << std::endl;
-  cout << std::endl;
-
-  delete [] tabID;
-  delete [] tabNodeId;
-  delete [] tabShape;
-
-  return true;
-}
-
-//=======================================================================
-//function : writeHexoticFile
-//purpose  : 
-//=======================================================================
-
-static bool writeHexoticFile (std::ofstream&                       theFile,
-                              const SMESH_MesherHelper*            theHelper,
-                              std::map <int,int>&                  theSmdsToHexoticIdMap,
-                              const TCollection_AsciiString&       Hexotic_In)
-{
-  cout << std::endl;
-  cout << "Creating Hexotic processed mesh file : " << Hexotic_In << std::endl;
-
-  int nbVertices    = 0;
-  int nbTriangles   = 0;
-  const char* space = "  ";
-  int dummy_0D      = 0;
-  int dummy_2D      = 0;
-
-  int aSmdsNodeID = 1;
-  const SMDS_MeshNode* aNode;
-  SMDS_NodeIteratorPtr itOnNode;
-
-  const SMDS_MeshElement* aFace;
-  std::map<int,int>::const_iterator itOnSmdsNode;
-  SMDS_ElemIteratorPtr itOnSubNode, itOnSubFace;
-
-  // Writing SMESH points into Hexotic File
-
-  nbVertices = theHelper->GetMeshDS()->NbNodes();
-
-  theFile << "MeshVersionFormatted 2" << std::endl;
-  theFile << std::endl;
-  theFile << "Dimension" << std::endl;
-  theFile << 3 << std::endl;
-  theFile << "# Set of mesh vertices" << std::endl;
-  theFile << "Vertices" << std::endl;
-  theFile << nbVertices << std::endl;
-
-  itOnNode = theHelper->GetMeshDS()->nodesIterator();
-  while ( itOnNode->more() )
-  {
-    aNode = itOnNode->next();
-    theSmdsToHexoticIdMap.insert(make_pair( aNode->GetID(), aSmdsNodeID ));
-    aSmdsNodeID++;
-    theFile << aNode->X() << space << aNode->Y() << space << aNode->Z() << space << dummy_0D << std::endl;
-  }
-
-  // Writing SMESH faces into Hexotic File
-
-  ostringstream triaOut;
-
-  itOnSubFace = theHelper->GetMeshDS()->elementsIterator(SMDSAbs_Face);
-  while ( itOnSubFace->more() )
-  {
-    aFace = itOnSubFace->next();
-    int nbNodes = aFace->IsQuadratic() ? aFace->NbNodes()/2 : aFace->NbNodes();
-    if ( nbNodes == 3 ) // triangle
-    {
-      nbTriangles++;
-      for ( int i = 0; i < nbNodes; ++i )
-      {
-        aSmdsNodeID = aFace->GetNode( i )->GetID();
-        itOnSmdsNode = theSmdsToHexoticIdMap.find( aSmdsNodeID );
-        ASSERT( itOnSmdsNode != theSmdsToHexoticIdMap.end() );
-        triaOut << (*itOnSmdsNode).second << space;
-      }
-      triaOut << dummy_2D << std::endl;
-    }
-    else // polygon
-    {
-      int nbTria = nbNodes - 2, n0 = theSmdsToHexoticIdMap[ aFace->GetNode(0)->GetID() ];
-      nbTriangles += nbTria;
-      for ( int i = 0; i < nbTria; ++i )
-      {
-        triaOut << n0 << space;
-        triaOut << theSmdsToHexoticIdMap[ aFace->GetNode(i+1)->GetID() ] << space;
-        triaOut << theSmdsToHexoticIdMap[ aFace->GetNode(i+2)->GetID() ] << space;
-        triaOut << dummy_2D << std::endl;
-      }
-    }
-  }
-
-  theFile << std::endl;
-  theFile << "# Set of mesh triangles (v1,v2,v3,tag)" << std::endl;
-  theFile << "Triangles" << std::endl;
-  theFile << nbTriangles << std::endl;
-  theFile << triaOut.str() << std::endl;
-
-  theFile << std::endl;
-  theFile << "End" << std::endl;
-
-  cout << "Processed mesh file created, it contains :" << std::endl;
-  cout << "    " << nbVertices  << " vertices"  << std::endl;
-  cout << "    " << nbTriangles << " triangles" << std::endl;
-  cout << std::endl;
-
-  return true;
-}
-
-//=======================================================================
 //function : readResult
-//purpose  : 
+//purpose  : Read GMF file in case of a mesh with geometry
 //=======================================================================
 
 static bool readResult(std::string         theFile,
@@ -628,8 +358,7 @@ static bool readResult(std::string         theFile,
                        SMESHDS_Mesh*       theMesh,
                        const int           nbShape,
                        const TopoDS_Shape* tabShape,
-                       double**            tabBox,
-                       const int           sdMode)
+                       double**            tabBox)
 {
   // ---------------------------------
   // Optimisation of the plugin ...
@@ -672,7 +401,6 @@ static bool readResult(std::string         theFile,
   TopoDS_Shape *tabCorner, *tabEdge;
 
   const int nbDomains = countShape( theMesh, TopAbs_SHELL );
-  MESSAGE("Nb domains in the meshed shape: " << nbDomains );
   const int holeID = -1;
 
   // tabID    = new int[nbShape];
@@ -850,7 +578,7 @@ static bool readResult(std::string         theFile,
               else {
                 shapeID = tabID[0];
               }
-              if ( (sdMode == 4 && shapeID != holeID) || sdMode != 2 )
+              if ( shapeID != holeID )
                 aHexoticElement = theMesh->AddVolume( node[0], node[3], node[2], node[1], node[4], node[7], node[6], node[5] );
               break;
             }
@@ -910,15 +638,14 @@ static bool readResult(std::string         theFile,
 
 //=======================================================================
 //function : readResult
-//purpose  : 
+//purpose  : Read GMF file in case of a mesh w/o geometry
 //=======================================================================
 
-static bool readResult(std::string            theFile,
+static bool readResult(std::string theFile,
 #ifdef WITH_SMESH_CANCEL_COMPUTE
-                       HexoticPlugin_Hexotic* theAlgo,
+                       HexoticPlugin_Hexotic*  theAlgo,
 #endif
-                       SMESH_MesherHelper*    theHelper,
-                       const int              sdMode)
+                       SMESH_MesherHelper* theHelper)
 {
   SMESHDS_Mesh* theMesh = theHelper->GetMeshDS();
 
@@ -1090,6 +817,7 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _hexoticNbProc = hyp->GetHexoticNbProc();
     _hexoticWorkingDirectory = hyp->GetHexoticWorkingDirectory();
     _hexoticVerbosity = hyp->GetHexoticVerbosity();
+    _hexoticMaxMemory = hyp->GetHexoticMaxMemory();
     _hexoticSdMode = hyp->GetHexoticSdMode();
   }
   else {
@@ -1106,6 +834,7 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _hexoticNbProc = hyp->GetDefaultHexoticNbProc();
     _hexoticWorkingDirectory = hyp->GetDefaultHexoticWorkingDirectory();
     _hexoticVerbosity = hyp->GetDefaultHexoticVerbosity();
+    _hexoticMaxMemory = hyp->GetDefaultHexoticMaxMemory();
     _hexoticSdMode = hyp->GetDefaultHexoticSdMode();
   }
 }
@@ -1151,6 +880,7 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   cout << "Hexotic execution..." << std::endl;
   cout << _name << " parameters :" << std::endl;
   cout << "    " << _name << " Verbosity = " << _hexoticVerbosity << std::endl;
+  cout << "    " << _name << " Max Memory = " << _hexoticMaxMemory << std::endl;
   cout << "    " << _name << " Segments Min Level = " << _hexesMinLevel << std::endl;
   cout << "    " << _name << " Segments Max Level = " << _hexesMaxLevel << std::endl;
   cout << "    " << _name << " Segments Min Size = " << _hexesMinSize << std::endl;
@@ -1171,8 +901,9 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   TCollection_AsciiString subdom = " -sd ", sharp = " -sharp ";
   TCollection_AsciiString proc = " -nproc ";
   TCollection_AsciiString verb = " -v ";
+  TCollection_AsciiString maxmem = " -m ";
 
-  TCollection_AsciiString minLevel, maxLevel, minSize, maxSize, sharpAngle, mode, nbproc, verbosity;
+  TCollection_AsciiString minLevel, maxLevel, minSize, maxSize, sharpAngle, mode, nbproc, verbosity, maxMemory;
   minLevel = _hexesMinLevel;
   maxLevel = _hexesMaxLevel;
   minSize = _hexesMinSize;
@@ -1181,6 +912,7 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   mode = _hexoticSdMode;
   nbproc = _hexoticNbProc;
   verbosity = _hexoticVerbosity;
+  maxMemory = _hexoticMaxMemory;
 
   if (_hexoticIgnoreRidges)
     run_Hexotic +=  ignoreRidges;
@@ -1207,6 +939,7 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   run_Hexotic += subdom + mode;
   run_Hexotic += proc + nbproc;
   run_Hexotic += verb + verbosity;
+  run_Hexotic += maxmem + maxMemory;
 
   return run_Hexotic.ToCString();
 }
@@ -1217,14 +950,14 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
  */
 //=============================================================================
 
-bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
-                                     const TopoDS_Shape& theShape)
+bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
+                                     const TopoDS_Shape& aShape)
 {
 #ifdef WITH_SMESH_CANCEL_COMPUTE
   _compute_canceled = false;
 #endif
   bool Ok = true;
-  SMESHDS_Mesh* meshDS = theMesh.GetMeshDS();
+  SMESHDS_Mesh* meshDS = aMesh.GetMeshDS();
   TCollection_AsciiString hexahedraMessage;
 
   if (_iShape == 0 && _nbShape == 0) {
@@ -1235,7 +968,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
   // to prevent from displaying error message after computing,
   // SetIsAlwaysComputed( true ) to empty sub-meshes
   for ( int i = 0; i < _nbShape; ++i )
-    if ( SMESH_subMesh* sm = theMesh.GetSubMeshContaining( theShape ))
+    if ( SMESH_subMesh* sm = aMesh.GetSubMeshContaining( aShape ))
     {
       SMESH_subMeshIteratorPtr smIt = sm->getDependsOnIterator(/*includeSelf=*/true,
                                                                /*complexShapeFirst=*/false);
@@ -1307,9 +1040,9 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
 #endif
       Hexotic_In  = aTmpDir + "Hexotic_In.mesh";
       removeHexoticFiles(Hexotic_In, Hexotic_Out);
-      std::ofstream HexoticFile (Hexotic_In.ToCString(), std::ios::out);
-      Ok = ( writeHexoticFile(HexoticFile, meshDS, aSmdsToHexoticIdMap, aHexoticIdToNodeMap, Hexotic_In) );
-      HexoticFile.close();
+      cout << std::endl;
+      cout << "Creating Hexotic input mesh file : " << Hexotic_In << std::endl;
+      aMesh.ExportGMF(Hexotic_In.ToCString(), meshDS, true);
 #ifdef WITH_BLSURFPLUGIN
     }
     else {
@@ -1324,14 +1057,6 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
     cout << std::endl;
     cout << "Hexotic command : " << run_Hexotic << std::endl;
 
-    
-//     removeHexoticFiles(Hexotic_In, Hexotic_Out);
-// 
-//     std::ofstream HexoticFile (Hexotic_In.ToCString(), std::ios::out);
-// 
-//     Ok = ( writeHexoticFile(HexoticFile, meshDS, aSmdsToHexoticIdMap, aHexoticIdToNodeMap, Hexotic_In) );
-
-//     HexoticFile.close();
     modeFile_In += Hexotic_In;
     system( modeFile_In.ToCString() );
     aSmdsToHexoticIdMap.clear();
@@ -1353,8 +1078,22 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          theMesh,
 #ifdef WITH_SMESH_CANCEL_COMPUTE
                        this,
 #endif
-                       meshDS, _nbShape, tabShape, tabBox, _hexoticSdMode );
+                       meshDS, _nbShape, tabShape, tabBox );
       if(Ok)
+/*********************
+// TODO: Detect and remove elements in holes in case of sd mode = 4
+      // Remove previous nodes and elements
+      SMDS_ElemIteratorPtr itElement = meshDS->elementsIterator();
+      SMDS_NodeIteratorPtr itNode = meshDS->nodesIterator();
+    
+      while ( itElement->more() )
+        meshDS->RemoveElement( itElement->next() );
+      while ( itNode->more() )
+        meshDS->RemoveNode( itNode->next() );
+  
+      SMESH_ComputeErrorPtr myError = aMesh.GMFToMesh(Hexotic_Out.ToCString());
+      if (myError)
+*/
         hexahedraMessage = "success";
       else
         hexahedraMessage = "failed";
@@ -1406,6 +1145,9 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
 #ifdef WITH_SMESH_CANCEL_COMPUTE
   _compute_canceled = false;
 #endif
+/*
+  SMESH_ComputeErrorPtr myError = SMESH_ComputeError::New();
+*/
   bool Ok = true;
   TCollection_AsciiString hexahedraMessage;
 
@@ -1425,16 +1167,11 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   std::string run_Hexotic = getHexoticCommand(Hexotic_In, Hexotic_Out);
   run_Hexotic += std::string(" 1 > ") + aLogFileName.ToCString();  // dump into file
 
-  cout << std::endl;
-  cout << "Hexotic command : " << run_Hexotic << std::endl;
-
   removeHexoticFiles(Hexotic_In, Hexotic_Out);
 
-  std::ofstream HexoticFile (Hexotic_In.ToCString(), std::ios::out);
-
-  Ok = ( writeHexoticFile(HexoticFile, aHelper, aSmdsToHexoticIdMap, Hexotic_In) );
-
-  HexoticFile.close();
+  cout << std::endl;
+  cout << "Creating Hexotic input mesh file : " << Hexotic_In << std::endl;
+  aMesh.ExportGMF(Hexotic_In.ToCString(), aHelper->GetMeshDS());
   modeFile_In += Hexotic_In;
   system( modeFile_In.ToCString() );
   aSmdsToHexoticIdMap.clear();
@@ -1442,6 +1179,8 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
 
   MESSAGE("HexoticPlugin_Hexotic::Compute");
 
+  cout << std::endl;
+  cout << "Hexotic command : " << run_Hexotic << std::endl;
   system( run_Hexotic.data() );
 
   // --------------
@@ -1456,13 +1195,40 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
 #ifdef WITH_SMESH_CANCEL_COMPUTE
                      this,
 #endif
-                     aHelper, _hexoticSdMode );
+                     aHelper );
     if(Ok)
+/*
+    // Remove previous nodes and elements
+    SMDS_ElemIteratorPtr itElement = aHelper->GetMeshDS()->elementsIterator();
+    SMDS_NodeIteratorPtr itNode = aHelper->GetMeshDS()->nodesIterator();
+    
+    while ( itElement->more() )
+      aHelper->GetMeshDS()->RemoveElement( itElement->next() );
+    while ( itNode->more() )
+      aHelper->GetMeshDS()->RemoveNode( itNode->next() );
+
+    // Import GMF mesh
+    myError = aMesh.GMFToMesh(Hexotic_Out.ToCString());
+    
+    itElement = aHelper->GetMeshDS()->elementsIterator();
+    itNode = aHelper->GetMeshDS()->nodesIterator();
+
+    // Assign nodes and elements to the pseudo shape
+    while ( itNode->more() )
+      aHelper->GetMeshDS()->SetNodeInVolume(itNode->next(), 1);
+    while ( itElement->more() )
+      aHelper->GetMeshDS()->SetMeshElementOnShape(itElement->next(), 1);
+
+    if(myError->IsOK())
+*/
       hexahedraMessage = "success";
     else
       hexahedraMessage = "failed";
   }
   else {
+/*
+    myError->myName = COMPERR_EXCEPTION;
+*/
     hexahedraMessage = "failed";
     cout << "Problem with Hexotic output file " << Hexotic_Out << std::endl;
     // analyse log file
@@ -1484,6 +1250,9 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
     return error(SMESH_Comment("interruption initiated by user"));
 #endif
   return Ok;
+/*
+  return myError->IsOK();
+*/
 }
 
 //=============================================================================

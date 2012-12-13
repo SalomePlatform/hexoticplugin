@@ -76,6 +76,9 @@ module HexoticPlugin
    
     void SetHexoticVerbosity(in long value);
     long GetHexoticVerbosity();
+
+    void SetHexoticMaxMemory(in long value);
+    long GetHexoticMaxMemory();
   };
 };
 

@@ -44,10 +44,6 @@
         <translation>Autoriser des éléments invalides</translation>
     </message>
     <message>
-        <source>Hexotic_QUADRANGLES</source>
-        <translation>Quadrangles Salomé</translation>
-    </message>
-    <message>
         <source>Hexotic_SHARP_ANGLE_THRESHOLD</source>
         <translation>Seuil d&apos;un angle aigu en degrés</translation>
     </message>
@@ -66,6 +62,10 @@
     <message>
         <source>Hexotic_VERBOSITY</source>
         <translation>Verbosité</translation>
+    </message>
+    <message>
+        <source>Hexotic_MAX_MEMORY</source>
+        <translation>Mémoire maximum (MB)</translation>
     </message>
     <message>
         <source>Hexotic_SUBDOMAIN_MESH_MODE</source>

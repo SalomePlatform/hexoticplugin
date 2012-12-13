@@ -64,6 +64,10 @@
         <translation>Verbosity</translation>
     </message>
     <message>
+        <source>Hexotic_MAX_MEMORY</source>
+        <translation>Max memory (MB)</translation>
+    </message>
+    <message>
         <source>Hexotic_SUBDOMAIN_MESH_MODE</source>
         <translation>Sub-domains mesh mode</translation>
     </message>
