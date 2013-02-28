@@ -95,9 +95,7 @@ HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, int studyId, SMESH_Gen* 
 #ifdef WITH_BLSURFPLUGIN
   _blsurfHypo = NULL;
 #endif
-#ifdef WITH_SMESH_CANCEL_COMPUTE
   _compute_canceled = false;
-#endif
 }
 
 //=============================================================================
@@ -962,11 +960,11 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
 
   if (_iShape == 0 && _nbShape == 0) {
     _nbShape = countShape( meshDS, TopAbs_SOLID );  // we count the number of shapes
-    //_tabNode = new SMDS_MeshNode*[_nbShape];        // we declare the size of the node array
   }
 
   // to prevent from displaying error message after computing,
   // SetIsAlwaysComputed( true ) to empty sub-meshes
+  vector< SMESH_subMesh* > subMeshesAlwaysComp;
   for ( int i = 0; i < _nbShape; ++i )
     if ( SMESH_subMesh* sm = aMesh.GetSubMeshContaining( aShape ))
     {
@@ -976,17 +974,16 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
       {
         sm = smIt->next();
         if ( !sm->IsMeshComputed() )
+        {
           sm->SetIsAlwaysComputed( true );
+          subMeshesAlwaysComp.push_back( sm );
+        }
       }
     }
 
   _iShape++;
 
   if (_iShape == _nbShape ) {
-
-    // for (int i=0; i<_nbShape; i++)        // we destroy the (_nbShape - 1) nodes created and used
-    //   meshDS->RemoveNode( _tabNode[i] );  // to simulate successful mesh computing.
-    // delete [] _tabNode;
 
     // create bounding box for each shape of the compound
 
@@ -1064,7 +1061,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
 
     MESSAGE("HexoticPlugin_Hexotic::Compute");
 
-    system( run_Hexotic.data() );
+    int status = system( run_Hexotic.data() );
 
     // --------------
     // read a result
@@ -1111,9 +1108,15 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
         if ( std::search( fileBeg, fileEnd, msgLic, msgLic+strlen(msgLic)) != fileEnd )
           error("Licence problems.");
       }
+      if ( status > 0 && WEXITSTATUS(status) == 127 )
+        error("hexotic: command not found");
     }
     cout << "Hexahedra meshing " << hexahedraMessage << std::endl;
     cout << std::endl;
+
+    // restore "always computed" flag of sub-meshes (0022127)
+    for  ( size_t iSM = 0; iSM < subMeshesAlwaysComp.size(); ++iSM )
+      subMeshesAlwaysComp[ iSM ]->SetIsAlwaysComputed( false );
 
     delete [] tabShape;
     for (int i=0; i<_nbShape; i++)
