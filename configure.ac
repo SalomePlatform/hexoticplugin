@@ -23,7 +23,7 @@
 # Author : Vadim SANDLER, Open CASCADE S.A.S (vadim.sandler@opencascade.com)
 # ---
 #
-AC_INIT([Salome2 Project HexoticPLUGIN module], [7.0.0], [webmaster.salome@opencascade.com], [SalomeHexoticPLUGIN])
+AC_INIT([Salome2 Project HexoticPLUGIN module], [7.1.0], [webmaster.salome@opencascade.com], [SalomeHexoticPLUGIN])
 AC_CONFIG_AUX_DIR(adm_local/unix/config_files)
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
@@ -31,7 +31,7 @@ AM_INIT_AUTOMAKE([-Wno-portability])
 
 XVERSION=`echo $VERSION | awk -F. '{printf("0x%02x%02x%02x",$1,$2,$3)}'`
 AC_SUBST(XVERSION)
-VERSION_DEV=1
+VERSION_DEV=0
 AC_SUBST(VERSION_DEV)
 
 # set up MODULE_NAME variable for dynamic construction of directories (resources, etc.)
