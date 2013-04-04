@@ -468,6 +468,7 @@ AC_OUTPUT([ \
   HexoticPLUGIN_version.h \
   doc/Makefile \
   doc/salome/Makefile \
+  doc/salome/examples/Makefile \
   doc/salome/gui/Makefile \
   doc/salome/gui/HexoticPLUGIN/Makefile \
   doc/salome/gui/HexoticPLUGIN/doxyfile \

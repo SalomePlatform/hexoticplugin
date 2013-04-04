@@ -17,18 +17,19 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-# -* Makefile *- 
-# Author : Patrick GOLDBRONN (CEA)
-# Date : 30/11/2001
-#  Modified by : Alexander BORODIN (OCN) - autotools usage
-# $Header:
+#  File   : Makefile
+#  Author : Alexander KOVALEV (Open Cascade NN)
+#  Modified by : 
+#  Module : doc
 #
-SUBDIRS = examples gui
-SUBDIRSGUI = gui
+include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-usr_docs:
-	@@SETX@; for d in $(SUBDIRSGUI); do 	\
-	   (cd $$d && $(MAKE) $@) || exit 1; 	\
-	done;
+pyexamplesdir = $(docdir)/examples/HexoticPLUGIN
 
-docs: usr_docs
+pyexamples_SCRIPTS = hexoticdemo.py \
+		     hexoticsubdom1.py \
+		     hexoticsubdom2.py \
+		     hexoticsubdom3.py \
+		     hexoticsubdom4.py
+		     
+EXTRA_DIST += $(pyexamples_SCRIPTS)

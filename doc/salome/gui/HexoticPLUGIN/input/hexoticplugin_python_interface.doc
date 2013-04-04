@@ -2,7 +2,7 @@
 
 \page hexoticplugin_python_interface_page Python Interface
 
-Python package HexoticPLUGINDC defines several classes, destined for creation of the 3D meshes.
+Python package HexoticPLUGIN defines several classes, destined for creation of the 3D meshes.
 
 Hexotic meshing plugin dynamically adds several methods to the smesh.Mesh class to create meshing algorithms.
 
@@ -19,32 +19,8 @@ Below you can see an example of usage of the HexoticPlugin Python API for mesh g
 
 \section tui_hexotic_basic Construction of Mesh using Hexotic algorithm
 
-\code
-import geompy
-import smesh
-
-# create a sphere
-sphere = geompy.MakeSphereR(100.)
-geompy.addToStudy(sphere, "sphere")
-
-# create a mesh on the sphere
-hexoticMesh = smesh.Mesh(sphere,"sphere: BLSurf and Hexotic mesh")
-
-# create a BLSurf algorithm for faces
-BLSURF = hexoticMesh.Triangle(algo=smesh.BLSURF)
-BLSURF.SetGeometricMesh( 1 )
-
-# create a Hexotic algorithm for volumes
-HEXOTIC = hexoticMesh.Hexahedron(algo=smesh.Hexotic)
-
-# compute the mesh
-hexoticMesh.Compute()
-
-# Change the level of subdivision
-HEXOTIC.SetMinMaxHexes(4, 8)
-
-# End of script
-\endcode
+<h2>Example of mesh generation with Hexotic algorithm:</h2>
+\tui_script{hexoticdemo.py}
 
 \image html hexotic_basic_subdivisions_4_8.png Left: Hexotic mesh without hypothesis, right: Hexotic mesh with an hypothesis defined by minl=4 and maxl=8
 
@@ -56,59 +32,8 @@ This example illustrates the sub-domain mode of Hexotic.
 
 \subsection tui_hexotic_sd_mode1 Sub-domain mode = 1
 
-\code
-import SALOMEDS
-import geompy
-import smesh
-
-# Create geometry: a box cut by a holed sphere
-Box_1 = geompy.MakeBoxDXDYDZ(200, 200, 200)
-Sphere_1 = geompy.MakeSphereR(75)
-Sphere_2 = geompy.MakeSphereR(25)
-geompy.TranslateDXDYDZ(Box_1, -100, -100, -100)
-Cut_1 = geompy.MakeCut(Sphere_1, Sphere_2)
-Cut_2 = geompy.MakeCut(Box_1, Cut_1)
-geompy.addToStudy( Box_1, 'Box_1' )
-geompy.addToStudy( Sphere_1, 'Sphere_1' )
-geompy.addToStudy( Sphere_2, 'Sphere_2' )
-geompy.addToStudy( Cut_1, 'Cut_1' )
-geompy.addToStudy( Cut_2, 'Cut_2' )
-
-# Create filters
-# aFilter1: elements inside small sphere
-aFilter1 = smesh.GetFilterFromCriteria([smesh.GetCriterion(smesh.VOLUME,smesh.FT_BelongToGeom,smesh.FT_Undefined,Sphere_2)])
-# aFilter2: elements inside big sphere and not inside small sphere
-aFilter2 = smesh.GetFilterFromCriteria([smesh.GetCriterion(smesh.VOLUME,smesh.FT_BelongToGeom,smesh.FT_Undefined,Sphere_1, smesh.FT_LogicalAND),
-                                        smesh.GetCriterion(smesh.VOLUME,smesh.FT_BelongToGeom,smesh.FT_Undefined,Sphere_2, smesh.FT_LogicalNOT)])
-# aFilter3: elements not inside big sphere
-aFilter3 = smesh.GetFilterFromCriteria([smesh.GetCriterion(smesh.VOLUME,smesh.FT_BelongToGeom,smesh.FT_Undefined,Sphere_1, smesh.FT_LogicalNOT)])
-
-# Create mesh of Cut_2 with sd mode 1
-print "Create mesh of Cut_2 with sd mode 1"
-Mesh_hexotic_sd1 = smesh.Mesh(Cut_2, "Mesh_hexotic_sd1")
-
-# Create the 2D algo: BlSurf with geometrical mesh
-Mesh_hexotic_sd1.Triangle(algo=smesh.BLSURF).Parameters().SetGeometricMesh( 1 )
-
-# Create the 3D algo: Hexotic with:
-# - minl = 4
-# - maxl = 8
-# - sd = 1
-Mesh_hexotic_sd1.Hexahedron(algo=smesh.Hexotic).SetMinMaxHexes(4, 8).SetHexoticSdMode( 1 )
-
-# Create the groups on filters
-g1 = Mesh_hexotic_sd1.GroupOnFilter(smesh.VOLUME, 'small sphere', aFilter1 )
-g1.SetColor( SALOMEDS.Color( 1, 0, 0 ))
-g2 = Mesh_hexotic_sd1.GroupOnFilter(smesh.VOLUME, 'big sphere - small sphere', aFilter2 )
-g2.SetColor( SALOMEDS.Color( 0, 1, 0 ))
-g3 = Mesh_hexotic_sd1.GroupOnFilter(smesh.VOLUME, 'box - big sphere', aFilter3 )
-g3.SetColor( SALOMEDS.Color( 0, 0, 1 ))
-
-# Compute
-Mesh_hexotic_sd1.Compute()
-
-# End of script
-\endcode
+<h2>Example of sub-domain mode 1 with Hexotic algorithm:</h2>
+\tui_script{hexoticsubdom1.py}
 
 \image html hexotic_sd_mode_1.png Hexotic mesh of a box cut by a holed sphere ( sd = 1 )
 
@@ -116,34 +41,8 @@ Mesh_hexotic_sd1.Compute()
 
 \subsection tui_hexotic_sd_mode2 Sub-domain mode = 2
 
-\code
-
-# Create mesh of Cut_2 with sd mode 2
-print "Create mesh of Cut_2 with sd mode 2"
-Mesh_hexotic_sd2 = smesh.Mesh(Cut_2, "Mesh_hexotic_sd2")
-
-# Create the 2D algo: BlSurf with geometrical mesh
-Mesh_hexotic_sd2.Triangle(algo=smesh.BLSURF).Parameters().SetGeometricMesh( 1 )
-
-# Create the 3D algo: Hexotic with:
-# - minl = 4
-# - maxl = 8
-# - sd = 2
-Mesh_hexotic_sd2.Hexahedron(algo=smesh.Hexotic).SetMinMaxHexes(4, 8).SetHexoticSdMode( 2 )
-
-# Create the groups on filters
-g1 = Mesh_hexotic_sd2.GroupOnFilter(smesh.VOLUME, 'small sphere', aFilter1 )
-g1.SetColor( SALOMEDS.Color( 1, 0, 0 ))
-g2 = Mesh_hexotic_sd2.GroupOnFilter(smesh.VOLUME, 'big sphere - small sphere', aFilter2 )
-g2.SetColor( SALOMEDS.Color( 0, 1, 0 ))
-g3 = Mesh_hexotic_sd2.GroupOnFilter(smesh.VOLUME, 'box - big sphere', aFilter3 )
-g3.SetColor( SALOMEDS.Color( 0, 0, 1 ))
-
-# Compute
-Mesh_hexotic_sd2.Compute()
-
-# End of script
-\endcode
+<h2>Example of sub-domain mode 2 with Hexotic algorithm:</h2>
+\tui_script{hexoticsubdom2.py}
 
 \image html hexotic_sd_mode_2.png Hexotic mesh of a box cut by a holed sphere ( sd = 2 )
 
@@ -151,34 +50,8 @@ Mesh_hexotic_sd2.Compute()
 
 \subsection tui_hexotic_sd_mode3 Sub-domain mode = 3
 
-\code
-
-# Create mesh of Cut_2 with sd mode 3
-print "Create mesh of Cut_2 with sd mode 3"
-Mesh_hexotic_sd3 = smesh.Mesh(Cut_2, "Mesh_hexotic_sd3")
-
-# Create the 2D algo: BlSurf with geometrical mesh
-Mesh_hexotic_sd3.Triangle(algo=smesh.BLSURF).Parameters().SetGeometricMesh( 1 )
-
-# Create the 3D algo: Hexotic with:
-# - minl = 4
-# - maxl = 8
-# - sd = 3
-Mesh_hexotic_sd3.Hexahedron(algo=smesh.Hexotic).SetMinMaxHexes(4, 8).SetHexoticSdMode( 3 )
-
-# Create the groups on filters
-g1 = Mesh_hexotic_sd3.GroupOnFilter(smesh.VOLUME, 'small sphere', aFilter1 )
-g1.SetColor( SALOMEDS.Color( 1, 0, 0 ))
-g2 = Mesh_hexotic_sd3.GroupOnFilter(smesh.VOLUME, 'big sphere - small sphere', aFilter2 )
-g2.SetColor( SALOMEDS.Color( 0, 1, 0 ))
-g3 = Mesh_hexotic_sd3.GroupOnFilter(smesh.VOLUME, 'box - big sphere', aFilter3 )
-g3.SetColor( SALOMEDS.Color( 0, 0, 1 ))
-
-# Compute
-Mesh_hexotic_sd3.Compute()
-
-# End of script
-\endcode
+<h2>Example of sub-domain mode 3 with Hexotic algorithm:</h2>
+\tui_script{hexoticsubdom3.py}
 
 \image html hexotic_sd_mode_3.png Hexotic mesh of a box cut by a holed sphere ( sd = 3 )
 
@@ -186,26 +59,8 @@ Mesh_hexotic_sd3.Compute()
 
 \subsection tui_hexotic_sd_mode4 Sub-domain mode = 4
 
-\code
-
-# Create geometry: a box cut by a plane
-Box_1 = geompy.MakeBoxDXDYDZ(200, 200, 200)
-Translation_1 = geompy.MakeTranslation(Box_1, 0, 200, 0)
-Partition_1 = geompy.MakePartition([Box_1, Translation_1], [], [], [], geompy.ShapeType["SOLID"], 0, [], 0)
-geompy.addToStudy( Box_1, 'Box_1' )
-geompy.addToStudy( Translation_1, 'Translation_1' )
-geompy.addToStudy( Partition_1, 'Partition_1' )
-
-# Create mesh of Partition_1 with sd mode 4 (default sd mode in SALOME)
-Mesh_hexotic_sd4 = smesh.Mesh(Partition_1, "Mesh_hexotic_sd4")
-Mesh_hexotic_sd4.Triangle(algo=smesh.BLSURF)
-Mesh_hexotic_sd4.Hexahedron(algo=smesh.Hexotic).SetMinMaxHexes(4, 8).SetHexoticSdMode( 4 )
-
-# Compute
-Mesh_hexotic_sd4.Compute()
-
-# End of script
-\endcode
+<h2>Example of sub-domain mode 4 with Hexotic algorithm:</h2>
+\tui_script{hexoticsubdom4.py}
 
 \image html hexotic_sd_mode_4.png Hexotic mesh of a box cut by a plane ( On the left, sd = 3: the internal surface is ignored ; on the right sd = 4: all sub-domains are meshed )
 

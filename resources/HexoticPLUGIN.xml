@@ -45,7 +45,7 @@
                need-geom="false"
                dim="3">
       <python-wrap>
-        <algo>Hexotic_3D=Hexahedron(algo=smesh.Hexotic)</algo>
+        <algo>Hexotic_3D=Hexahedron(algo=smeshBuilder.Hexotic)</algo>
         <hypo>Hexotic_Parameters=Parameters()</hypo>
       </python-wrap>
     </algorithm>

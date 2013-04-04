@@ -64,5 +64,8 @@ libHexoticEngine_la_LDFLAGS  =			\
 	$(BLSURFPLUGIN_LDFLAGS)
 
 # Scripts to be installed.
-dist_salomescript_DATA=HexoticPLUGINDC.py
-
+#dist_salomescript_DATA=HexoticPLUGINDC.py
+mypkgpythondir = $(salomepythondir)/salome/HexoticPLUGIN
+mypkgpython_PYTHON = \
+	__init__.py \
+	HexoticPLUGINBuilder.py

@@ -18,11 +18,11 @@
 #
 
 ##
-# @package HexoticPLUGINDC
+# @package HexoticPLUGINBuilder
 # Python API for the Hexotic meshing plug-in module.
 
-from smesh_algorithm import Mesh_Algorithm
-from smesh import AssureGeomPublished
+from salome.smesh.smesh_algorithm import Mesh_Algorithm
+from salome.smesh.smeshBuilder import AssureGeomPublished
 
 # import HexoticPlugin module if possible
 noHexoticPlugin = 0
