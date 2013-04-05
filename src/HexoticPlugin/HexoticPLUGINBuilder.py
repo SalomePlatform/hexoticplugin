@@ -45,16 +45,16 @@ Hexotic = "Hexotic_3D"
 
 ## Defines a hexahedron 3D algorithm
 #
-#  It is created by calling smesh.Mesh.Hexahedron( smesh.Hexotic, geom=0 )
+#  It is created by calling smeshBuilder.Mesh.Hexahedron( smeshBuilder.Hexotic, geom=0 )
 class Hexotic_Algorithm(Mesh_Algorithm):
 
-    ## name of the dynamic method in smesh.Mesh class
+    ## name of the dynamic method in smeshBuilder.Mesh class
     #  @internal
     meshMethod = "Hexahedron"
-    ## type of algorithm used with helper function in smesh.Mesh class
+    ## type of algorithm used with helper function in smeshBuilder.Mesh class
     #  @internal
     algoType   = Hexotic
-    ## doc string of the method in smesh.Mesh class
+    ## doc string of the method in smeshBuilder.Mesh class
     #  @internal
     docHelper  = "Creates hexahedron 3D algorithm for volumes"
 
