@@ -4,7 +4,7 @@
 
 Python package HexoticPLUGIN defines several classes, destined for creation of the 3D meshes.
 
-Hexotic meshing plugin dynamically adds several methods to the smesh.Mesh class to create meshing algorithms.
+Hexotic meshing plugin dynamically adds several methods to the smeshBuilder.Mesh class to create meshing algorithms.
 
 Below you can see an example of usage of the HexoticPlugin Python API for mesh generation:
 
