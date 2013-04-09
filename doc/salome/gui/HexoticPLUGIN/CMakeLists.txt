@@ -70,7 +70,7 @@ ENDIF(WINDOWS)
 FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/tmp_env.${EXT} "${SCR}")
 
 ADD_CUSTOM_TARGET(usr_docs mkdir -p tmp
-  COMMAND ${PYTHON_EXECUTABLE} ${f} -o tmp/BLSURFPluginBuilder.py ${CMAKE_SOURCE_DIR}/src/HexoticPlugin/HexoticPLUGINBuilder.py
+  COMMAND ${PYTHON_EXECUTABLE} ${f} -o tmp/HexoticPLUGINBuilder.py ${CMAKE_SOURCE_DIR}/src/HexoticPlugin/HexoticPLUGINBuilder.py
   COMMAND ${PYTHON_EXECUTABLE} ${f} -o tmp/smesh_algorithm.py ${SMESH_ROOT_DIR}/lib/python${PYTHON_VERSION}/site-packages/salome/salome/smesh/smesh_algorithm.py
   COMMAND ${CALL_STR} ${CMAKE_CURRENT_BINARY_DIR}/tmp_env.${EXT} && ${PYTHON_EXECUTABLE} ${f1} -d -o tmp/smeshBuilder.py HexoticPLUGIN
   COMMAND ${DOXYGEN_EXECUTABLE} doxyfile_py
