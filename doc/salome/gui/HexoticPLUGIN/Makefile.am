@@ -30,13 +30,19 @@ guidocdir = $(docdir)/gui/HexoticPLUGIN
 guidoc_DATA = images/head.png
 
 DOC_PYTHONPATH=$(prefix)/bin/salome:$(prefix)/lib/python$(PYTHON_VERSION)/site-packages/salome:$(SMESH_ROOT_DIR)/bin/salome:$(SMESH_ROOT_DIR)/lib/python$(PYTHON_VERSION)/site-packages/salome:$(MED_ROOT_DIR)/lib/python$(PYTHON_VERSION)/site-packages/salome:$(GEOM_ROOT_DIR)/bin/salome:$(GEOM_ROOT_DIR)/lib/python$(PYTHON_VERSION)/site-packages/salome:$(KERNEL_ROOT_DIR)/bin/salome:$(KERNEL_ROOT_DIR)/lib/python$(PYTHON_VERSION)/site-packages/salome:$(OMNIORB_ROOT)/lib/python$(PYTHON_VERSION)/site-packages:$(OMNIORB_ROOT)/lib64/python$(PYTHON_VERSION)/site-packages
-DOC_LD_LIBRARY_PATH=$(prefix)/lib/salome:${SMESH_ROOT_DIR}/lib/salome:${MED_ROOT_DIR}/lib/salome:${GEOM_ROOT_DIR}/lib/salome:${KERNEL_ROOT_DIR}/lib/salome
+DOC_LD_LIBRARY_PATH=$(prefix)/lib/salome:$(SMESH_ROOT_DIR)/lib/salome:$(MED_ROOT_DIR)/lib/salome:$(GEOM_ROOT_DIR)/lib/salome:$(KERNEL_ROOT_DIR)/lib/salome
 DOC_SMESH_MeshersList=HexoticPLUGIN
 
-smeshBuilder.py: $(top_srcdir)/src/HexoticPlugin/HexoticPLUGINBuilder.py
-	@PYTHONPATH=$(DOC_PYTHONPATH):${PYTHONPATH} LD_LIBRARY_PATH=$(DOC_LD_LIBRARY_PATH):${LD_LIBRARY_PATH} SMESH_MeshersList=$(DOC_SMESH_MeshersList) $(PYTHON) $(SMESH_ROOT_DIR)/bin/salome/collect_mesh_methods.py -d -o $@ HexoticPLUGIN
+tmp/smeshBuilder.py: $(top_srcdir)/src/HexoticPlugin/HexoticPLUGINBuilder.py
+	@mkdir -p tmp && PYTHONPATH=$(DOC_PYTHONPATH):${PYTHONPATH} LD_LIBRARY_PATH=$(DOC_LD_LIBRARY_PATH):${LD_LIBRARY_PATH} SMESH_MeshersList=$(DOC_SMESH_MeshersList) $(PYTHON) $(SMESH_ROOT_DIR)/bin/salome/collect_mesh_methods.py -d -o $@ HexoticPLUGIN
 
-usr_docs: doxyfile_py doxyfile smeshBuilder.py
+tmp/HexoticPLUGINBuilder.py: $(top_srcdir)/src/HexoticPlugin/HexoticPLUGINBuilder.py
+	@mkdir -p tmp && $(KERNEL_ROOT_DIR)/bin/salome/prepare_generating_doc.py -o $@ $<
+
+tmp/smesh_algorithm.py : @SMESH_ROOT_DIR@/lib/python@PYTHON_VERSION@/site-packages/salome/salome/smesh/smesh_algorithm.py
+	@mkdir -p tmp && $(KERNEL_ROOT_DIR)/bin/salome/prepare_generating_doc.py -o $@ $<
+
+usr_docs: doxyfile_py doxyfile tmp/smeshBuilder.py tmp/HexoticPLUGINBuilder.py tmp/smesh_algorithm.py
 	@$(DOXYGEN) doxyfile_py ; \
 	$(DOXYGEN) doxyfile
 
@@ -57,7 +63,7 @@ install-data-local: usr_docs
 	  case $${filen} in									\
 	    ./Makefile | ./doxyfile | ./doxyfile_py ) ;;					\
 	    ./doxyfile.bak | ./doxyfile_py.bak ) ;;						\
-	    . | .. | ./static ) ;;								\
+	    . | .. | ./static | ./tmp ) ;;								\
 	    *) echo "Installing $${filen}" ; cp -rp $${filen} $(DESTDIR)$(guidocdir) ;;	\
 	  esac ;										\
 	done ;
