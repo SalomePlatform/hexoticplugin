@@ -32,7 +32,7 @@
 template <class T> class HexoticPlugin_Creator_i:public HypothesisCreator_i<T>
 {
   // as we have 'module HexoticPlugin' in HexoticPlugin_Algorithm.idl
-  virtual std::string GetModuleName() { return "HexoticPlugin"; }
+  virtual std::string GetModuleName() { return "HexoticPLUGIN"; }
 };
 
 //=============================================================================
