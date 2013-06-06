@@ -64,6 +64,8 @@
 #include <TopTools_MapOfShape.hxx>
 #include <TopoDS.hxx>
 
+#include <Basics_Utils.hxx>
+
 static void removeFile( const TCollection_AsciiString& fileName )
 {
   try {
@@ -847,9 +849,16 @@ static TCollection_AsciiString getTmpDir()
   TCollection_AsciiString aTmpDir;
 
   char *Tmp_dir = getenv("SALOME_TMP_DIR");
+#ifdef WIN32
+  if(Tmp_dir == NULL) {
+    Tmp_dir = getenv("TEMP");
+    if( Tmp_dir== NULL )
+      Tmp_dir = getenv("TMP");
+#endif
+
   if(Tmp_dir != NULL) {
     aTmpDir = Tmp_dir;
-    #ifdef WIN32
+#ifdef WIN32
     if(aTmpDir.Value(aTmpDir.Length()) != '\\') aTmpDir+='\\';
 #else
     if(aTmpDir.Value(aTmpDir.Length()) != '/') aTmpDir+='/';
@@ -863,6 +872,24 @@ static TCollection_AsciiString getTmpDir()
 #endif
   }
   return aTmpDir;
+}
+
+//=======================================================================
+//function : getSuffix
+//purpose  : Returns a suffix that will be unique for the current process
+//=======================================================================
+
+static TCollection_AsciiString getSuffix()
+{
+  TCollection_AsciiString aSuffix = "";
+  aSuffix += "_";
+  aSuffix += getenv("USER");
+  aSuffix += "_";
+  aSuffix += Kernel_Utils::GetHostname().c_str();
+  aSuffix += "_";
+  aSuffix += getpid();
+
+  return aSuffix;
 }
 
 //================================================================================
@@ -1020,12 +1047,12 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
 #endif
     TCollection_AsciiString Hexotic_In(""), Hexotic_Out;
     TCollection_AsciiString modeFile_In( "chmod 666 " ), modeFile_Out( "chmod 666 " );
-    TCollection_AsciiString aLogFileName = aTmpDir + "Hexotic.log";    // log
+    TCollection_AsciiString aLogFileName = aTmpDir + "Hexotic"+getSuffix()+".log";    // log
 
     std::map <int,int> aSmdsToHexoticIdMap;
     std::map <int,const SMDS_MeshNode*> aHexoticIdToNodeMap;
 
-    Hexotic_Out = aTmpDir + "Hexotic_Out.mesh";
+    Hexotic_Out = aTmpDir + "Hexotic"+getSuffix()+"_Out.mesh";
 #ifdef WITH_BLSURFPLUGIN
     bool defaultInputFile = true;
     if (_blsurfHypo && !_blsurfHypo->GetQuadAllowed()) {
@@ -1035,7 +1062,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     }
     if (defaultInputFile) {
 #endif
-      Hexotic_In  = aTmpDir + "Hexotic_In.mesh";
+      Hexotic_In  = aTmpDir + "Hexotic"+getSuffix()+"_In.mesh";
       removeHexoticFiles(Hexotic_In, Hexotic_Out);
       cout << std::endl;
       cout << "Creating Hexotic input mesh file : " << Hexotic_In << std::endl;
@@ -1076,7 +1103,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
                        this,
 #endif
                        meshDS, _nbShape, tabShape, tabBox );
-      if(Ok)
+      if(Ok) {
 /*********************
 // TODO: Detect and remove elements in holes in case of sd mode = 4
       // Remove previous nodes and elements
@@ -1092,8 +1119,13 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
       if (myError)
 */
         hexahedraMessage = "success";
-      else
+	removeFile(Hexotic_Out);
+	removeFile(Hexotic_In);
+	removeFile(aLogFileName);
+      }
+      else {
         hexahedraMessage = "failed";
+    }
     }
     else {
       hexahedraMessage = "failed";
@@ -1159,13 +1191,13 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   TCollection_AsciiString aTmpDir = getTmpDir();
   TCollection_AsciiString Hexotic_In, Hexotic_Out;
   TCollection_AsciiString modeFile_In( "chmod 666 " ), modeFile_Out( "chmod 666 " );
-  TCollection_AsciiString aLogFileName = aTmpDir + "Hexotic.log";    // log
+  TCollection_AsciiString aLogFileName = aTmpDir + "Hexotic"+getSuffix()+".log";    // log
 
   std::map <int,int> aSmdsToHexoticIdMap;
   std::map <int,const SMDS_MeshNode*> aHexoticIdToNodeMap;
 
-  Hexotic_In  = aTmpDir + "Hexotic_In.mesh";
-  Hexotic_Out = aTmpDir + "Hexotic_Out.mesh";
+  Hexotic_In  = aTmpDir + "Hexotic"+getSuffix()+"_In.mesh";
+  Hexotic_Out = aTmpDir + "Hexotic"+getSuffix()+"_Out.mesh";
 
   std::string run_Hexotic = getHexoticCommand(Hexotic_In, Hexotic_Out);
   run_Hexotic += std::string(" 1 > ") + aLogFileName.ToCString();  // dump into file
@@ -1252,6 +1284,9 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   if(_compute_canceled)
     return error(SMESH_Comment("interruption initiated by user"));
 #endif
+  removeFile(Hexotic_Out);
+  removeFile(Hexotic_In);
+  removeFile(aLogFileName);
   return Ok;
 /*
   return myError->IsOK();

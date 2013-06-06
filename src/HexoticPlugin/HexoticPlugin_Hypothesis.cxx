@@ -304,20 +304,32 @@ int HexoticPlugin_Hypothesis::GetDefaultHexoticNbProc()
 
 std::string HexoticPlugin_Hypothesis::GetDefaultHexoticWorkingDirectory()
 {
-  TCollection_AsciiString aTmpDir;
+  std::string aTmpDir;
 
   char *Tmp_dir = getenv("SALOME_TMP_DIR");
-  if(Tmp_dir != NULL) {
-    aTmpDir = Tmp_dir;
+#ifdef WIN32
+  if(Tmp_dir == NULL) {
+    Tmp_dir = getenv("TEMP");
+    if( Tmp_dir== NULL )
+      Tmp_dir = getenv("TMP");
+  }
+#endif
+  if( Tmp_dir != NULL ) {
+    aTmpDir = std::string(Tmp_dir);
+#ifdef WIN32
+    if(aTmpDir[aTmpDir.size()-1] != '\\') aTmpDir+='\\';
+#else
+    if(aTmpDir[aTmpDir.size()-1] != '/') aTmpDir+='/';
+#endif
   }
   else {
 #ifdef WIN32
-    aTmpDir = TCollection_AsciiString("C:\\");
+    aTmpDir = "C:\\";
 #else
-    aTmpDir = TCollection_AsciiString("/tmp/");
+    aTmpDir = "/tmp/";
 #endif
   }
-  return aTmpDir.ToCString();
+  return aTmpDir;
 }
 
 int HexoticPlugin_Hypothesis::GetDefaultHexoticSdMode()
