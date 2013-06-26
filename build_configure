@@ -76,7 +76,6 @@ if test -d "${GUI_ROOT_DIR}"; then
     aclocal -I adm_local/unix/config_files \
             -I ${KERNEL_ROOT_DIR}/salome_adm/unix/config_files \
             -I ${GUI_ROOT_DIR}/adm_local/unix/config_files \
-            -I ${MED_ROOT_DIR}/adm_local/unix/config_files \
             -I ${GEOM_ROOT_DIR}/adm_local/unix/config_files \
             -I ${SMESH_ROOT_DIR}/adm_local/unix/config_files \
             -I ${BLSURFPLUGIN_ROOT_DIR}/adm_local/unix/config_files || exit 1
@@ -84,7 +83,6 @@ if test -d "${GUI_ROOT_DIR}"; then
     aclocal -I adm_local/unix/config_files \
             -I ${KERNEL_ROOT_DIR}/salome_adm/unix/config_files \
             -I ${GUI_ROOT_DIR}/adm_local/unix/config_files \
-            -I ${MED_ROOT_DIR}/adm_local/unix/config_files \
             -I ${GEOM_ROOT_DIR}/adm_local/unix/config_files \
             -I ${SMESH_ROOT_DIR}/adm_local/unix/config_files || exit 1
   fi
@@ -92,14 +90,12 @@ else
   if test -d "${BLSURFPLUGIN_ROOT_DIR}"; then
     aclocal -I adm_local/unix/config_files \
             -I ${KERNEL_ROOT_DIR}/salome_adm/unix/config_files \
-            -I ${MED_ROOT_DIR}/adm_local/unix/config_files \
             -I ${GEOM_ROOT_DIR}/adm_local/unix/config_files \
             -I ${SMESH_ROOT_DIR}/adm_local/unix/config_files \
             -I ${BLSURFPLUGIN_ROOT_DIR}/adm_local/unix/config_files || exit 1
   else
     aclocal -I adm_local/unix/config_files \
             -I ${KERNEL_ROOT_DIR}/salome_adm/unix/config_files \
-            -I ${MED_ROOT_DIR}/adm_local/unix/config_files \
             -I ${GEOM_ROOT_DIR}/adm_local/unix/config_files \
             -I ${SMESH_ROOT_DIR}/adm_local/unix/config_files || exit 1
   fi

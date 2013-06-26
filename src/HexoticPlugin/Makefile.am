@@ -52,7 +52,6 @@ libHexoticEngine_la_CPPFLAGS =			\
 	$(VTK_INCLUDES)	                        \
 	$(KERNEL_CXXFLAGS)			\
 	$(GUI_CXXFLAGS)				\
-	$(MED_CXXFLAGS)				\
 	$(GEOM_CXXFLAGS)			\
 	$(BLSURFPLUGIN_CXXFLAGS)
 
@@ -60,7 +59,7 @@ libHexoticEngine_la_LDFLAGS  =			\
 	../../idl/libSalomeIDLHexoticPLUGIN.la	\
 	$(SMESH_LDFLAGS) -lSMESHimpl -lSMESHEngine -lStdMeshersEngine -lSMDS -lSMESHDS -lSalomeIDLSMESH -lSMESHUtils \
 	$(KERNEL_LDFLAGS) -lSalomeGenericObj -lSALOMELocalTrace \
-	$(CAS_LDPATH) -lTKernel -lTKMath -lTKG3d -lTKTopAlgo -lTKBRep $(MED_LDFLAGS) -lSalomeIDLMED -lSALOMELocalTrace \
+	$(CAS_LDPATH) -lTKernel -lTKMath -lTKG3d -lTKTopAlgo -lTKBRep -lSALOMELocalTrace \
 	$(BLSURFPLUGIN_LDFLAGS)
 
 # Scripts to be installed.

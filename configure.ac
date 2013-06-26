@@ -342,14 +342,6 @@ CHECK_GEOM
 
 echo
 echo ---------------------------------------------
-echo Testing Med
-echo ---------------------------------------------
-echo
- 
-CHECK_MED
-
-echo
-echo ---------------------------------------------
 echo Testing SMesh
 echo ---------------------------------------------
 echo
@@ -377,13 +369,13 @@ echo
 #AM_CONDITIONAL( USE_GFORTRAN, [test "$F77" = "gfortran"])
 
 if test "${gui_ok}" = "yes"; then
-  variables="cc_ok boost_ok lex_yacc_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok omniORB_ok occ_ok doxygen_ok graphviz_ok Kernel_ok Geom_ok Med_ok SMesh_ok gui_ok"
+  variables="cc_ok boost_ok lex_yacc_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok omniORB_ok occ_ok doxygen_ok graphviz_ok Kernel_ok Geom_ok SMesh_ok gui_ok"
   opt_variables="Hexotic_ok BLSURFplugin_ok"
 elif test "${SalomeGUI_need}" != "no"; then
-  variables="cc_ok boost_ok lex_yacc_ok python_ok swig_ok threads_ok vtk_ok hdf5_ok omniORB_ok occ_ok doxygen_ok graphviz_ok Kernel_ok Geom_ok Med_ok SMesh_ok gui_ok"
+  variables="cc_ok boost_ok lex_yacc_ok python_ok swig_ok threads_ok vtk_ok hdf5_ok omniORB_ok occ_ok doxygen_ok graphviz_ok Kernel_ok Geom_ok SMesh_ok gui_ok"
   opt_variables="Hexotic_ok BLSURFplugin_ok"
 else
-  variables="cc_ok boost_ok lex_yacc_ok python_ok swig_ok threads_ok vtk_ok hdf5_ok omniORB_ok occ_ok doxygen_ok graphviz_ok Kernel_ok Geom_ok Med_ok SMesh_ok"
+  variables="cc_ok boost_ok lex_yacc_ok python_ok swig_ok threads_ok vtk_ok hdf5_ok omniORB_ok occ_ok doxygen_ok graphviz_ok Kernel_ok Geom_ok SMesh_ok"
   opt_variables="Hexotic_ok BLSURFplugin_ok"
 fi
 
