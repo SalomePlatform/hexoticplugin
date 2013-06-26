@@ -51,7 +51,6 @@ libHexoticPluginGUI_la_CPPFLAGS = 	\
 	$(KERNEL_CXXFLAGS)		\
 	$(GUI_CXXFLAGS)			\
 	$(GEOM_CXXFLAGS)		\
-	$(MED_CXXFLAGS)			\
 	$(SMESH_CXXFLAGS)		\
 	$(BOOST_CPPFLAGS)		\
 	$(CORBA_CXXFLAGS)		\

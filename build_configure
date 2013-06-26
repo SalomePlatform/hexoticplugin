@@ -42,14 +42,6 @@ fi
 #fi
 
 ########################################################################
-# Test if the MED_ROOT_DIR is set correctly
-
-if test ! -d "${MED_ROOT_DIR}"; then
-    echo "failed : MED_ROOT_DIR variable is not correct !"
-    exit
-fi
-
-########################################################################
 # Test if the GEOM_ROOT_DIR is set correctly
 
 if test ! -d "${GEOM_ROOT_DIR}"; then
