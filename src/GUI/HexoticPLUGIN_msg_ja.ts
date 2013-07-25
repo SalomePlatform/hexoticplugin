@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS>
+  <context>
+    <name>@default</name>
+    <message>
+      <source>Hexotic_3D_HYPOTHESIS</source>
+      <translation>Hexotic 3 D</translation>
+    </message>
+    <message>
+      <source>Hexotic_3D_TITLE</source>
+      <translation>仮説構築</translation>
+    </message>
+    <message>
+      <source>Hexotic_INPUT_SIZE</source>
+      <translation>サイズ</translation>
+    </message>
+    <message>
+      <source>Hexotic_INPUT_LEVEL</source>
+      <translation>細分化レベル</translation>
+    </message>
+    <message>
+      <source>Hexotic_MAX_SIZE</source>
+      <translation>最大サイズ</translation>
+    </message>
+    <message>
+      <source>Hexotic_MIN_SIZE</source>
+      <translation>最小サイズ</translation>
+    </message>
+    <message>
+      <source>Hexotic_HEXES_MAX_LEVEL</source>
+      <translation>注意 Hexes 最大レベル</translation>
+    </message>
+    <message>
+      <source>Hexotic_HEXES_MIN_LEVEL</source>
+      <translation>注意ヘックス分レベル</translation>
+    </message>
+    <message>
+      <source>Hexotic_IGNORE_RIDGES</source>
+      <translation>ない尾根滑らかなメッシュを生成します。</translation>
+    </message>
+    <message>
+      <source>Hexotic_INVALID_ELEMENTS</source>
+      <translation>無効な要素を承認します。</translation>
+    </message>
+    <message>
+      <source>Hexotic_SHARP_ANGLE_THRESHOLD</source>
+      <translation>鋭い角度度のしきい値</translation>
+    </message>
+    <message>
+      <source>Hexotic_NB_PROC</source>
+      <translation>スレッドの数</translation>
+    </message>
+    <message>
+      <source>Hexotic_WORKING_DIR</source>
+      <translation>作業ディレクトリ</translation>
+    </message>
+    <message>
+      <source>Hexotic_SELECT_DIR</source>
+      <translation>選択します.</translation>
+    </message>
+    <message>
+      <source>Hexotic_VERBOSITY</source>
+      <translation>詳細</translation>
+    </message>
+    <message>
+      <source>Hexotic_MAX_MEMORY</source>
+      <translation>最大メモリ (MB)</translation>
+    </message>
+    <message>
+      <source>Hexotic_SUBDOMAIN_MESH_MODE</source>
+      <translation>サブドメイン メッシュ モード</translation>
+    </message>
+    <message>
+      <source>Hexotic_SD_MODE_1</source>
+      <translation>1 つのドメイン</translation>
+    </message>
+    <message>
+      <source>Hexotic_SD_MODE_2</source>
+      <translation>虫歯は無視</translation>
+    </message>
+    <message>
+      <source>Hexotic_SD_MODE_3</source>
+      <translation>メッシュ空洞</translation>
+    </message>
+    <message>
+      <source>Hexotic_SD_MODE_4</source>
+      <translation>非-マニホールド ジオメトリ</translation>
+    </message>
+  </context>
+</TS>
