@@ -29,6 +29,8 @@
 
 #ifndef WIN32
 #include <sys/sysinfo.h>
+#else
+#include <errno.h>
 #endif
 
 #ifdef _DEBUG_
@@ -1140,8 +1142,15 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
         if ( std::search( fileBeg, fileEnd, msgLic, msgLic+strlen(msgLic)) != fileEnd )
           error("Licence problems.");
       }
+#ifndef WIN32
       if ( status > 0 && WEXITSTATUS(status) == 127 )
         error("hexotic: command not found");
+#else
+      int err = errno;
+      if ( status == 0 && err == ENOENT ) {
+        error("hexotic: command not found");
+      }
+#endif
     }
     cout << "Hexahedra meshing " << hexahedraMessage << std::endl;
     cout << std::endl;
