@@ -87,5 +87,29 @@
         <source>Hexotic_SD_MODE_4</source>
         <translation>Non-manifold geometries</translation>
     </message>
+    <message>
+        <source>Hexotic_ADD</source>
+        <translation>Add</translation>
+    </message>
+    <message>
+        <source>Hexotic_REMOVE</source>
+        <translation>Remove</translation>
+    </message>
+    <message>
+        <source>Hexotic_ENTRY</source>
+        <translation>Entry</translation>
+    </message>
+    <message>
+        <source>Hexotic_NAME</source>
+        <translation>Name</translation>
+    </message>
+    <message>
+        <source>Hexotic_SIZE</source>
+        <translation>Size</translation>
+    </message>
+    <message>
+        <source>Hexotic_SEL_SHAPE</source>
+        <translation>Select a shape</translation>
+    </message>
 </context>
 </TS>

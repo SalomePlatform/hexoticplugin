@@ -35,15 +35,17 @@ lib_LTLIBRARIES = libHexoticPluginGUI.la
 
 dist_libHexoticPluginGUI_la_SOURCES =		\
 	HexoticPluginGUI.cxx			\
-	HexoticPluginGUI_StdWidget.cxx \
-    HexoticPluginGUI_HypothesisCreator.cxx
+	HexoticPluginGUI_StdWidget.cxx 		\
+	HexoticPluginGUI_SizeMapsWidget.cxx 	\
+	HexoticPluginGUI_HypothesisCreator.cxx
 
 MOC_FILES = \
 	HexoticPluginGUI_HypothesisCreator_moc.cxx \
     HexoticPluginGUI_Dlg_moc.cxx
 
 UIC_FILES =     \
-        ui_HexoticPluginGUI_StdWidget_QTD.h
+        ui_HexoticPluginGUI_StdWidget_QTD.h	\
+	ui_HexoticPluginGUI_SizeMapsWidget_QTD.h
 
 BUILT_SOURCES = $(UIC_FILES)
 
@@ -60,6 +62,7 @@ libHexoticPluginGUI_la_CPPFLAGS = 	\
 	$(GUI_CXXFLAGS)			\
 	$(GEOM_CXXFLAGS)		\
 	$(SMESH_CXXFLAGS)		\
+	$(VTK_INCLUDES) 		\
 	$(BOOST_CPPFLAGS)		\
 	$(CORBA_CXXFLAGS)		\
 	$(CORBA_INCLUDES)		\
@@ -69,7 +72,7 @@ libHexoticPluginGUI_la_CPPFLAGS = 	\
 libHexoticPluginGUI_la_LDFLAGS =		           \
 	../HexoticPlugin/libHexoticEngine.la	           \
 	../../idl/libSalomeIDLHexoticPLUGIN.la \
-	${SMESH_LDFLAGS} -lSMESH		           \
+	${SMESH_LDFLAGS} -lSMESH -lStdMeshersGUI           \
 	$(CAS_KERNEL)                                      \
 	$(GUI_LDFLAGS) -lsuit -lqtx -lSalomeApp            \
 	$(QT_LIBS)

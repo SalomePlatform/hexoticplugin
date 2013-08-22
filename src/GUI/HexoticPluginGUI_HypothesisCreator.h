@@ -28,12 +28,15 @@
 #include "HexoticPluginGUI.h"
 
 #include <SMESHGUI_Hypotheses.h>
+#include "StdMeshersGUI_ObjectReferenceParamWdg.h"
+#include "HexoticPlugin_Hypothesis.hxx"
 
 class QtxIntSpinBox;
 class QCheckBox;
 class QLineEdit;
 
 class HexoticPluginGUI_StdWidget;
+class HexoticPluginGUI_SizeMapsWidget;
 
 typedef struct
 {
@@ -48,6 +51,7 @@ typedef struct
   int      myHexoticVerbosity;
   int      myHexoticMaxMemory;
   int      myHexoticSdMode;
+  HexoticPlugin_Hypothesis::THexoticSizeMaps mySizeMaps;
 } HexoticHypothesisData;
 
 /*!
@@ -76,17 +80,29 @@ protected:
 private:
   bool readParamsFromHypo( HexoticHypothesisData& ) const;
   bool readParamsFromWidgets( HexoticHypothesisData& ) const;
+  bool readSizeMapsFromWidgets( HexoticHypothesisData& ) const;
+  void insertLocalSizeInWidget( std::string entry, std::string shapeName, double size, int row ) const;
   bool storeParamsToHypo( const HexoticHypothesisData& ) const;
   void resizeEvent(QResizeEvent *event);
   void printData(HexoticHypothesisData&) const;
+  
+  GEOM::GEOM_Object_var entryToObject( std::string entry) const;
 
 private:
 
 //  QWidget* 		myStdGroup;
   QLineEdit* 	myName;
-  HexoticPluginGUI_StdWidget*	myStdWidget;
+  HexoticPluginGUI_StdWidget*	         myStdWidget;
+  HexoticPluginGUI_SizeMapsWidget*       mySmpWidget;
+  StdMeshersGUI_ObjectReferenceParamWdg* myGeomSelWdg;
 
- bool             myIs3D;
+  bool             myIs3D;
+  bool             mySizeMapRemoved;
+ 
+protected slots:
+  void             onAddLocalSize();
+  void             onRemoveLocalSize();
+  
 };
 
 #endif

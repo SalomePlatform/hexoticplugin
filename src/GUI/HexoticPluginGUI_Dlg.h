@@ -37,6 +37,7 @@ enum {
 //////////////////////////////////////////
 
 #include "ui_HexoticPluginGUI_StdWidget_QTD.h"
+#include "ui_HexoticPluginGUI_SizeMapsWidget_QTD.h"
 #include "HexoticPluginGUI.h"
 
 class HEXOTICPLUGIN_GUI_EXPORT HexoticPluginGUI_StdWidget : public QWidget,
@@ -54,6 +55,16 @@ public slots:
 
 public:
   QPixmap imageSdMode;
+};
+
+class HEXOTICPLUGIN_GUI_EXPORT HexoticPluginGUI_SizeMapsWidget : public QWidget,
+                                            public Ui::HexoticPluginGUI_SizeMapsWidget_QTD
+{
+  Q_OBJECT
+
+public:
+  HexoticPluginGUI_SizeMapsWidget( QWidget* = 0, Qt::WindowFlags = 0 );
+  ~HexoticPluginGUI_SizeMapsWidget();
 };
 
 
