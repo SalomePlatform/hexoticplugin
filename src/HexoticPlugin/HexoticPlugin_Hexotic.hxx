@@ -26,6 +26,7 @@
 #define _HexoticPlugin_Hexotic_HXX_
 
 #include "HexoticPlugin_Defs.hxx"
+#include "HexoticPlugin_Hypothesis.hxx"
 
 #include "SMESH_Algo.hxx"
 #include "SMESH_Mesh.hxx"
@@ -37,9 +38,16 @@
 
 #include <string>
 
+#include "DriverGMF_Read.hxx"
+#include "DriverGMF_Write.hxx"
+
+#include CORBA_CLIENT_HEADER(GEOM_Gen)
+#include <SMESH_Gen_i.hxx>
+
 class SMESH_Mesh;
 class HexoticPlugin_Hypothesis;
 class TCollection_AsciiString;
+class gp_Pnt;
 
 class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hexotic: public SMESH_3D_Algo
 {
@@ -76,7 +84,42 @@ protected:
 private:
 
   std::string getHexoticCommand(const TCollection_AsciiString& Hexotic_In,
-                                const TCollection_AsciiString& Hexotic_Out) const;
+                                const TCollection_AsciiString& Hexotic_Out,
+                                const TCollection_AsciiString& Hexotic_Sol) const;
+  
+  GEOM::GEOM_Object_var entryToGeomObj(std::string entry);
+  TopoDS_Shape     entryToShape(std::string entry);
+
+  std::vector<std::string> writeSizeMapFile(std::string fileName);
+  
+  // Functions to get sample point from shapes
+  void createControlPoints( const TopoDS_Shape& theShape, 
+                            const double& theSize, 
+                            std::vector< Control_Pnt >& thePoints );
+  void createPointsSampleFromEdge( const TopoDS_Shape& aShape, 
+                                   const double& theSize, 
+                                   std::vector<Control_Pnt>& thePoints );
+  void createPointsSampleFromFace( const TopoDS_Shape& aShape, 
+                                   const double& theSize, 
+                                   std::vector<Control_Pnt>& thePoints );
+  void createPointsSampleFromSolid( const TopoDS_Shape& aShape, 
+                                    const double& theSize, 
+                                    std::vector<Control_Pnt>& thePoints );
+  
+  // Some functions for surface sampling
+  void subdivideTriangle( const gp_Pnt& p1, 
+                          const gp_Pnt& p2, 
+                          const gp_Pnt& p3, 
+                          const double& theSize, 
+                          std::vector<Control_Pnt>& thePoints );
+  
+  std::vector<gp_Pnt> computePointsForSplitting( const gp_Pnt& p1, 
+                                                 const gp_Pnt& p2, 
+                                                 const gp_Pnt& p3 );
+  gp_Pnt tangencyPoint(const gp_Pnt& p1, 
+                       const gp_Pnt& p2, 
+                       const gp_Pnt& Center);
+  
 
   int  _iShape;
   int  _nbShape;
@@ -93,6 +136,7 @@ private:
   int _hexoticVerbosity;
   int _hexoticMaxMemory;
   int _hexoticSdMode;
+  HexoticPlugin_Hypothesis::THexoticSizeMaps _sizeMaps;
   SMDS_MeshNode** _tabNode;
   
 #ifdef WITH_BLSURFPLUGIN
@@ -102,6 +146,10 @@ private:
 #ifdef WITH_SMESH_CANCEL_COMPUTE
   volatile bool _compute_canceled;
 #endif
+  
+  SALOMEDS::Study_var myStudy;
+  SMESH_Gen_i*        smeshGen_i;
+
 };
 
 #endif

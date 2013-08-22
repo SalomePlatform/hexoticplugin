@@ -81,8 +81,7 @@ libHexoticPluginGUI_la_LDFLAGS =		           \
 nodist_salomeres_DATA =		\
 	HexoticPLUGIN_images.qm	\
 	HexoticPLUGIN_msg_en.qm \
-	HexoticPLUGIN_msg_fr.qm \
-	HexoticPLUGIN_msg_ja.qm
+	HexoticPLUGIN_msg_fr.qm
 
 SUBDIRS = resources
 

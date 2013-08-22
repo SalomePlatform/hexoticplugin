@@ -215,6 +215,49 @@ void HexoticPlugin_Hypothesis_i::SetHexoticMaxMemory (CORBA::Long theValue)
     SMESH::TPythonDump() << _this() << ".SetHexoticMaxMemory( " << theValue << " )";
 }
 
+HexoticPlugin::HexoticPluginSizeMapsList* HexoticPlugin_Hypothesis_i::GetSizeMaps ()
+{
+  // Get the std::map < string entry, double size >
+  HexoticPlugin::HexoticPluginSizeMapsList_var result = new HexoticPlugin::HexoticPluginSizeMapsList();
+  const ::HexoticPlugin_Hypothesis::THexoticSizeMaps sizeMaps = this->GetImpl()->GetSizeMaps();
+  result->length( sizeMaps.size() );
+  
+  // Write the content into a CORBA sequence of struct{ entry=anEntry; size=aSize; }
+  ::HexoticPlugin_Hypothesis::THexoticSizeMaps::const_iterator it = sizeMaps.begin(); 
+  for ( int i = 0; it != sizeMaps.end(); i++, it++ )
+  {
+    HexoticPlugin::HexoticPluginSizeMap_var aSizeMap = new HexoticPlugin::HexoticPluginSizeMap();
+    aSizeMap->entry = CORBA::string_dup( it->first.c_str() );
+    aSizeMap->size = it->second;
+    result[i] = aSizeMap;
+  }
+  return result._retn();
+}
+
+void HexoticPlugin_Hypothesis_i::SetSizeMapEntry ( const char* theEntry, CORBA::Double theSize )
+{
+  MESSAGE("HexoticPlugin_Hypothesis_i::SetSizeMapEntry");
+  std::string anEntry = theEntry;
+  bool valueChanged = this->GetImpl()->AddSizeMap(theEntry, theSize);
+  MESSAGE("valueChanged = "<<valueChanged);
+  if (valueChanged)
+    SMESH::TPythonDump() << _this() << ".SetSizeMap( "<< theEntry << ", " << theSize << " )";
+}
+
+void HexoticPlugin_Hypothesis_i::SetSizeMap (const GEOM::GEOM_Object_ptr theGeomObj, const double theSize)
+{
+  MESSAGE("HexoticPlugin_Hypothesis_i::SetSizeMap");
+  ASSERT(myBaseImpl);
+  std::string entry = theGeomObj->GetStudyEntry();
+  SetSizeMapEntry( entry.c_str(), theSize);
+}
+
+void HexoticPlugin_Hypothesis_i::ClearSizeMaps ()
+{
+  this->GetImpl()->ClearSizeMaps();
+  SMESH::TPythonDump() << _this() << ".ClearSizeMaps()";
+}
+
 //=============================================================================
 /*!
  *  HexoticPlugin_Hypothesis_i::GetHexesMinLevel

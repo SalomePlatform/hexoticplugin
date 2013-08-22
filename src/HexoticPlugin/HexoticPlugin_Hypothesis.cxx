@@ -46,7 +46,8 @@ HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, int studyId,
     _hexoticWorkingDirectory( GetDefaultHexoticWorkingDirectory() ),
     _hexoticSdMode(GetDefaultHexoticSdMode()),
     _hexoticVerbosity(GetDefaultHexoticVerbosity()),
-    _hexoticMaxMemory(GetDefaultHexoticMaxMemory())
+    _hexoticMaxMemory(GetDefaultHexoticMaxMemory()),
+    _sizeMaps(GetDefaultHexoticSizeMaps())
 {
   MESSAGE("HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis");
   _name = "Hexotic_Parameters";
@@ -125,7 +126,7 @@ void HexoticPlugin_Hypothesis::SetHexoticWorkingDirectory(const std::string& pat
 
 void HexoticPlugin_Hypothesis::SetHexoticSdMode(int theVal) {
   if (theVal != _hexoticSdMode) {
-	  _hexoticSdMode = theVal;
+    _hexoticSdMode = theVal;
     NotifySubMeshesHypothesisModification();
   }
 }
@@ -142,6 +143,35 @@ void HexoticPlugin_Hypothesis::SetHexoticMaxMemory(int theVal) {
     _hexoticMaxMemory = theVal;
     NotifySubMeshesHypothesisModification();
   }
+}
+
+bool HexoticPlugin_Hypothesis::AddSizeMap(std::string theEntry, double theSize) {
+  THexoticSizeMaps::iterator it;
+  it=_sizeMaps.find(theEntry);
+  if( it == _sizeMaps.end() ) // If no size map is defined on the given object
+  {
+    _sizeMaps[theEntry] = theSize;
+    MESSAGE("NEW size map, entry :"<<theEntry<<", size : "<<theSize);
+    NotifySubMeshesHypothesisModification();
+    return true;
+  }
+  else if( it->second != theSize ) // If a size map exists with a different size value
+  {
+    it->second = theSize;
+    MESSAGE("MODIFIED size map, entry :"<<theEntry<<"with size : "<<theSize);
+    NotifySubMeshesHypothesisModification();
+    return true;
+  }
+  else
+  {
+    MESSAGE("NO size map added")
+    return false; // No size map added
+  }
+}
+
+void HexoticPlugin_Hypothesis::ClearSizeMaps()
+{
+  _sizeMaps.clear();
 }
 
 //=============================================================================
@@ -345,6 +375,11 @@ int HexoticPlugin_Hypothesis::GetDefaultHexoticVerbosity()
 int HexoticPlugin_Hypothesis::GetDefaultHexoticMaxMemory()
 {
   return 2048;
+}
+
+HexoticPlugin_Hypothesis::THexoticSizeMaps HexoticPlugin_Hypothesis::GetDefaultHexoticSizeMaps()
+{
+  return THexoticSizeMaps();
 }
 
 

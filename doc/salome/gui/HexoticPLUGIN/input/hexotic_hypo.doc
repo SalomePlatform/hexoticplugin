@@ -6,6 +6,8 @@
 algorithm. This algorithm is a commercial software.
 \n To get a licence, visit http://www.distene.com/en/corp/eval-distene.html
 
+\section hexotic_general_parameters General parameters
+
 \image html hexotic_parameters.png
 
 <ul>
@@ -55,4 +57,21 @@ Parameters by default).</li>
 This allows to avoid the reconstruction of the GMF file from the SMESH structure and can improve the global computation time.
 
 <br><b>See Also</b> a sample TUI Script of the \ref tui_hexotic "creation of an Hexotic mesh"
+
+\section hexotic_local_size_parameters Local size
+
+The local size allows you to drive locally the density of the 3D mesh. 
+The area where the mesh has to be refined is given as a geometrical shape.
+
+\image html hexotic_local_size_parameters.png
+ 
+<ul>
+<li><b>Selection field (Shape)</b> - Area where the hexaedral mesh has to be refined. You can select any kind of shape (vertex, edge, face, solid, ...). The shape can be a subshape of the main shape or not.</li>
+<li><b>Local size</b> - Expected size of the hexahedral mesh in (Solid) or near the given shape</li>
+<li><b>Add button</b> - Add the local size to the list of local sizes (showed on the left)</li>
+<li><b>Remove button</b> - Remove a local size frome the list, select the local size in the list and press <i>Remove</i> </li>
+</ul>
+
+\note The local size will only influence the density towards a locally denser mesh. If the required density is coarser than the one determined automatically by the global size parameters 
+(min size, max size, min level, max level), it will be ignored and the default density will be used.
 */

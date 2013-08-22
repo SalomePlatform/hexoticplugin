@@ -86,6 +86,20 @@ class Hexotic_Algorithm(Mesh_Algorithm):
         self.Parameters().SetMinSize(min)
         self.Parameters().SetMaxSize(max)
         return self.Parameters()
+         
+    ## Sets a size map
+    #  @param theObject geometrical object to assign local size to
+    #  @param theSize local size on the given object
+    #  @return hypothesis object
+    def SetSizeMap(self, theObject, theSize):
+        AssureGeomPublished( self.mesh, theObject )
+        self.Parameters().SetSizeMap(theObject, theSize)
+        return self.Parameters()
+      
+    ## Clears all size maps : this is meant to be used only by the dump
+    def ClearSizeMaps(self):
+        self.Parameters().ClearSizeMaps()
+        return self.Parameters()
 
     ## (OBSOLETE) Defines "MinMaxQuad" hypothesis to give three hexotic parameters
     #  @param min minimal level of recursive partitioning on the initial octree cube

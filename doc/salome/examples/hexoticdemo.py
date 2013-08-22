@@ -24,10 +24,25 @@ BLSURF.SetGeometricMesh( 1 )
 # create a Hexotic algorithm for volumes
 HEXOTIC = hexoticMesh.Hexahedron(algo=smeshBuilder.Hexotic)
 
-# compute the mesh
-hexoticMesh.Compute()
+## compute the mesh
+#hexoticMesh.Compute()
 
 # Change the level of subdivision
 HEXOTIC.SetMinMaxHexes(4, 8)
+
+## compute the mesh
+#hexoticMesh.Compute()
+
+# Local size
+
+# Get the sphere skin
+faces = geompy.SubShapeAll(sphere, geompy.ShapeType["FACE"])
+
+# Set a local size on the face
+HEXOTIC.SetMinMaxSize(10, 20)
+HEXOTIC.SetSizeMap(faces[0], 10)
+
+# compute the mesh
+hexoticMesh.Compute()
 
 # End of script

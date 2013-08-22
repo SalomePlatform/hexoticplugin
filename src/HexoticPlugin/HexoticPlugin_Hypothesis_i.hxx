@@ -83,6 +83,11 @@ class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
 
   void SetHexoticMaxMemory(CORBA::Long theVal);
   CORBA::Long GetHexoticMaxMemory();
+  
+  void SetSizeMapEntry(const char* theEntry, CORBA::Double theSize);
+  void SetSizeMap(GEOM::GEOM_Object_ptr theGeomObj, double theSize);
+  HexoticPlugin::HexoticPluginSizeMapsList* GetSizeMaps ();
+  void ClearSizeMaps();
 
   // Get implementation
   ::HexoticPlugin_Hypothesis* GetImpl();

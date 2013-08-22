@@ -30,6 +30,19 @@
 #include "SMESH_Hypothesis.hxx"
 #include "Utils_SALOME_Exception.hxx"
 
+#include <map>
+
+// class HexoticSizeMap
+// {
+// public:
+//   SizeMap(const TopoDS_Shape& theShape, double theSize)
+//   {
+//     shape=theShape;
+//     size=theSize;
+//   };
+//   TopoDS_Shape shape;
+//   double size;
+// }
 //  Parameters for work of Hexotic
 //
 
@@ -74,9 +87,18 @@ public:
 
   void SetHexoticMaxMemory(int theVal);
   int GetHexoticMaxMemory() const { return _hexoticMaxMemory; }
+  
+  // Size Maps
+  typedef std::map<std::string,double> THexoticSizeMaps;
+  
+  // For the GUI HexoticPluginGUI_HypothesisCreator::storeParamToHypo
+  THexoticSizeMaps GetSizeMaps() const { return _sizeMaps; }; 
+  void ClearSizeMaps();
+  
+  // Add one size map to the collection of size maps (user interface)
+  bool AddSizeMap(std::string theEntry, double theSize);
 
   // the parameters default values 
-
   static int GetDefaultHexesMinLevel();
   static int GetDefaultHexesMaxLevel();
   static double GetDefaultMinSize();
@@ -89,6 +111,7 @@ public:
   static int GetDefaultHexoticSdMode();
   static int GetDefaultHexoticVerbosity();
   static int GetDefaultHexoticMaxMemory();
+  static THexoticSizeMaps GetDefaultHexoticSizeMaps();
 
   // Persistence
   virtual std::ostream& SaveTo(std::ostream& save);
@@ -122,6 +145,7 @@ private:
   int    _hexoticSdMode;
   int    _hexoticVerbosity;
   int    _hexoticMaxMemory;
+  THexoticSizeMaps _sizeMaps;
   std::string _hexoticWorkingDirectory ;
 };
 

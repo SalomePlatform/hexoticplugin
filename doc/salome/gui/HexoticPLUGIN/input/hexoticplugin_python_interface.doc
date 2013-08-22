@@ -24,6 +24,11 @@ Below you can see an example of usage of the HexoticPLUGINBuilder Python API for
 
 \image html hexotic_basic_subdivisions_4_8.png Left: Hexotic mesh without hypothesis, right: Hexotic mesh with an hypothesis defined by minl=4 and maxl=8
 
+\subsection tui_local_size Local size
+
+\image html hexotic_local_size_example.png Example of use of a local size on the skin of a sphere
+
+
 \ref tui_hexotic "Back to top"
 
 \section tui_hexotic_sd_mode Effect of the sub-domain mode

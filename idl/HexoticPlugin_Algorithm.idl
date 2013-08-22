@@ -26,12 +26,23 @@
 #define _SMESH_HexoticALGORITHM_IDL_
 
 #include "SMESH_Hypothesis.idl"
+#include "GEOM_Gen.idl"
 
 /*!
  * HexoticPlugin: interfaces to Hexotic related hypotheses and algorithms
  */
 module HexoticPlugin
-{    
+{
+  /*!
+   * Type definitions for the size maps
+   */
+  struct HexoticPluginSizeMap {
+  string entry;
+  double size;
+  };
+  
+  typedef sequence<HexoticPluginSizeMap> HexoticPluginSizeMapsList;  
+
   /*!
    * HexoticPlugin_Hexotic: interface of Hexotic algorithm
    */
@@ -79,6 +90,13 @@ module HexoticPlugin
 
     void SetHexoticMaxMemory(in long value);
     long GetHexoticMaxMemory();
+
+    void SetSizeMapEntry(in string entry, 
+                         in double size);
+    void SetSizeMap(in GEOM::GEOM_Object GeomObj, 
+                    in double size);
+    void ClearSizeMaps();
+    HexoticPluginSizeMapsList GetSizeMaps();
   };
 };
 

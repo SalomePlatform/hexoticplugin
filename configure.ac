@@ -318,14 +318,6 @@ CHECK_HTML_GENERATORS
 
 echo
 echo ---------------------------------------------
-echo Testing Hexotic
-echo ---------------------------------------------
-echo
-
-CHECK_HEXOTIC
-
-echo
-echo ---------------------------------------------
 echo Testing Kernel
 echo ---------------------------------------------
 echo

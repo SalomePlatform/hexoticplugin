@@ -65,8 +65,17 @@
 #include <TopExp_Explorer.hxx>
 #include <TopTools_MapOfShape.hxx>
 #include <TopoDS.hxx>
+#include <gp_Pnt.hxx>
+#include <gp_Lin.hxx>
+#include <GCPnts_UniformAbscissa.hxx>
+#include <IntCurvesFace_Intersector.hxx>
+#include <BRepMesh_IncrementalMesh.hxx>
+#include <Poly_Triangulation.hxx>
+#include <gp_Ax3.hxx>
 
 #include <Basics_Utils.hxx>
+#include "GEOMImpl_Types.hxx"
+#include "GEOM_wrap.hxx"
 
 static void removeFile( const TCollection_AsciiString& fileName )
 {
@@ -100,6 +109,16 @@ HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, int studyId, SMESH_Gen* 
   _blsurfHypo = NULL;
 #endif
   _compute_canceled = false;
+  
+  // Copy of what is done in BLSURFPLugin TODO : share the code
+  smeshGen_i = SMESH_Gen_i::GetSMESHGen();
+  CORBA::Object_var anObject = smeshGen_i->GetNS()->Resolve("/myStudyManager");
+  SALOMEDS::StudyManager_var aStudyMgr = SALOMEDS::StudyManager::_narrow(anObject);
+  
+  myStudy = NULL;
+  myStudy = aStudyMgr->GetStudyByID(_studyId);
+  if (myStudy)
+    MESSAGE("myStudy->StudyId() = " << myStudy->StudyId());
 }
 
 //=============================================================================
@@ -821,6 +840,7 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _hexoticVerbosity = hyp->GetHexoticVerbosity();
     _hexoticMaxMemory = hyp->GetHexoticMaxMemory();
     _hexoticSdMode = hyp->GetHexoticSdMode();
+    _sizeMaps = hyp->GetSizeMaps();
   }
   else {
     cout << std::endl;
@@ -838,6 +858,7 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _hexoticVerbosity = hyp->GetDefaultHexoticVerbosity();
     _hexoticMaxMemory = hyp->GetDefaultHexoticMaxMemory();
     _hexoticSdMode = hyp->GetDefaultHexoticSdMode();
+    _sizeMaps = hyp->GetDefaultHexoticSizeMaps();
   }
 }
 
@@ -901,7 +922,8 @@ static TCollection_AsciiString getSuffix()
 //================================================================================
 
 std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiString& Hexotic_In,
-                                                     const TCollection_AsciiString& Hexotic_Out) const
+                                                     const TCollection_AsciiString& Hexotic_Out,
+                                                     const TCollection_AsciiString& Hexotic_SizeMap_Prefix) const
 {
   cout << std::endl;
   cout << "Hexotic execution..." << std::endl;
@@ -919,16 +941,17 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   cout << "    " << _name << " Working directory = \"" << _hexoticWorkingDirectory << "\"" << std::endl;
   cout << "    " << _name << " Sub. Dom mode = " << _hexoticSdMode << std::endl;
 
-  TCollection_AsciiString run_Hexotic( "hexotic" );
+  TCollection_AsciiString run_Hexotic( "mg-hexa.exe" );
 
-  TCollection_AsciiString minl = " -minl ", maxl = " -maxl ", angle = " -ra ";
-  TCollection_AsciiString mins = " -mins ", maxs = " -maxs ";
-  TCollection_AsciiString in   = " -in ",   out  = " -out ";
-  TCollection_AsciiString ignoreRidges = " -nr ", invalideElements = " -inv ";
-  TCollection_AsciiString subdom = " -sd ", sharp = " -sharp ";
-  TCollection_AsciiString proc = " -nproc ";
-  TCollection_AsciiString verb = " -v ";
-  TCollection_AsciiString maxmem = " -m ";
+  TCollection_AsciiString minl = " --min_level ", maxl = " --max_level ", angle = " --ridge_angle ";
+  TCollection_AsciiString mins = " --min_size ", maxs = " --max_size ";
+  TCollection_AsciiString in   = " --in ",   out  = " --out ";
+  TCollection_AsciiString sizeMap = " --read_sizemap ";
+  TCollection_AsciiString ignoreRidges = " --compute_ridges no ", invalideElements = " --allow_invalid_elements yes ";
+  TCollection_AsciiString subdom = " --components ";
+  TCollection_AsciiString proc = " --max_number_of_threads ";
+  TCollection_AsciiString verb = " --verbose ";
+  TCollection_AsciiString maxmem = " --max_memory ";
 
   TCollection_AsciiString minLevel, maxLevel, minSize, maxSize, sharpAngle, mode, nbproc, verbosity, maxMemory;
   minLevel = _hexesMinLevel;
@@ -936,7 +959,22 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   minSize = _hexesMinSize;
   maxSize = _hexesMaxSize;
   sharpAngle = _hexoticSharpAngleThreshold;
-  mode = _hexoticSdMode;
+  // Mode translation for mg-tetra 1.1
+  switch ( _hexoticSdMode )
+  {
+    case 1:
+      mode = "outside_skin_only";
+      break;
+    case 2:
+      mode = "outside_components";
+      break;
+    case 3:
+      mode = "all";
+      break;
+    case 4:
+      mode = "all --manifold_geometry no";
+      break;
+  }
   nbproc = _hexoticNbProc;
   verbosity = _hexoticVerbosity;
   maxMemory = _hexoticMaxMemory;
@@ -961,6 +999,9 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
 
   if (_hexoticSharpAngleThreshold > 0)
     run_Hexotic +=  angle + sharpAngle;
+  
+  if (_sizeMaps.begin() != _sizeMaps.end())
+    run_Hexotic += sizeMap + Hexotic_SizeMap_Prefix;
 
   run_Hexotic += in + Hexotic_In + out + Hexotic_Out;
   run_Hexotic += subdom + mode;
@@ -969,6 +1010,386 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   run_Hexotic += maxmem + maxMemory;
 
   return run_Hexotic.ToCString();
+}
+
+// TODO : this is a duplication of some code found in BLSURFPlugin_BLSURF find a proper
+// way to share it
+TopoDS_Shape HexoticPlugin_Hexotic::entryToShape(std::string entry)
+{
+  MESSAGE("HexoticPlugin_Hexotic::entryToShape "<<entry );
+  GEOM::GEOM_Object_var aGeomObj;
+  TopoDS_Shape S = TopoDS_Shape();
+  SALOMEDS::SObject_var aSObj = myStudy->FindObjectID( entry.c_str() );
+  if (!aSObj->_is_nil()) {
+    CORBA::Object_var obj = aSObj->GetObject();
+    aGeomObj = GEOM::GEOM_Object::_narrow(obj);
+    aSObj->UnRegister();
+  }
+  if ( !aGeomObj->_is_nil() )
+    S = smeshGen_i->GeomObjectToShape( aGeomObj.in() );
+  return S;
+}
+
+//================================================================================
+/*!
+ * \brief Produces a .mesh file with the size maps informations to give to Hexotic
+ */
+//================================================================================
+std::vector<std::string> HexoticPlugin_Hexotic::writeSizeMapFile( std::string sizeMapPrefix )
+{
+  HexoticPlugin_Hypothesis::THexoticSizeMaps::iterator it ;
+  
+  // The GMF driver will be used to write the size map file
+  DriverGMF_Write aWriter;
+  aWriter.SetSizeMapPrefix( sizeMapPrefix ); 
+  
+  std::vector<Control_Pnt> points;
+  // Iterate on the size maps
+  for (it=_sizeMaps.begin(); it!=_sizeMaps.end(); it++)
+  {
+    // Step 1 : Get the GEOM object entry and the size 
+    // from the _sizeMaps infos
+    std::string anEntry = it->first;
+    double aLocalSize = it->second;
+    TopoDS_Shape aShape = entryToShape( anEntry );
+    
+    // Step 2 : Create the points
+    createControlPoints( aShape, aLocalSize, points );
+  }
+  // Write the .mesh size map file
+  aWriter.PerformSizeMap(points); 
+  return aWriter.GetSizeMapFiles();
+}
+
+//================================================================================
+/*!
+ * \brief Fills a vector of points from which a size map input file can be written
+ */
+//================================================================================
+void HexoticPlugin_Hexotic::createControlPoints( const TopoDS_Shape& aShape, 
+                                                 const double& theSize, 
+                                                 std::vector<Control_Pnt>& thePoints )
+{ 
+  if ( aShape.ShapeType() == TopAbs_VERTEX )
+  {
+    gp_Pnt aPnt = BRep_Tool::Pnt( TopoDS::Vertex(aShape) );
+    Control_Pnt aControl_Pnt( aPnt, theSize );
+    thePoints.push_back( aControl_Pnt );
+  }
+  if ( aShape.ShapeType() == TopAbs_EDGE )
+  {
+    createPointsSampleFromEdge( aShape, theSize, thePoints );  
+  }
+  else if ( aShape.ShapeType() == TopAbs_WIRE )
+  {
+    TopExp_Explorer Ex;
+    for (Ex.Init(aShape,TopAbs_EDGE); Ex.More(); Ex.Next()) 
+    {
+      createPointsSampleFromEdge( Ex.Current(), theSize, thePoints );
+    } 
+  }
+  else if ( aShape.ShapeType() ==  TopAbs_FACE )
+  {
+    createPointsSampleFromFace( aShape, theSize, thePoints ); 
+  }
+  else if ( aShape.ShapeType() ==  TopAbs_SOLID )
+  {
+    createPointsSampleFromSolid( aShape, theSize, thePoints ); 
+  }
+  else if ( aShape.ShapeType() == TopAbs_COMPOUND )
+  {
+    TopoDS_Iterator it( aShape );
+    for(; it.More(); it.Next())
+    {
+      createControlPoints( it.Value(), theSize, thePoints );
+    }
+  }
+}
+
+//================================================================================
+/*!
+ * \brief Fills a vector of points with point samples approximately 
+ * \brief spaced with a given size
+ */
+//================================================================================
+void HexoticPlugin_Hexotic::createPointsSampleFromEdge( const TopoDS_Shape& aShape, 
+                                                        const double& theSize, 
+                                                        std::vector<Control_Pnt>& thePoints )
+{
+  double step = theSize;
+  double first, last;  
+  Handle( Geom_Curve ) aCurve = BRep_Tool::Curve( TopoDS::Edge( aShape ), first, last );
+  GeomAdaptor_Curve C ( aCurve );
+  GCPnts_UniformAbscissa DiscretisationAlgo(C, step , first, last, Precision::Confusion());
+  int nbPoints = DiscretisationAlgo.NbPoints();
+  
+  for ( int i = 1; i <= nbPoints; i++ )
+  {
+    double param = DiscretisationAlgo.Parameter( i );
+    Control_Pnt aPnt;
+    aCurve->D0( param, aPnt );
+    aPnt.SetSize(theSize);
+    thePoints.push_back( aPnt );
+  }  
+}
+
+//================================================================================
+/*!
+ * \brief Fills a vector of points with point samples approximately 
+ * \brief spaced with a given size
+ */
+//================================================================================
+void HexoticPlugin_Hexotic::createPointsSampleFromFace( const TopoDS_Shape& aShape, 
+                                                        const double& theSize, 
+                                                        std::vector<Control_Pnt>& thePoints )
+{
+  BRepMesh_IncrementalMesh M(aShape, 0.01, Standard_True);
+  TopLoc_Location aLocation;
+  TopoDS_Face aFace = TopoDS::Face(aShape);
+  Handle(Geom_Surface) aSurf = BRep_Tool::Surface (aFace, aLocation);
+  Handle(Poly_Triangulation) aTri = BRep_Tool::Triangulation (aFace, aLocation);
+  
+  // Get triangles
+  int nbTriangles = aTri->NbTriangles();
+  Poly_Array1OfTriangle triangles(1,nbTriangles);
+  triangles=aTri->Triangles();
+  
+  // GetNodes
+  int nbNodes = aTri->NbNodes();
+  TColgp_Array1OfPnt nodes(1,nbNodes);
+  nodes = aTri->Nodes();
+
+  // Iterate on triangles and subdivide them
+  for(int i=1; i<=nbTriangles; i++)
+  {
+     Poly_Triangle aTriangle = triangles.Value(i);
+     gp_Pnt p1 = nodes.Value(aTriangle.Value(1));
+     gp_Pnt p2 = nodes.Value(aTriangle.Value(2));
+     gp_Pnt p3 = nodes.Value(aTriangle.Value(3));
+     
+     subdivideTriangle(p1, p2, p3, theSize, thePoints);  
+  }
+}
+
+//================================================================================
+/*!
+ * \brief Fills a vector of points with point samples approximately 
+ * \brief spaced with a given size
+ */
+//================================================================================
+void HexoticPlugin_Hexotic::createPointsSampleFromSolid( const TopoDS_Shape& aShape, 
+                                                         const double& theSize, 
+                                                         std::vector<Control_Pnt>& thePoints )
+{
+  // Compute the bounding box
+  double Xmin, Ymin, Zmin, Xmax, Ymax, Zmax;
+  Bnd_Box B;               
+  BRepBndLib::Add(aShape, B);
+  B.Get(Xmin, Ymin, Zmin, Xmax, Ymax, Zmax);
+  
+  // Create the points
+  double step = theSize;
+  
+  for ( double x=Xmin; x-Xmax<Precision::Confusion(); x=x+step )
+  {
+    for ( double y=Ymin; y-Ymax<Precision::Confusion(); y=y+step )
+    {
+      // Step1 : generate the Zmin -> Zmax line
+      gp_Pnt startPnt(x, y, Zmin);
+      gp_Pnt endPnt(x, y, Zmax);
+      gp_Vec aVec(startPnt, endPnt);
+      gp_Lin aLine(startPnt, aVec);
+      double endParam = Zmax - Zmin;
+      
+      // Step2 : for each face of aShape:
+      std::set<double> intersections;
+      std::set<double>::iterator it = intersections.begin();
+      
+      TopExp_Explorer Ex;
+      for (Ex.Init(aShape,TopAbs_FACE); Ex.More(); Ex.Next()) 
+      { 
+        // check if there is an intersection
+        IntCurvesFace_Intersector anIntersector(TopoDS::Face(Ex.Current()), Precision::Confusion());
+        anIntersector.Perform(aLine, 0, endParam);
+        
+        // get the intersection's parameter and store it
+        int nbPoints = anIntersector.NbPnt();
+        for(int i = 0 ; i < nbPoints ; i++ )
+        {
+          it = intersections.insert( it, anIntersector.WParameter(i+1) );
+        }
+      }
+      // Step3 : go through the line chunk by chunk 
+      if ( intersections.begin() != intersections.end() )
+      {
+        std::set<double>::iterator intersectionsIterator=intersections.begin();
+        double first = *intersectionsIterator;
+        intersectionsIterator++;
+        bool innerPoints = true; 
+        for ( ; intersectionsIterator!=intersections.end() ; intersectionsIterator++ )
+        {
+          double second = *intersectionsIterator;
+          if ( innerPoints )
+          {
+            // If the last chunk was outside of the shape or this is the first chunk
+            // add the points in the range [first, second] to the points vector
+            double localStep = (second -first) / ceil( (second - first) / step );
+            for ( double z = Zmin + first; z < Zmin + second; z = z + localStep )
+            {
+              thePoints.push_back(Control_Pnt( x, y, z, theSize ));
+            }
+            thePoints.push_back(Control_Pnt( x, y, Zmin + second, theSize ));
+          }
+          first = second;
+          innerPoints = !innerPoints;
+        }
+      }
+    }
+  }
+}
+
+//================================================================================
+/*!
+ * \brief Subdivides a triangle until it reaches a certain size (recursive function)
+ */
+//================================================================================
+void HexoticPlugin_Hexotic::subdivideTriangle( const gp_Pnt& p1, 
+                                               const gp_Pnt& p2, 
+                                               const gp_Pnt& p3, 
+                                               const double& theSize, 
+                                               std::vector<Control_Pnt>& thePoints)
+{
+  // Size threshold to stop subdividing
+  // This value ensures that two control points are distant no more than 2*theSize
+  // as shown below
+  //
+  // The greater distance D of the mass center M to each Edge is 1/3 * Median 
+  // and Median < sqrt(3/4) * a  where a is the greater side (by using Apollonius' thorem). 
+  // So D < 1/3 * sqrt(3/4) * a and if a < sqrt(3) * S then D < S/2
+  // and the distance between two mass centers of two neighbouring triangles 
+  // sharing an edge is < 2 * 1/2 * S = S
+  // If the traingles share a Vertex and no Edge the distance of the mass centers 
+  // to the Vertices is 2*D < S so the mass centers are distant of less than 2*S 
+  
+  double threshold = sqrt( 3 ) * theSize;
+  
+  if ( (p1.Distance(p2) > threshold ||
+        p2.Distance(p3) > threshold ||
+        p3.Distance(p1) > threshold))
+  { 
+    std::vector<gp_Pnt> midPoints = computePointsForSplitting(p1, p2, p3);
+ 
+    subdivideTriangle( midPoints[0], midPoints[1], midPoints[2], theSize, thePoints );
+    subdivideTriangle( midPoints[0], p2, midPoints[1], theSize, thePoints );
+    subdivideTriangle( midPoints[2], midPoints[1], p3, theSize, thePoints );
+    subdivideTriangle( p1, midPoints[0], midPoints[2], theSize, thePoints );
+  }
+  else
+  {
+    double x = (p1.X() + p2.X() + p3.X()) / 3 ;
+    double y = (p1.Y() + p2.Y() + p3.Y()) / 3 ;
+    double z = (p1.Z() + p2.Z() + p3.Z()) / 3 ;
+    
+    Control_Pnt massCenter( x ,y ,z, theSize );
+    thePoints.push_back( massCenter );
+  }
+}
+
+//================================================================================
+/*!
+ * \brief Returns the appropriate points for splitting a triangle
+ * \brief the tangency points of the incircle are used in order to have mostly
+ * \brief well-shaped sub-triangles
+ */
+//================================================================================
+std::vector<gp_Pnt> HexoticPlugin_Hexotic::computePointsForSplitting( const gp_Pnt& p1, 
+                                                                      const gp_Pnt& p2, 
+                                                                      const gp_Pnt& p3 )
+{
+  std::vector<gp_Pnt> midPoints;
+  //Change coordinates
+  gp_Trsf Trsf_1;            // Identity transformation
+  gp_Ax3 reference_system(gp::Origin(), gp::DZ(), gp::DX());   // OXY
+ 
+  gp_Vec Vx(p1, p3);
+  gp_Vec Vaux(p1, p2);
+  gp_Dir Dx(Vx);
+  gp_Dir Daux(Vaux);
+  gp_Dir Dz = Dx.Crossed(Daux);
+  gp_Ax3 current_system(p1, Dz, Dx);
+  
+  Trsf_1.SetTransformation( reference_system, current_system );
+  
+  gp_Pnt A = p1.Transformed(Trsf_1);
+  gp_Pnt B = p2.Transformed(Trsf_1);
+  gp_Pnt C = p3.Transformed(Trsf_1);
+  
+  double a =  B.Distance(C) ;
+  double b =  A.Distance(C) ;
+  double c =  B.Distance(A) ;
+  
+  // Incenter coordinates
+  // see http://mathworld.wolfram.com/Incenter.html
+  double Xi = ( b*B.X() + c*C.X() ) / ( a + b + c );
+  double Yi = ( b*B.Y() ) / ( a + b + c );
+  gp_Pnt Center(Xi, Yi, 0);
+  
+  // Calculate the tangency points of the incircle
+  gp_Pnt T1 = tangencyPoint( A, B, Center);
+  gp_Pnt T2 = tangencyPoint( B, C, Center);
+  gp_Pnt T3 = tangencyPoint( C, A, Center);
+  
+  gp_Pnt p1_2 = T1.Transformed(Trsf_1.Inverted());
+  gp_Pnt p2_3 = T2.Transformed(Trsf_1.Inverted());
+  gp_Pnt p3_1 = T3.Transformed(Trsf_1.Inverted());
+
+  midPoints.push_back(p1_2);
+  midPoints.push_back(p2_3);
+  midPoints.push_back(p3_1);
+  
+  return midPoints;
+}
+
+//================================================================================
+/*!
+ * \brief Computes the tangency points of the circle of center Center with
+ * \brief the straight line (p1 p2)
+ */
+//================================================================================
+gp_Pnt HexoticPlugin_Hexotic::tangencyPoint(const gp_Pnt& p1,
+                                            const gp_Pnt& p2,
+                                            const gp_Pnt& Center)
+{
+  double Xt = 0;
+  double Yt = 0;
+  
+  // The tangency point is the intersection of the straight line (p1 p2)
+  // and the straight line (Center T) which is orthogonal to (p1 p2)
+  if ( fabs(p1.X() - p2.X()) <= Precision::Confusion() )
+  {
+    Xt=p1.X();     // T is on (p1 p2)
+    Yt=Center.Y(); // (Center T) is orthogonal to (p1 p2)
+  }
+  else if ( fabs(p1.Y() - p2.Y()) <= Precision::Confusion() )
+  {
+    Yt=p1.Y();     // T is on (p1 p2) 
+    Xt=Center.X(); // (Center T) is orthogonal to (p1 p2)
+  }
+  else
+  {
+    // First straight line coefficients (equation y=a*x+b)
+    double a = (p2.Y() - p1.Y()) / (p2.X() - p1.X())  ;
+    double b = p1.Y() - a*p1.X();         // p1 is on this straight line
+    
+    // Second straight line coefficients (equation y=c*x+d)
+    double c = -1 / a;                    // The 2 lines are orthogonal
+    double d = Center.Y() - c*Center.X(); // Center is on this straight line
+    
+    Xt = (d - b) / (a - c);
+    Yt = a*Xt + b;
+  }
+  
+  return gp_Pnt( Xt, Yt, 0 );
 }
 
 //=============================================================================
@@ -1047,7 +1468,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
 #else
     if ( aTmpDir.Value(aTmpDir.Length()) != '/' ) aTmpDir += '/';
 #endif
-    TCollection_AsciiString Hexotic_In(""), Hexotic_Out;
+    TCollection_AsciiString Hexotic_In(""), Hexotic_Out, Hexotic_SizeMap_Prefix;
     TCollection_AsciiString modeFile_In( "chmod 666 " ), modeFile_Out( "chmod 666 " );
     TCollection_AsciiString aLogFileName = aTmpDir + "Hexotic"+getSuffix()+".log";    // log
 
@@ -1076,9 +1497,11 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     }
 #endif
     
-
-    std::string run_Hexotic = getHexoticCommand(Hexotic_In, Hexotic_Out);
-    run_Hexotic += std::string(" 1 > ") + aLogFileName.ToCString();  // dump into file
+    Hexotic_SizeMap_Prefix = aTmpDir + "Hexotic_SizeMap" + getSuffix();
+    std::vector<std::string> sizeMapFiles = writeSizeMapFile( Hexotic_SizeMap_Prefix.ToCString() );
+    
+    std::string run_Hexotic = getHexoticCommand(Hexotic_In, Hexotic_Out, Hexotic_SizeMap_Prefix);
+    run_Hexotic += std::string(" 1> ") + aLogFileName.ToCString();  // dump into file
 
     cout << std::endl;
     cout << "Hexotic command : " << run_Hexotic << std::endl;
@@ -1121,13 +1544,17 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
       if (myError)
 */
         hexahedraMessage = "success";
-	removeFile(Hexotic_Out);
-	removeFile(Hexotic_In);
-	removeFile(aLogFileName);
+        removeFile(Hexotic_Out);
+        removeFile(Hexotic_In);
+        removeFile(aLogFileName);
+        for( int i=0; i<sizeMapFiles.size(); i++)
+        {
+          removeFile( TCollection_AsciiString( sizeMapFiles[i].c_str() ) );
+        }
       }
       else {
-        hexahedraMessage = "failed";
-    }
+        hexahedraMessage = "failed"; 
+      }
     }
     else {
       hexahedraMessage = "failed";
@@ -1198,7 +1625,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   SetParameters(_hypothesis);
 
   TCollection_AsciiString aTmpDir = getTmpDir();
-  TCollection_AsciiString Hexotic_In, Hexotic_Out;
+  TCollection_AsciiString Hexotic_In, Hexotic_Out, Hexotic_SizeMap_Prefix;
   TCollection_AsciiString modeFile_In( "chmod 666 " ), modeFile_Out( "chmod 666 " );
   TCollection_AsciiString aLogFileName = aTmpDir + "Hexotic"+getSuffix()+".log";    // log
 
@@ -1207,9 +1634,13 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
 
   Hexotic_In  = aTmpDir + "Hexotic"+getSuffix()+"_In.mesh";
   Hexotic_Out = aTmpDir + "Hexotic"+getSuffix()+"_Out.mesh";
+  Hexotic_SizeMap_Prefix = aTmpDir + "Hexotic_SizeMap";
+ 
+  
+  std::vector<std::string> sizeMapFiles = writeSizeMapFile( Hexotic_SizeMap_Prefix.ToCString() );
 
-  std::string run_Hexotic = getHexoticCommand(Hexotic_In, Hexotic_Out);
-  run_Hexotic += std::string(" 1 > ") + aLogFileName.ToCString();  // dump into file
+  std::string run_Hexotic = getHexoticCommand(Hexotic_In, Hexotic_Out, Hexotic_SizeMap_Prefix);
+  run_Hexotic += std::string(" 1> ") + aLogFileName.ToCString();  // dump into file
 
   removeHexoticFiles(Hexotic_In, Hexotic_Out);
 
@@ -1296,6 +1727,10 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   removeFile(Hexotic_Out);
   removeFile(Hexotic_In);
   removeFile(aLogFileName);
+  for( int i=0; i<sizeMapFiles.size(); i++)
+  {
+    removeFile( TCollection_AsciiString(sizeMapFiles[i].c_str()) );
+  }
   return Ok;
 /*
   return myError->IsOK();
