@@ -72,6 +72,7 @@
 #include <BRepMesh_IncrementalMesh.hxx>
 #include <Poly_Triangulation.hxx>
 #include <gp_Ax3.hxx>
+#include <GeomAdaptor_Curve.hxx>
 
 #include <Basics_Utils.hxx>
 #include "GEOMImpl_Types.hxx"
