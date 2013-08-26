@@ -236,26 +236,34 @@ HexoticPlugin::HexoticPluginSizeMapsList* HexoticPlugin_Hypothesis_i::GetSizeMap
 
 void HexoticPlugin_Hypothesis_i::SetSizeMapEntry ( const char* theEntry, CORBA::Double theSize )
 {
-  MESSAGE("HexoticPlugin_Hypothesis_i::SetSizeMapEntry");
-  std::string anEntry = theEntry;
+//   MESSAGE("HexoticPlugin_Hypothesis_i::SetSizeMapEntry");
   bool valueChanged = this->GetImpl()->AddSizeMap(theEntry, theSize);
-  MESSAGE("valueChanged = "<<valueChanged);
   if (valueChanged)
     SMESH::TPythonDump() << _this() << ".SetSizeMap( "<< theEntry << ", " << theSize << " )";
 }
 
+void HexoticPlugin_Hypothesis_i::UnsetSizeMapEntry ( const char* theEntry )
+{
+//   MESSAGE("HexoticPlugin_Hypothesis_i::UnsetSizeMapEntry");
+  bool entryRemoved = this->GetImpl()->UnsetSizeMap(theEntry);
+  if (entryRemoved)
+    SMESH::TPythonDump() << _this() << ".UnsetSizeMap( "<< theEntry << " )";
+}
+
 void HexoticPlugin_Hypothesis_i::SetSizeMap (const GEOM::GEOM_Object_ptr theGeomObj, const double theSize)
 {
-  MESSAGE("HexoticPlugin_Hypothesis_i::SetSizeMap");
+//   MESSAGE("HexoticPlugin_Hypothesis_i::SetSizeMap");
   ASSERT(myBaseImpl);
   std::string entry = theGeomObj->GetStudyEntry();
   SetSizeMapEntry( entry.c_str(), theSize);
 }
 
-void HexoticPlugin_Hypothesis_i::ClearSizeMaps ()
+void HexoticPlugin_Hypothesis_i::UnsetSizeMap (const GEOM::GEOM_Object_ptr theGeomObj)
 {
-  this->GetImpl()->ClearSizeMaps();
-  SMESH::TPythonDump() << _this() << ".ClearSizeMaps()";
+//   MESSAGE("HexoticPlugin_Hypothesis_i::UnsetSizeMap");
+  ASSERT(myBaseImpl);
+  std::string entry = theGeomObj->GetStudyEntry();
+  UnsetSizeMapEntry( entry.c_str());
 }
 
 //=============================================================================

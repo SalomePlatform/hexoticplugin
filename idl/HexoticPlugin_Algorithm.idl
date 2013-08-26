@@ -93,9 +93,12 @@ module HexoticPlugin
 
     void SetSizeMapEntry(in string entry, 
                          in double size);
+    void UnsetSizeMapEntry(in string entry);
+
     void SetSizeMap(in GEOM::GEOM_Object GeomObj, 
                     in double size);
-    void ClearSizeMaps();
+    void UnsetSizeMap(in GEOM::GEOM_Object GeomObj);
+
     HexoticPluginSizeMapsList GetSizeMaps();
   };
 };

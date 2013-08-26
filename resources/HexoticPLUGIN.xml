@@ -34,7 +34,14 @@
     <hypothesis type="Hexotic_Parameters"
     label-id="Hexotic Parameters"
     icon-id="mesh_hypo_Hexotic.png"
-    dim="3"/>
+    dim="3">
+      <python-wrap>
+        <accumulative-methods>
+          SetSizeMap
+          UnsetSizeMap
+        </accumulative-methods>
+      </python-wrap>
+    </hypothesis>
   </hypotheses>
   <algorithms>
 

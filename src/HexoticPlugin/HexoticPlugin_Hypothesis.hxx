@@ -93,10 +93,10 @@ public:
   
   // For the GUI HexoticPluginGUI_HypothesisCreator::storeParamToHypo
   THexoticSizeMaps GetSizeMaps() const { return _sizeMaps; }; 
-  void ClearSizeMaps();
   
   // Add one size map to the collection of size maps (user interface)
   bool AddSizeMap(std::string theEntry, double theSize);
+  bool UnsetSizeMap(std::string theEntry);
 
   // the parameters default values 
   static int GetDefaultHexesMinLevel();

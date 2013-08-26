@@ -70,7 +70,7 @@ enum {
 HexoticPluginGUI_HypothesisCreator::HexoticPluginGUI_HypothesisCreator( const QString& theHypType )
 : SMESHGUI_GenericHypothesisCreator( theHypType ),
   myIs3D( true ),
-  mySizeMapRemoved ( false )
+  mySizeMapsToRemove ()
 {
 }
 
@@ -186,6 +186,7 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   myIs3D = true;
   
   // Size Maps
+  mySizeMapsToRemove.clear();
   connect( mySmpWidget->pushButton_1,  SIGNAL( clicked() ),  this,  SLOT( onAddLocalSize() ) );
   connect( mySmpWidget->pushButton_2,  SIGNAL( clicked() ),  this,  SLOT( onRemoveLocalSize() ) );
   
@@ -255,14 +256,20 @@ void HexoticPluginGUI_HypothesisCreator::onRemoveLocalSize()
   if ( ranges.isEmpty() ) // If none is selected remove the last one
   {
     int lastRow = mySmpWidget->tableWidget->rowCount() - 1;
+    std::string entry = mySmpWidget->tableWidget->item( lastRow, ENTRY_COL )->text().toStdString();
+    mySizeMapsToRemove.push_back(entry);
     mySmpWidget->tableWidget->removeRow( lastRow ); 
   }
   else
   {
     QTableWidgetSelectionRange& range = ranges.first();
+    for ( int row = range.topRow(); row < range.rowCount(); row++ )
+    {
+      std::string entry = mySmpWidget->tableWidget->item( row, ENTRY_COL )->text().toStdString();
+      mySizeMapsToRemove.push_back(entry);
+    }
     mySmpWidget->tableWidget->model()->removeRows(range.topRow(), range.rowCount());
   }
-  mySizeMapRemoved = true;
 }
 
 //=================================================================================
@@ -454,14 +461,15 @@ bool HexoticPluginGUI_HypothesisCreator::storeParamsToHypo( const HexoticHypothe
     
     HexoticPlugin_Hypothesis::THexoticSizeMaps::const_iterator it;
     
-    // Clear size maps in hypothesis if one of them as been removed by the user
-    if ( mySizeMapRemoved )
-      h->ClearSizeMaps();
-    
     for ( it =  h_data.mySizeMaps.begin(); it !=  h_data.mySizeMaps.end(); it++ )
     {
-       h->SetSizeMapEntry( it->first.c_str(), it->second );
-       MESSAGE("STORING Size map : entry "<<it->first.c_str()<<" size : "<<it->second)
+      h->SetSizeMapEntry( it->first.c_str(), it->second );
+      MESSAGE("STORING Size map : entry "<<it->first.c_str()<<" size : "<<it->second)
+    }
+    std::vector< std::string >::const_iterator entry_it;
+    for ( entry_it = mySizeMapsToRemove.begin(); entry_it!= mySizeMapsToRemove.end(); entry_it++ )
+    {
+      h->UnsetSizeMapEntry(entry_it->c_str());
     }
   }
   catch(const SALOME::SALOME_Exception& ex)

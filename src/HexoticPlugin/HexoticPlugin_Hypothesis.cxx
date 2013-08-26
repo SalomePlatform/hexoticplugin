@@ -169,9 +169,16 @@ bool HexoticPlugin_Hypothesis::AddSizeMap(std::string theEntry, double theSize) 
   }
 }
 
-void HexoticPlugin_Hypothesis::ClearSizeMaps()
-{
-  _sizeMaps.clear();
+bool HexoticPlugin_Hypothesis::UnsetSizeMap(std::string theEntry) {
+  THexoticSizeMaps::iterator it;
+  it=_sizeMaps.find(theEntry);
+  if( it != _sizeMaps.end() )
+  {
+    _sizeMaps.erase(it);  
+    return true;
+  }
+  else
+    return false;
 }
 
 //=============================================================================

@@ -96,9 +96,12 @@ class Hexotic_Algorithm(Mesh_Algorithm):
         self.Parameters().SetSizeMap(theObject, theSize)
         return self.Parameters()
       
-    ## Clears all size maps : this is meant to be used only by the dump
-    def ClearSizeMaps(self):
-        self.Parameters().ClearSizeMaps()
+    ## Unsets a size map : this is meant to be used only by the dump
+    #  @param theObject geometrical object to unassign local size
+    #  @return hypothesis object
+    def UnsetSizeMap(self, theObject, theSize):
+        AssureGeomPublished( self.mesh, theObject )
+        self.Parameters().UnsetSizeMap(theObject)
         return self.Parameters()
 
     ## (OBSOLETE) Defines "MinMaxQuad" hypothesis to give three hexotic parameters

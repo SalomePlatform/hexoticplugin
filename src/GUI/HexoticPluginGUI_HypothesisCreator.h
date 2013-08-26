@@ -96,8 +96,8 @@ private:
   HexoticPluginGUI_SizeMapsWidget*       mySmpWidget;
   StdMeshersGUI_ObjectReferenceParamWdg* myGeomSelWdg;
 
-  bool             myIs3D;
-  bool             mySizeMapRemoved;
+  bool                           myIs3D;
+  std::vector< std::string >     mySizeMapsToRemove;
  
 protected slots:
   void             onAddLocalSize();
