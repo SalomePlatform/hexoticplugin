@@ -35,6 +35,7 @@
 
 #include <SUIT_Session.h>
 #include <SUIT_ResourceMgr.h>
+#include <SUIT_MessageBox.h>
 #include <SUIT_FileDlg.h>
 #include <SalomeApp_Tools.h>
 #include <QtxIntSpinBox.h>
@@ -67,10 +68,59 @@ enum {
   SIZE_COL
 };
 
+//
+// Size map table widget delegate
+//
+
+SizeMapsTableWidgetDelegate::SizeMapsTableWidgetDelegate(QObject *parent)
+     : QItemDelegate(parent)
+{
+}
+
+QWidget* SizeMapsTableWidgetDelegate::createEditor(QWidget *parent,
+                                                   const QStyleOptionViewItem &/* option */,
+                                                   const QModelIndex &/* index */) const
+{
+  SMESHGUI_SpinBox *editor = new SMESHGUI_SpinBox(parent);
+  editor->RangeStepAndValidator(0.0, COORD_MAX, 10.0, "length_precision");
+  return editor;
+}
+
+void SizeMapsTableWidgetDelegate::setEditorData(QWidget *editor,
+                                                const QModelIndex &index) const
+{
+  double value = index.model()->data(index, Qt::EditRole).toDouble();
+  SMESHGUI_SpinBox *spinBox = static_cast<SMESHGUI_SpinBox*>(editor);
+  spinBox->setValue(value);
+}
+
+void SizeMapsTableWidgetDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
+                                               const QModelIndex &index) const
+{
+  SMESHGUI_SpinBox *spinBox = static_cast<SMESHGUI_SpinBox*>(editor);
+  spinBox->interpretText();
+  double value = spinBox->value();
+  if ( value == 0 ) 
+    SUIT_MessageBox::critical( spinBox, tr( "SMESH_ERROR" ), tr( "Hexotic_NULL_LOCAL_SIZE" ) ); 
+  else
+    model->setData(index, value, Qt::EditRole);
+}
+
+void SizeMapsTableWidgetDelegate::updateEditorGeometry(QWidget *editor,
+                                                       const QStyleOptionViewItem &option, 
+                                                       const QModelIndex &/* index */) const
+{
+  editor->setGeometry(option.rect);
+}
+
+// END Delegate
+
+
+
 HexoticPluginGUI_HypothesisCreator::HexoticPluginGUI_HypothesisCreator( const QString& theHypType )
 : SMESHGUI_GenericHypothesisCreator( theHypType ),
   myIs3D( true ),
-  mySizeMapsToRemove ()
+  mySizeMapsToRemove()
 {
 }
 
@@ -81,11 +131,16 @@ HexoticPluginGUI_HypothesisCreator::~HexoticPluginGUI_HypothesisCreator()
 bool HexoticPluginGUI_HypothesisCreator::checkParams(QString& msg) const
 {
   msg.clear();
+
   HexoticHypothesisData data_old, data_new;
   readParamsFromHypo( data_old );
-  readParamsFromWidgets( data_new );
+  
+  bool res = readParamsFromWidgets( data_new );
+  if ( !res ){
+    return res;
+  }
 
-  bool res = storeParamsToHypo( data_new );
+  res = storeParamsToHypo( data_new );
   if ( !res ) {
     storeParamsToHypo( data_old );
     return res;
@@ -142,12 +197,14 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   l->addWidget( myStdWidget, row++, 0, 1, 3 );
   myStdWidget->onSdModeSelected(SD_MODE_4);
 
+  
   // SIZE MAPS TAB
   QWidget* aSmpGroup = new QWidget();
   lay->addWidget( aSmpGroup );
   
   // Size map widget creation and initialisation
   mySmpWidget = new HexoticPluginGUI_SizeMapsWidget(aSmpGroup);
+  mySmpWidget->doubleSpinBox->RangeStepAndValidator(0.0, COORD_MAX, 1.0, "length_precision");
   mySmpWidget->doubleSpinBox->setValue(0.0);
   
   // Filters of selection
@@ -160,14 +217,12 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   SM_ShapeTypes.Add( TopAbs_COMPOUND );  
   SMESH_NumberFilter* aFilter = new SMESH_NumberFilter("GEOM", TopAbs_SHAPE, 0, SM_ShapeTypes);
   
+  // Selection widget
   myGeomSelWdg = new StdMeshersGUI_ObjectReferenceParamWdg( aFilter, mySmpWidget, /*multiSel=*/false,/*stretch=*/false);
   myGeomSelWdg->SetDefaultText(tr("Hexotic_SEL_SHAPE"), "QLineEdit { color: grey }");
   mySmpWidget->gridLayout->addWidget(myGeomSelWdg, 0, 1);
   
-  QHBoxLayout* aSmpLayout = new QHBoxLayout( aSmpGroup );
-  aSmpLayout->setMargin( 0 );
-  aSmpLayout->addWidget( mySmpWidget);
-  
+  // Configuration of the table widget
   QStringList headerLabels;
   headerLabels << tr("Hexotic_ENTRY")<< tr("Hexotic_NAME")<< tr("Hexotic_SIZE");
   mySmpWidget->tableWidget->setHorizontalHeaderLabels(headerLabels);
@@ -176,6 +231,15 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   mySmpWidget->label->setText(tr("LOCAL_SIZE"));
   mySmpWidget->pushButton_1->setText(tr("Hexotic_ADD"));
   mySmpWidget->pushButton_2->setText(tr("Hexotic_REMOVE"));
+  
+  // Setting a custom delegate for the size column
+  SizeMapsTableWidgetDelegate* delegate = new SizeMapsTableWidgetDelegate();
+  mySmpWidget->tableWidget->setItemDelegateForColumn(SIZE_COL, delegate);
+  
+  // Add the size maps widget to a layout
+  QHBoxLayout* aSmpLayout = new QHBoxLayout( aSmpGroup );
+  aSmpLayout->setMargin( 0 );
+  aSmpLayout->addWidget( mySmpWidget);
   
  
 //  resizeEvent();
@@ -187,8 +251,8 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   
   // Size Maps
   mySizeMapsToRemove.clear();
-  connect( mySmpWidget->pushButton_1,  SIGNAL( clicked() ),  this,  SLOT( onAddLocalSize() ) );
-  connect( mySmpWidget->pushButton_2,  SIGNAL( clicked() ),  this,  SLOT( onRemoveLocalSize() ) );
+  connect( mySmpWidget->pushButton_1,  SIGNAL( clicked() ),                              this,  SLOT( onAddLocalSize() ) );
+  connect( mySmpWidget->pushButton_2,  SIGNAL( clicked() ),                              this,  SLOT( onRemoveLocalSize() ) );
   
   return fr;
 }
@@ -200,6 +264,9 @@ void HexoticPluginGUI_HypothesisCreator::onAddLocalSize()
   
   // Get the selected object properties
   GEOM::GEOM_Object_var sizeMapObject = myGeomSelWdg->GetObject< GEOM::GEOM_Object >(0);
+  if (sizeMapObject->_is_nil())
+    return;
+  
   std::string entry, shapeName;
   entry = (std::string) sizeMapObject->GetStudyEntry();
   shapeName = sizeMapObject->GetName();
@@ -212,6 +279,11 @@ void HexoticPluginGUI_HypothesisCreator::onAddLocalSize()
   
   // Get the size value
   double size = mySmpWidget->doubleSpinBox->value();
+  if (size == 0)
+  {
+    SUIT_MessageBox::critical( mySmpWidget, tr( "SMESH_ERROR" ), tr( "Hexotic_NULL_LOCAL_SIZE" ) );
+    return;
+  }
   
   // Set items for the inserted row
   insertLocalSizeInWidget( entry, shapeName, size, rowCount );
@@ -235,16 +307,21 @@ void HexoticPluginGUI_HypothesisCreator::insertLocalSizeInWidget( std::string en
     switch ( col )
     {
       case ENTRY_COL:
+        item->setFlags( 0 );
         value = QVariant( entry.c_str() );
+        item->setData(Qt::DisplayRole, value );
         break;  
       case NAME_COL:
+        item->setFlags( Qt::ItemIsSelectable | Qt::ItemIsEnabled );
         value = QVariant( shapeName.c_str() );
+        item->setData(Qt::DisplayRole, value );
         break;
       case SIZE_COL:
+        item->setFlags( Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled);
         value = QVariant( size );
+        item->setData(Qt::EditRole, value );
         break;
     }       
-    item->setData(Qt::DisplayRole, value );
     mySmpWidget->tableWidget->setItem(row,col,item);
   }
 }
@@ -280,9 +357,9 @@ void HexoticPluginGUI_HypothesisCreator::resizeEvent(QResizeEvent */*event*/) {
     QSize scaledSize = myStdWidget->imageSdMode.size();
     scaledSize.scale(myStdWidget->sdModeLabel->size(), Qt::KeepAspectRatioByExpanding);
     if (!myStdWidget->sdModeLabel->pixmap() || scaledSize != myStdWidget->sdModeLabel->pixmap()->size())
-    	myStdWidget->sdModeLabel->setPixmap(myStdWidget->imageSdMode.scaled(myStdWidget->sdModeLabel->size(),
-    			Qt::KeepAspectRatio,
-    			Qt::SmoothTransformation));
+      myStdWidget->sdModeLabel->setPixmap(myStdWidget->imageSdMode.scaled(myStdWidget->sdModeLabel->size(),
+      Qt::KeepAspectRatio,
+      Qt::SmoothTransformation));
 }
 
 void HexoticPluginGUI_HypothesisCreator::retrieveParams() const

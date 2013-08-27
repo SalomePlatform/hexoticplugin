@@ -111,5 +111,9 @@
         <source>Hexotic_SEL_SHAPE</source>
         <translation>Select a shape</translation>
     </message>
+    <message>
+        <source>Hexotic_NULL_LOCAL_SIZE</source>
+        <translation>0 is not allowed as "Local size"</translation>
+    </message>
 </context>
 </TS>

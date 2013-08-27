@@ -33,6 +33,9 @@
        <attribute name="horizontalHeaderDefaultSectionSize">
         <number>80</number>
        </attribute>
+       <attribute name="horizontalHeaderMinimumSectionSize">
+        <number>100</number>
+       </attribute>
        <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
         <bool>false</bool>
        </attribute>

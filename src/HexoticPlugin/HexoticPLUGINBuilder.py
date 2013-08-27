@@ -93,13 +93,15 @@ class Hexotic_Algorithm(Mesh_Algorithm):
     #  @return hypothesis object
     def SetSizeMap(self, theObject, theSize):
         AssureGeomPublished( self.mesh, theObject )
+        if theSize <= 0:
+          raise ValueError, "The size must be > 0"
         self.Parameters().SetSizeMap(theObject, theSize)
         return self.Parameters()
       
     ## Unsets a size map : this is meant to be used only by the dump
     #  @param theObject geometrical object to unassign local size
     #  @return hypothesis object
-    def UnsetSizeMap(self, theObject, theSize):
+    def UnsetSizeMap(self, theObject):
         AssureGeomPublished( self.mesh, theObject )
         self.Parameters().UnsetSizeMap(theObject)
         return self.Parameters()

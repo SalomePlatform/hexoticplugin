@@ -31,9 +31,12 @@
 #include "StdMeshersGUI_ObjectReferenceParamWdg.h"
 #include "HexoticPlugin_Hypothesis.hxx"
 
+#include <QItemDelegate>
+
 class QtxIntSpinBox;
 class QCheckBox;
 class QLineEdit;
+class QTableWidgetItem;
 
 class HexoticPluginGUI_StdWidget;
 class HexoticPluginGUI_SizeMapsWidget;
@@ -98,11 +101,37 @@ private:
 
   bool                           myIs3D;
   std::vector< std::string >     mySizeMapsToRemove;
+  QVariant                       myNotModifiedSize;
  
 protected slots:
   void             onAddLocalSize();
   void             onRemoveLocalSize();
+  void             onItemChanged(QTableWidgetItem*);
+  void             onItemDoubleClicked(QTableWidgetItem*);
   
+};
+
+class SizeMapsTableWidgetDelegate : public QItemDelegate
+{
+    Q_OBJECT
+
+public:
+  SizeMapsTableWidgetDelegate(QObject *parent = 0);
+
+  QWidget *createEditor(QWidget *parent, 
+                        const QStyleOptionViewItem &option,
+                        const QModelIndex &index) const;
+
+  void setEditorData(QWidget *editor, 
+                     const QModelIndex &index) const;
+                     
+  void setModelData(QWidget *editor, 
+                    QAbstractItemModel *model,
+                    const QModelIndex &index) const;
+
+  void updateEditorGeometry(QWidget *editor, 
+                            const QStyleOptionViewItem &option,
+                            const QModelIndex &index) const;
 };
 
 #endif

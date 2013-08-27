@@ -148,6 +148,10 @@ void HexoticPlugin_Hypothesis::SetHexoticMaxMemory(int theVal) {
 bool HexoticPlugin_Hypothesis::AddSizeMap(std::string theEntry, double theSize) {
   THexoticSizeMaps::iterator it;
   it=_sizeMaps.find(theEntry);
+  
+  if(theSize <= 0)
+    return false;
+  
   if( it == _sizeMaps.end() ) // If no size map is defined on the given object
   {
     _sizeMaps[theEntry] = theSize;
