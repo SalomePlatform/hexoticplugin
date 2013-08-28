@@ -1507,8 +1507,10 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     cout << std::endl;
     cout << "Hexotic command : " << run_Hexotic << std::endl;
 
+#ifndef WIN32    
     modeFile_In += Hexotic_In;
     system( modeFile_In.ToCString() );
+#endif
     aSmdsToHexoticIdMap.clear();
     aHexoticIdToNodeMap.clear();
 
@@ -1648,8 +1650,10 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   cout << std::endl;
   cout << "Creating Hexotic input mesh file : " << Hexotic_In << std::endl;
   aMesh.ExportGMF(Hexotic_In.ToCString(), aHelper->GetMeshDS());
+#ifndef WIN32    
   modeFile_In += Hexotic_In;
   system( modeFile_In.ToCString() );
+#endif
   aSmdsToHexoticIdMap.clear();
   aHexoticIdToNodeMap.clear();
 
