@@ -1147,8 +1147,12 @@ void HexoticPlugin_Hexotic::createPointsSampleFromFace( const TopoDS_Shape& aSha
   BRepMesh_IncrementalMesh M(aShape, 0.01, Standard_True);
   TopLoc_Location aLocation;
   TopoDS_Face aFace = TopoDS::Face(aShape);
-  Handle(Geom_Surface) aSurf = BRep_Tool::Surface (aFace, aLocation);
+
+  // Triangulate the face
   Handle(Poly_Triangulation) aTri = BRep_Tool::Triangulation (aFace, aLocation);
+  
+  // Get the transformation associated to the face location
+  gp_Trsf aTrsf = aLocation.Transformation();
   
   // Get triangles
   int nbTriangles = aTri->NbTriangles();
@@ -1167,6 +1171,10 @@ void HexoticPlugin_Hexotic::createPointsSampleFromFace( const TopoDS_Shape& aSha
      gp_Pnt p1 = nodes.Value(aTriangle.Value(1));
      gp_Pnt p2 = nodes.Value(aTriangle.Value(2));
      gp_Pnt p3 = nodes.Value(aTriangle.Value(3));
+     
+     p1.Transform(aTrsf);
+     p2.Transform(aTrsf);
+     p3.Transform(aTrsf);
      
      subdivideTriangle(p1, p2, p3, theSize, thePoints);  
   }
@@ -1547,6 +1555,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
       if (myError)
 */
         hexahedraMessage = "success";
+        #ifndef _DEBUG_
         removeFile(Hexotic_Out);
         removeFile(Hexotic_In);
         removeFile(aLogFileName);
@@ -1554,6 +1563,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
         {
           removeFile( TCollection_AsciiString( sizeMapFiles[i].c_str() ) );
         }
+        #endif
       }
       else {
         hexahedraMessage = "failed"; 
