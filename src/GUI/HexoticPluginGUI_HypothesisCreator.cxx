@@ -603,7 +603,8 @@ bool HexoticPluginGUI_HypothesisCreator::readSizeMapsFromWidgets( HexoticHypothe
     // Set the size maps
     h_data.mySizeMaps[ entry ] = size;
     MESSAGE("READING Size map from WIDGET: entry "<<entry<<" size : "<<size)
-  } 
+  }
+  return true;
 }
 
 GEOM::GEOM_Object_var HexoticPluginGUI_HypothesisCreator::entryToObject( std::string entry) const
