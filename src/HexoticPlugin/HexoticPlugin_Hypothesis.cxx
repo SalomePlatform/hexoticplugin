@@ -207,6 +207,16 @@ std::ostream& HexoticPlugin_Hypothesis::SaveTo(std::ostream& save)
   save<<"hexoticSdMode="<<_hexoticSdMode<<";";
   save<<"hexoticVerbosity="<<_hexoticVerbosity<<";";
   save<<"hexoticMaxMemory="<<_hexoticMaxMemory<<";";
+  THexoticSizeMaps::iterator it = _sizeMaps.begin();
+  if ( it != _sizeMaps.end() )
+  {
+    save<<"sizeMaps=";
+    for ( ; it!=_sizeMaps.end() ; it++ )
+    {
+      save<< it->first << "/" << it->second << "#" ;
+    }
+    save<<";";
+  }
   return save;
 }
 
@@ -251,6 +261,22 @@ std::istream& HexoticPlugin_Hypothesis::LoadFrom(std::istream& load)
       if (str3=="hexoticSdMode") _hexoticSdMode = atoi(str4.c_str());
       if (str3=="hexoticVerbosity") _hexoticVerbosity = atoi(str4.c_str());
       if (str3=="hexoticMaxMemory") _hexoticMaxMemory = atoi(str4.c_str());
+      if (str3=="sizeMaps")
+      {
+        std::string sm_substr, sm_substr1, sm_substr2;
+        int sm_pos = 0;
+        int sm_len = str4.length();
+        while ( sm_pos < sm_len )
+        {
+          int sm_found = str4.find('#',sm_pos);
+          sm_substr = str4.substr(sm_pos,sm_found-sm_pos);
+          int sm_slashpos = sm_substr.find('/',0);
+          sm_substr1 = sm_substr.substr(0,sm_slashpos);
+          sm_substr2 = sm_substr.substr(sm_slashpos+1);
+          _sizeMaps[sm_substr1] = atof(sm_substr2.c_str());
+          sm_pos = sm_found + 1;
+        }
+      }
    }
    return load;
 }
