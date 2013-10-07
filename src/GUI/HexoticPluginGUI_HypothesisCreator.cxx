@@ -339,13 +339,17 @@ void HexoticPluginGUI_HypothesisCreator::onRemoveLocalSize()
   }
   else
   {
-    QTableWidgetSelectionRange& range = ranges.first();
-    for ( int row = range.topRow(); row < range.rowCount(); row++ )
+    QList<QTableWidgetSelectionRange>::iterator it;
+    for ( it = ranges.begin(); it != ranges.end(); ++it )
     {
-      std::string entry = mySmpWidget->tableWidget->item( row, ENTRY_COL )->text().toStdString();
-      mySizeMapsToRemove.push_back(entry);
+      for ( int row = it->topRow(); row <= it->bottomRow(); row++ )
+      {
+        std::string entry = mySmpWidget->tableWidget->item( row, ENTRY_COL )->text().toStdString();
+        mySizeMapsToRemove.push_back(entry);
+        MESSAGE("ADDING entry : "<<entry<<"to the Size Maps to remove")
+      }
+      mySmpWidget->tableWidget->model()->removeRows(it->topRow(), it->rowCount());
     }
-    mySmpWidget->tableWidget->model()->removeRows(range.topRow(), range.rowCount());
   }
 }
 
