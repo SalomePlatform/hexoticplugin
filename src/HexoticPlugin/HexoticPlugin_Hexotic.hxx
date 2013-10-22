@@ -41,6 +41,7 @@
 #include "DriverGMF_Read.hxx"
 #include "DriverGMF_Write.hxx"
 
+#include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(GEOM_Gen)
 #include <SMESH_Gen_i.hxx>
 
@@ -70,10 +71,8 @@ public:
 
   virtual bool Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHelper);
 
-#ifdef WITH_SMESH_CANCEL_COMPUTE
     virtual void CancelCompute();
     bool computeCanceled() { return _compute_canceled;};
-#endif
 
   virtual bool Evaluate(SMESH_Mesh& aMesh, const TopoDS_Shape& aShape,
                         MapShapeNbElems& aResMap);
@@ -143,9 +142,8 @@ private:
   const BLSURFPlugin_Hypothesis* _blsurfHypo;
 #endif
 
-#ifdef WITH_SMESH_CANCEL_COMPUTE
+
   volatile bool _compute_canceled;
-#endif
   
   SALOMEDS::Study_var myStudy;
   SMESH_Gen_i*        smeshGen_i;

@@ -25,12 +25,22 @@
 #if !defined(__HEXOTICPLUGIN_VERSION_H__)
 #define __HEXOTICPLUGIN_VERSION_H__
 
-/*
-  HEXOTICPLUGIN_VERSION is (major << 16) + (minor << 8) + patch.
+/*!
+  Specify version of SALOME HexoticPLUGIN module, as follows
+
+  HexoticPLUGIN_VERSION_MAJOR       : (integer) number identifying major version
+  HexoticPLUGIN_VERSION_MINOR       : (integer) number identifying minor version
+  HexoticPLUGIN_VERSION_MAINTENANCE : (integer) number identifying maintenance version
+  HexoticPLUGIN_VERSION_STR         : (string)  complete version number "major.minor.maintenance"
+  HexoticPLUGIN_VERSION             : (hex)     complete version number (major << 16) + (minor << 8) + maintenance
+  HexoticPLUGIN_DEVELOPMENT         : (integer) indicates development version when set to 1
 */
 
-#define HEXOTICPLUGIN_VERSION_STR "@VERSION@"
-#define HEXOTICPLUGIN_VERSION     @XVERSION@
-#define HEXOTICPLUGIN_DEVELOPMENT @VERSION_DEV@
+#define HexoticPLUGIN_VERSION_MAJOR       @SALOMEHexoticPLUGIN_MAJOR_VERSION@
+#define HexoticPLUGIN_VERSION_MINOR       @SALOMEHexoticPLUGIN_MINOR_VERSION@
+#define HexoticPLUGIN_VERSION_MAINTENANCE @SALOMEHexoticPLUGIN_PATCH_VERSION@
+#define HexoticPLUGIN_VERSION_STR         "@SALOMEHexoticPLUGIN_VERSION@"
+#define HexoticPLUGIN_VERSION             @SALOMEHexoticPLUGIN_XVERSION@
+#define HexoticPLUGIN_DEVELOPMENT         @SALOMEHexoticPLUGIN_VERSION_DEV@
 
 #endif // __HEXOTICPLUGIN_VERSION_H__

@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2013  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2013  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,18 +17,4 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-# ---
-# File   : Makefile.am
-# Author : Gilles DAVID, EDF (gilles-g.david@edf.fr)
-# ---
-#
-include $(top_srcdir)/adm_local/unix/make_common_starter.am
-
-if HEXOTICPLUGIN_ENABLE_GUI
-  dist_salomeres_DATA =		\
-	sd_mode_geom.png		\
-    sd_mode_1.png           \
-    sd_mode_2.png           \
-    sd_mode_3.png           \
-    sd_mode_4.png
-endif
+ADD_SUBDIRECTORY(config_files)

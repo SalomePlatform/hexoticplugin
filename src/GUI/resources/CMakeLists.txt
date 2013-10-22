@@ -1,5 +1,7 @@
-#!/bin/sh
-# Copyright (C) 2007-2013  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2013  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -18,10 +20,14 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-CURRENT_DIR=`pwd`
-CONF_DIR=`echo $0 | sed -e "s,[^/]*$,,;s,/$,,;s,^$,.,"`
-cd ${CONF_DIR}
-python $KERNEL_ROOT_DIR/salome_adm/cmake_files/deprecated/am2cmake.py --hexoticplugin
-status=$?
-cd ${CURRENT_DIR}
-exit $status
+IF(SALOME_BUILD_GUI)
+  SET(HexoticPLUGIN_RESOURCES_FILES_WITH_GUI
+	sd_mode_geom.png
+    sd_mode_1.png
+    sd_mode_2.png
+    sd_mode_3.png
+    sd_mode_4.png
+  )
+ENDIF(SALOME_BUILD_GUI)
+
+INSTALL(FILES ${HexoticPLUGIN_RESOURCES_FILES_WITH_GUI} DESTINATION ${SALOME_HexoticPLUGIN_INSTALL_RES_DATA})

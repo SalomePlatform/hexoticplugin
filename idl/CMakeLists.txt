@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2013  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2012-2013  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,16 +17,31 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-# -* Makefile *- 
-# Author : Patrick GOLDBRONN (CEA)
-# Date : 30/11/2001
-# Modified by : Alexander BORODIN (OCN) - autotools usage
-# $Header$
-# source path
-#
-SUBDIRS = salome
+INCLUDE(UseOmniORB)  # Provided by KERNEL
 
-usr_docs:
-	(cd salome && $(MAKE) $(AM_MAKEFLAGS) usr_docs)
+INCLUDE_DIRECTORIES(
+  ${OMNIORB_INCLUDE_DIR}
+  ${KERNEL_INCLUDE_DIRS}
+  ${GEOM_INCLUDE_DIRS}
+  ${SMESH_INCLUDE_DIRS}
+  ${PROJECT_BINARY_DIR}/idl
+)
 
-docs: usr_docs
+SET(SalomeIDLHexoticPLUGIN_IDLSOURCES
+  HexoticPlugin_Algorithm.idl
+)
+
+SET(_idl_include_dirs
+  ${KERNEL_ROOT_DIR}/idl/salome
+  ${GEOM_ROOT_DIR}/idl/salome
+  ${SMESH_ROOT_DIR}/idl/salome
+)
+
+SET(_idl_link_flags
+  ${KERNEL_SalomeIDLKernel}
+  ${GEOM_SalomeIDLGEOM}
+  ${SMESH_SalomeIDLSMESH}
+)
+
+OMNIORB_ADD_MODULE(SalomeIDLHexoticPLUGIN "${SalomeIDLHexoticPLUGIN_IDLSOURCES}" "${_idl_include_dirs}" "${_idl_link_flags}")
+INSTALL(TARGETS SalomeIDLHexoticPLUGIN EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})

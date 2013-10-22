@@ -374,9 +374,7 @@ static void removeHexoticFiles(TCollection_AsciiString file_In, TCollection_Asci
 //=======================================================================
 
 static bool readResult(std::string         theFile,
-#ifdef WITH_SMESH_CANCEL_COMPUTE
                        HexoticPlugin_Hexotic*  theAlgo,
-#endif
                        SMESHDS_Mesh*       theMesh,
                        const int           nbShape,
                        const TopoDS_Shape* tabShape,
@@ -500,12 +498,10 @@ static bool readResult(std::string         theFile,
 
         coord = new double[nbRef];
         for ( int iElem = 0; iElem < nbElem; iElem++ ) {
-#ifdef WITH_SMESH_CANCEL_COMPUTE
           if(theAlgo->computeCanceled())
             {
               return false;
             }
-#endif
           aHexoticID = iElem + 1;
           for ( int iCoord = 0; iCoord < 3; iCoord++ )
             fileRes >> coord[ iCoord ];
@@ -530,12 +526,10 @@ static bool readResult(std::string         theFile,
         node   = new SMDS_MeshNode*[ nbRef ];
         nodeID = new int[ nbRef ];
         for ( int iElem = 0; iElem < nbElem; iElem++ ) {
-#ifdef WITH_SMESH_CANCEL_COMPUTE
           if(theAlgo->computeCanceled())
             {
               return false;
             }
-#endif
           for ( int iRef = 0; iRef < nbRef; iRef++ ) {
             fileRes >> aHexoticNodeID;                          // read nbRef aHexoticNodeID
             node[ iRef ]   = HexoticNode[ aHexoticNodeID ];
@@ -664,9 +658,7 @@ static bool readResult(std::string         theFile,
 //=======================================================================
 
 static bool readResult(std::string theFile,
-#ifdef WITH_SMESH_CANCEL_COMPUTE
                        HexoticPlugin_Hexotic*  theAlgo,
-#endif
                        SMESH_MesherHelper* theHelper)
 {
   SMESHDS_Mesh* theMesh = theHelper->GetMeshDS();
@@ -739,12 +731,10 @@ static bool readResult(std::string theFile,
       SMDS_MeshNode * aHexoticNode;
 
       for ( int iElem = 0; iElem < nbElem; iElem++ ) {
-#ifdef WITH_SMESH_CANCEL_COMPUTE
         if(theAlgo->computeCanceled())
           {
             return false;
           }
-#endif
         aHexoticID = iElem + 1;
         for ( int iCoord = 0; iCoord < 3; iCoord++ )
           fileRes >> coord[ iCoord ];
@@ -766,12 +756,10 @@ static bool readResult(std::string theFile,
 
       for ( int iElem = 0; iElem < nbElem; iElem++ )
       {
-#ifdef WITH_SMESH_CANCEL_COMPUTE
         if(theAlgo->computeCanceled())
           {
             return false;
           }
-#endif
         for ( int iRef = 0; iRef < nbRef; iRef++ )
         {
           fileRes >> aHexoticNodeID;                          // read nbRef aHexoticNodeID
@@ -1410,9 +1398,7 @@ gp_Pnt HexoticPlugin_Hexotic::tangencyPoint(const gp_Pnt& p1,
 bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
                                      const TopoDS_Shape& aShape)
 {
-#ifdef WITH_SMESH_CANCEL_COMPUTE
   _compute_canceled = false;
-#endif
   bool Ok = true;
   SMESHDS_Mesh* meshDS = aMesh.GetMeshDS();
   TCollection_AsciiString hexahedraMessage;
@@ -1535,9 +1521,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     system( modeFile_Out.ToCString() );
     if ( ! fileRes.fail() ) {
       Ok = readResult( Hexotic_Out.ToCString(),
-#ifdef WITH_SMESH_CANCEL_COMPUTE
                        this,
-#endif
                        meshDS, _nbShape, tabShape, tabBox );
       if(Ok) {
 /*********************
@@ -1606,10 +1590,8 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     _nbShape = 0;
     _iShape  = 0;
   }
-#ifdef WITH_SMESH_CANCEL_COMPUTE
   if(_compute_canceled)
     return error(SMESH_Comment("interruption initiated by user"));
-#endif
   return Ok;
 }
 
@@ -1626,9 +1608,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
 
 bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHelper)
 {
-#ifdef WITH_SMESH_CANCEL_COMPUTE
   _compute_canceled = false;
-#endif
 /*
   SMESH_ComputeErrorPtr myError = SMESH_ComputeError::New();
 */
@@ -1682,9 +1662,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   system( modeFile_Out.ToCString() );
   if ( ! fileRes.fail() ) {
     Ok = readResult( Hexotic_Out.ToCString(),
-#ifdef WITH_SMESH_CANCEL_COMPUTE
                      this,
-#endif
                      aHelper );
     if(Ok)
 /*
@@ -1735,10 +1713,8 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   cout << "Hexahedra meshing " << hexahedraMessage << std::endl;
   cout << std::endl;
 
-#ifdef WITH_SMESH_CANCEL_COMPUTE
   if(_compute_canceled)
     return error(SMESH_Comment("interruption initiated by user"));
-#endif
   removeFile(Hexotic_Out);
   removeFile(Hexotic_In);
   removeFile(aLogFileName);
@@ -1773,7 +1749,6 @@ bool HexoticPlugin_Hexotic::Evaluate(SMESH_Mesh& aMesh,
   return true;
 }
 
-#ifdef WITH_SMESH_CANCEL_COMPUTE
 void HexoticPlugin_Hexotic::CancelCompute()
 {
   _compute_canceled = true;
@@ -1786,4 +1761,3 @@ void HexoticPlugin_Hexotic::CancelCompute()
   system( cmd.ToCString() );
 #endif
 }
-#endif

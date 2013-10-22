@@ -1,4 +1,4 @@
-[SALOME HexoticPLUGIN] : @VERSION@
-[DEVELOPMENT]          : @VERSION_DEV@
+[SALOME HexoticPLUGIN] : @SALOMEHexoticPLUGIN_VERSION@
+[DEVELOPMENT]          : @SALOMEHexoticPLUGIN_VERSION_DEV@
 [DESCRIPTION]          : DISTENE Hexotic meshing plug-in for SALOME Mesh module
 

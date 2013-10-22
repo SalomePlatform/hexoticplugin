@@ -19,23 +19,15 @@
 
 INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/SalomeMacros.cmake)
 
-SET(top_builddir ${CMAKE_BINARY_DIR})
-SET(top_srcdir ${CMAKE_SOURCE_DIR})
-SET(srcdir ${CMAKE_CURRENT_SOURCE_DIR})
-SET(builddir ${CMAKE_CURRENT_BINARY_DIR})
-SET(datadir ${CMAKE_INSTALL_PREFIX}/share)
-SET(docdir ${datadir}/doc/salome)
-SET(guidocdir ${docdir}/gui/HexoticPLUGIN)
-
 SALOME_CONFIGURE_FILE(doxyfile.in doxyfile)
 SALOME_CONFIGURE_FILE(doxyfile_py.in doxyfile_py)
-SALOME_CONFIGURE_FILE(static/header.html.in ${builddir}/static/header.html)
-SALOME_CONFIGURE_FILE(static/header_py.html.in ${builddir}/static/header_py.html)
+SALOME_CONFIGURE_FILE(static/header.html.in ${CMAKE_CURRENT_BINARY_DIR}/static/header.html)
+SALOME_CONFIGURE_FILE(static/header_py.html.in ${CMAKE_CURRENT_BINARY_DIR}/static/header_py.html)
 
 SET(DOC_SMESH_MeshersList HexoticPLUGIN)
 SET(f1 "$(SMESH_ROOT_DIR)/bin/salome/collect_mesh_methods.py")
 SET(f "$ENV{KERNEL_ROOT_DIR}/bin/salome/prepare_generating_doc.py")
-IF(WINDOWS)
+IF(WIN32)
   STRING(REPLACE "/" "\\" f ${f})
   STRING(REPLACE "/" "\\" f1 ${f1})
   STRING(REPLACE "/" "\\" SCR "@SET PYTHONPATH=${OMNIORB_ROOT_USER}/lib/x86_win32\;%PYTHONPATH%
@@ -56,7 +48,7 @@ IF(WINDOWS)
   ")
   SET(EXT "bat")
   SET(CALL_STR "call")
-ELSE(WINDOWS)
+ELSE(WIN32)
   SET(DOC_PYTHONPATH ${CMAKE_INSTALL_PREFIX}/bin/salome:${CMAKE_INSTALL_PREFIX}/lib/python${PYTHON_VERSION}/site-packages/salome:${SMESH_ROOT_DIR}/bin/salome:${SMESH_ROOT_DIR}/lib/python${PYTHON_VERSION}/site-packages/salome:${MED_ROOT_DIR}/lib/python${PYTHON_VERSION}/site-packages/salome:${GEOM_ROOT_DIR}/bin/salome:${GEOM_ROOT_DIR}/lib/python${PYTHON_VERSION}/site-packages/salome:${KERNEL_ROOT_DIR}/bin/salome:${KERNEL_ROOT_DIR}/lib/python${PYTHON_VERSION}/site-packages/salome:${OMNIORB_ROOT_USER}/lib/python${PYTHON_VERSION}/site-packages:${OMNIORB_ROOT_USER}/lib64/python${PYTHON_VERSION}/site-packages)
   SET(DOC_LD_LIBRARY_PATH "${CMAKE_INSTALL_PREFIX}/lib/salome:${SMESH_ROOT_DIR}/lib/salome:${MED_ROOT_DIR}/lib/salome:${GEOM_ROOT_DIR}/lib/salome:${KERNEL_ROOT_DIR}/lib/salome")
   SET(SCR "export PYTHONPATH=${DOC_PYTHONPATH}:\${PYTHONPATH}
@@ -65,18 +57,21 @@ ELSE(WINDOWS)
   ")
   SET(EXT "sh")
   SET(CALL_STR ".")
-ENDIF(WINDOWS)
+ENDIF(WIN32)
 
 FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/tmp_env.${EXT} "${SCR}")
 
-ADD_CUSTOM_TARGET(usr_docs mkdir -p tmp
+ADD_CUSTOM_TARGET(usr_docs ${CMAKE_COMMAND} -E make_directory tmp
   COMMAND ${PYTHON_EXECUTABLE} ${f} -o tmp/HexoticPLUGINBuilder.py ${CMAKE_SOURCE_DIR}/src/HexoticPlugin/HexoticPLUGINBuilder.py
-  COMMAND ${PYTHON_EXECUTABLE} ${f} -o tmp/smesh_algorithm.py ${SMESH_ROOT_DIR}/lib/python${PYTHON_VERSION}/site-packages/salome/salome/smesh/smesh_algorithm.py
+  COMMAND ${PYTHON_EXECUTABLE} ${f} -o tmp/smesh_algorithm.py ${SMESH_ROOT_DIR}/${SALOME_INSTALL_PYTHON}/salome/smesh/smesh_algorithm.py
   COMMAND ${CALL_STR} ${CMAKE_CURRENT_BINARY_DIR}/tmp_env.${EXT} && ${PYTHON_EXECUTABLE} ${f1} -d -o tmp/smeshBuilder.py HexoticPLUGIN
   COMMAND ${DOXYGEN_EXECUTABLE} doxyfile_py
   COMMAND ${DOXYGEN_EXECUTABLE} doxyfile
-  COMMAND ${PYTHON_EXECUTABLE} -c "import os, shutil; shutil.rmtree(r'''tmp''')"
-  COMMAND ${PYTHON_EXECUTABLE} -c "import shutil, sys; shutil.rmtree(r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/gui/HexoticPLUGIN''',True); shutil.copytree(r'''${CMAKE_CURRENT_BINARY_DIR}''',r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/gui/HexoticPLUGIN''', ignore=shutil.ignore_patterns('*usr_docs*', '*CMakeFiles*', '*.cmake', 'doxyfile*', '*.vcproj', 'static', 'Makefile*')); shutil.copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/head.png''',r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/gui/HexoticPLUGIN'''); shutil.copy(r'''${CMAKE_CURRENT_SOURCE_DIR}/images/head.png''',r'''${CMAKE_INSTALL_PREFIX}/share/doc/salome/gui/HexoticPLUGIN/hexoticpluginpy_doc''')"
-  VERBATIM 
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
+  COMMAND ${CMAKE_COMMAND} -E remove_directory tmp
+  VERBATIM
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+INSTALL(CODE "EXECUTE_PROCESS(COMMAND \"${CMAKE_COMMAND}\" --build ${PROJECT_BINARY_DIR} --target usr_docs)")
+INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/HexoticPLUGIN DESTINATION ${SALOME_INSTALL_DOC}/gui)
+INSTALL(FILES images/head.png DESTINATION ${SALOME_INSTALL_DOC}/gui/HexoticPLUGIN)

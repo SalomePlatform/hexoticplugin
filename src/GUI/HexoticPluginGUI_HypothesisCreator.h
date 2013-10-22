@@ -106,8 +106,6 @@ private:
 protected slots:
   void             onAddLocalSize();
   void             onRemoveLocalSize();
-  void             onItemChanged(QTableWidgetItem*);
-  void             onItemDoubleClicked(QTableWidgetItem*);
   
 };
 

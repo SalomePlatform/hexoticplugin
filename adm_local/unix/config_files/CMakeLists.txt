@@ -1,4 +1,7 @@
-# Copyright (C) 2013  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2013  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,5 +20,10 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-FILE(GLOB files "${CMAKE_CURRENT_SOURCE_DIR}/*.py")
-INSTALL(FILES ${files} DESTINATION ${SALOME_INSTALL_DOC}/examples/HexoticPLUGIN)
+SET(_m4_data
+  check_Hexotic.m4
+  check_HexoticPLUGIN.m4
+  check_BLSURFPLUGIN.m4
+)
+
+INSTALL(FILES ${_m4_data} DESTINATION ${SALOME_INSTALL_AMCONFIG_LOCAL}/config_files)

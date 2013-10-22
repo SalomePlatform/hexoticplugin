@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2013  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2012-2013  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,16 +17,13 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-#  File   : Makefile.in
-#  Author : Vasily Rusyaev (Open Cascade NN)
-#  Modified by : Alexander BORODIN (OCN) - autotools usage
-#  Module : doc
-#
-include $(top_srcdir)/adm_local/unix/make_common_starter.am
+# ===============================================================
+# Files to be installed
+# ===============================================================
 
-SUBDIRS = HexoticPLUGIN
-
-usr_docs:
-	(cd HexoticPLUGIN && $(MAKE) $(AM_MAKEFLAGS) usr_docs)
-
-docs: usr_docs
+# These files are data, module or lib files
+SET(_adm_data
+  FindHexoticPLUGIN.cmake
+  FindSalomeHexoticPLUGIN.cmake
+)
+INSTALL(FILES ${_adm_data} DESTINATION ${SALOME_INSTALL_CMAKE_LOCAL})

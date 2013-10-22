@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2013  CEA/DEN, EDF R&D
+# Copyright (C) 2007-2013  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -16,18 +16,10 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-
-# ---
-# File   : Makefile.am
-# Author : Vadim SANDLER, Open CASCADE S.A.S (vadim.sandler@opencascade.com)
-# ---
 #
-include $(top_srcdir)/adm_local/unix/make_common_starter.am
 
-SUBDIRS = HexoticPlugin
+SET(HexoticPLUGIN_CXXFLAGS -I${HexoticPLUGIN_ROOT_DIR}/include/salome)
 
-if HEXOTICPLUGIN_ENABLE_GUI
-  SUBDIRS += GUI
-endif
-
-DIST_SUBDIRS = HexoticPlugin GUI
+FIND_LIBRARY(HexoticEngine HexoticEngine ${HexoticPLUGIN_ROOT_DIR}/lib/salome)
+FIND_LIBRARY(HexoticPluginGUI HexoticPluginGUI ${HexoticPLUGIN_ROOT_DIR}/lib/salome)
+FIND_LIBRARY(SalomeIDLHexoticPLUGIN SalomeIDLHexoticPLUGIN ${HexoticPLUGIN_ROOT_DIR}/lib/salome)
