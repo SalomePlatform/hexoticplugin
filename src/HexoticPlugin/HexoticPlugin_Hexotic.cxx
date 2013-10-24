@@ -31,6 +31,7 @@
 #include <sys/sysinfo.h>
 #else
 #include <errno.h>
+#include <process.h>
 #endif
 
 #ifdef _DEBUG_
@@ -866,6 +867,7 @@ static TCollection_AsciiString getTmpDir()
     Tmp_dir = getenv("TEMP");
     if( Tmp_dir== NULL )
       Tmp_dir = getenv("TMP");
+  }
 #endif
 
   if(Tmp_dir != NULL) {
@@ -899,7 +901,11 @@ static TCollection_AsciiString getSuffix()
   aSuffix += "_";
   aSuffix += Kernel_Utils::GetHostname().c_str();
   aSuffix += "_";
+#ifndef WIN32
   aSuffix += getpid();
+#else
+  aSuffix += _getpid();
+#endif
 
   return aSuffix;
 }
@@ -1268,7 +1274,7 @@ void HexoticPlugin_Hexotic::subdivideTriangle( const gp_Pnt& p1,
   // If the traingles share a Vertex and no Edge the distance of the mass centers 
   // to the Vertices is 2*D < S so the mass centers are distant of less than 2*S 
   
-  double threshold = sqrt( 3 ) * theSize;
+  double threshold = sqrt( 3. ) * theSize;
   
   if ( (p1.Distance(p2) > threshold ||
         p2.Distance(p3) > threshold ||
@@ -1752,7 +1758,7 @@ bool HexoticPlugin_Hexotic::Evaluate(SMESH_Mesh& aMesh,
 void HexoticPlugin_Hexotic::CancelCompute()
 {
   _compute_canceled = true;
-#ifdef WNT
+#ifdef WIN32
 #else
   TCollection_AsciiString aTmpDir = getTmpDir();
   TCollection_AsciiString Hexotic_In = aTmpDir + "Hexotic_In.mesh";

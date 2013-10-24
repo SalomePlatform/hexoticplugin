@@ -50,12 +50,13 @@ SET(_link_LIBRARIES
   ${SMESH_SMESHimpl}
   ${SMESH_SMESHEngine}
   ${SMESH_StdMeshersEngine}
+  ${SMESH_MeshDriverGMF}
   ${SMESH_SMDS}
   ${SMESH_SMESHDS}
   ${SMESH_SalomeIDLSMESH}
   ${SMESH_SMESHUtils}
   ${KERNEL_SalomeGenericObj}
-  ${KERNEL_SALOMELocalTrace}
+  ${KERNEL_SALOMELocalTrace}  
   SalomeIDLHexoticPLUGIN
 )
 
