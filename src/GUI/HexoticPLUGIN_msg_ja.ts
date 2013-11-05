@@ -5,11 +5,11 @@
     <name>@default</name>
     <message>
       <source>Hexotic_3D_HYPOTHESIS</source>
-      <translation>Hexotic 3 D</translation>
+      <translation>Hexotic 3D</translation>
     </message>
     <message>
       <source>Hexotic_3D_TITLE</source>
-      <translation>仮説構築</translation>
+      <translation>仮定の構成</translation>
     </message>
     <message>
       <source>Hexotic_INPUT_SIZE</source>
@@ -17,7 +17,7 @@
     </message>
     <message>
       <source>Hexotic_INPUT_LEVEL</source>
-      <translation>細分化レベル</translation>
+      <translation>細分化のレベル</translation>
     </message>
     <message>
       <source>Hexotic_MAX_SIZE</source>
@@ -25,31 +25,31 @@
     </message>
     <message>
       <source>Hexotic_MIN_SIZE</source>
-      <translation>最小サイズ</translation>
+      <translation>サイズ分</translation>
     </message>
     <message>
       <source>Hexotic_HEXES_MAX_LEVEL</source>
-      <translation>注意 Hexes 最大レベル</translation>
+      <translation>六角形の nb に登録: 最大レベル</translation>
     </message>
     <message>
       <source>Hexotic_HEXES_MIN_LEVEL</source>
-      <translation>注意ヘックス分レベル</translation>
+      <translation>六角形の nb に登録: レベル分</translation>
     </message>
     <message>
       <source>Hexotic_IGNORE_RIDGES</source>
-      <translation>ない尾根滑らかなメッシュを生成します。</translation>
+      <translation>尾根のない滑らかなメッシュを生成します。</translation>
     </message>
     <message>
       <source>Hexotic_INVALID_ELEMENTS</source>
-      <translation>無効な要素を承認します。</translation>
+      <translation>無効な要素を許可します。</translation>
     </message>
     <message>
       <source>Hexotic_SHARP_ANGLE_THRESHOLD</source>
-      <translation>鋭い角度度のしきい値</translation>
+      <translation>鋭角度のしきい値</translation>
     </message>
     <message>
       <source>Hexotic_NB_PROC</source>
-      <translation>スレッドの数</translation>
+      <translation>プロセスの数</translation>
     </message>
     <message>
       <source>Hexotic_WORKING_DIR</source>
@@ -69,7 +69,7 @@
     </message>
     <message>
       <source>Hexotic_SUBDOMAIN_MESH_MODE</source>
-      <translation>サブドメイン メッシュ モード</translation>
+      <translation>サブドメインのメッシュ サイズのモード</translation>
     </message>
     <message>
       <source>Hexotic_SD_MODE_1</source>
@@ -81,11 +81,11 @@
     </message>
     <message>
       <source>Hexotic_SD_MODE_3</source>
-      <translation>メッシュ空洞</translation>
+      <translation>空洞メッシュ</translation>
     </message>
     <message>
       <source>Hexotic_SD_MODE_4</source>
-      <translation>非-マニホールド ジオメトリ</translation>
+      <translation>ジオメトリ「マニホールド」</translation>
     </message>
   </context>
 </TS>
