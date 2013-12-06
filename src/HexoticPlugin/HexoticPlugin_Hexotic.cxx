@@ -687,7 +687,15 @@ static bool readResult(std::string theFile,
   mapField["Hexahedra"]            = 7; tabRef[7] = 8; tabDummy[7] = true;
   mapField["End"]                  = 8; tabRef[8] = 0; tabDummy[8] = false;
 
-  theHelper->GetMesh()->Clear();
+  {
+    // theMesh->Clear(); -- this does not remove imported mesh
+    SMDS_ElemIteratorPtr eIt = theMesh->elementsIterator();
+    while( eIt->more() )
+      theMesh->RemoveFreeElement( eIt->next(), /*sm=*/0 );
+    SMDS_NodeIteratorPtr nIt = theMesh->nodesIterator();
+    while ( nIt->more() )
+      theMesh->RemoveFreeNode( nIt->next(), /*sm=*/0 );
+  }
 
   int nbVertices = getNbShape(theFile, "Vertices");
   HexoticNode = new SMDS_MeshNode*[ nbVertices + 1 ];
