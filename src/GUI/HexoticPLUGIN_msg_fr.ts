@@ -4,6 +4,10 @@
 <context>
     <name>@default</name>
     <message>
+        <source>Hexotic_NULL_LOCAL_SIZE</source>
+        <translation type="unfinished">0 is not allowed as "Local size"</translation>
+    </message>
+    <message>
         <source>Hexotic_3D_HYPOTHESIS</source>
         <translation>Hexotic 3D</translation>
     </message>

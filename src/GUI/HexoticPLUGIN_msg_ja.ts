@@ -4,6 +4,34 @@
   <context>
     <name>@default</name>
     <message>
+        <source>Hexotic_NULL_LOCAL_SIZE</source>
+        <translation type="unfinished">0 is not allowed as "Local size"</translation>
+    </message>
+    <message>
+        <source>Hexotic_SEL_SHAPE</source>
+        <translation type="unfinished">Select a shape</translation>
+    </message>
+    <message>
+        <source>Hexotic_SIZE</source>
+        <translation type="unfinished">Size</translation>
+    </message>
+    <message>
+        <source>Hexotic_NAME</source>
+        <translation type="unfinished">Name</translation>
+    </message>
+    <message>
+        <source>Hexotic_ENTRY</source>
+        <translation type="unfinished">Entry</translation>
+    </message>
+    <message>
+        <source>Hexotic_REMOVE</source>
+        <translation type="unfinished">Remove</translation>
+    </message>
+    <message>
+        <source>Hexotic_ADD</source>
+        <translation type="unfinished">Add</translation>
+    </message>
+    <message>
       <source>Hexotic_3D_HYPOTHESIS</source>
       <translation>Hexotic 3D</translation>
     </message>
