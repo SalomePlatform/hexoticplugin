@@ -370,6 +370,23 @@ static void removeHexoticFiles(TCollection_AsciiString file_In, TCollection_Asci
 }
 
 //=======================================================================
+//function : splitQuads
+//purpose  : splits all quadrangles into triangles
+//=======================================================================
+
+static void splitQuads(SMESH_Mesh& aMesh)
+{
+  SMESH_MeshEditor spliter( &aMesh );
+
+  TIDSortedElemSet elems;
+  SMDS_ElemIteratorPtr eIt = aMesh.GetMeshDS()->elementsIterator();
+  while( eIt->more() )
+    elems.insert( elems.end(), eIt->next() );
+  
+  spliter.QuadToTri ( elems, /*the13Diag=*/true);
+}
+
+//=======================================================================
 //function : readResult
 //purpose  : Read GMF file in case of a mesh with geometry
 //=======================================================================
@@ -687,7 +704,15 @@ static bool readResult(std::string theFile,
   mapField["Hexahedra"]            = 7; tabRef[7] = 8; tabDummy[7] = true;
   mapField["End"]                  = 8; tabRef[8] = 0; tabDummy[8] = false;
 
-  theHelper->GetMesh()->Clear();
+  {
+    // theMesh->Clear(); -- this does not remove imported mesh
+    SMDS_ElemIteratorPtr eIt = theMesh->elementsIterator();
+    while( eIt->more() )
+      theMesh->RemoveFreeElement( eIt->next(), /*sm=*/0 );
+    SMDS_NodeIteratorPtr nIt = theMesh->nodesIterator();
+    while ( nIt->more() )
+      theMesh->RemoveFreeNode( nIt->next(), /*sm=*/0 );
+  }
 
   int nbVertices = getNbShape(theFile, "Vertices");
   HexoticNode = new SMDS_MeshNode*[ nbVertices + 1 ];
@@ -1488,6 +1513,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
 #endif
       Hexotic_In  = aTmpDir + "Hexotic"+getSuffix()+"_In.mesh";
       removeHexoticFiles(Hexotic_In, Hexotic_Out);
+      splitQuads(aMesh); // quadrangles are no longer acceptable as input
       cout << std::endl;
       cout << "Creating Hexotic input mesh file : " << Hexotic_In << std::endl;
       aMesh.ExportGMF(Hexotic_In.ToCString(), meshDS, true);
@@ -1642,6 +1668,8 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   run_Hexotic += std::string(" 1> ") + aLogFileName.ToCString();  // dump into file
 
   removeHexoticFiles(Hexotic_In, Hexotic_Out);
+
+  splitQuads(aMesh); // quadrangles are no longer acceptable as input
 
   cout << std::endl;
   cout << "Creating Hexotic input mesh file : " << Hexotic_In << std::endl;
