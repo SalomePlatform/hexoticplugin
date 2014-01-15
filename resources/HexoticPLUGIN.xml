@@ -50,6 +50,7 @@
                icon-id="mesh_algo_Hexotic.png"
                hypos="Hexotic_Parameters"
                input="TRIA,QUAD"
+               output="HEXA"
                need-geom="false"
                dim="3">
       <python-wrap>
