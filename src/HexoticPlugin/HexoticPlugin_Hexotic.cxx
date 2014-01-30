@@ -1427,7 +1427,7 @@ gp_Pnt HexoticPlugin_Hexotic::tangencyPoint(const gp_Pnt& p1,
 //=============================================================================
 
 bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
-                                     const TopoDS_Shape& aShape)
+                                    const TopoDS_Shape& aShape)
 {
   _compute_canceled = false;
   bool Ok = true;
@@ -1488,7 +1488,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     SetParameters(_hypothesis);
 
 //     TCollection_AsciiString aTmpDir = getTmpDir();
-    TCollection_AsciiString aTmpDir = TCollection_AsciiString(_hexoticWorkingDirectory.c_str());
+    TCollection_AsciiString aTmpDir = _hexoticWorkingDirectory.c_str();
 #ifdef WIN32
     if ( aTmpDir.Value(aTmpDir.Length()) != '\\' ) aTmpDir += '\\';
 #else
@@ -1649,7 +1649,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
 
   SetParameters(_hypothesis);
 
-  TCollection_AsciiString aTmpDir = getTmpDir();
+  TCollection_AsciiString aTmpDir = _hexoticWorkingDirectory.c_str();//getTmpDir();
   TCollection_AsciiString Hexotic_In, Hexotic_Out, Hexotic_SizeMap_Prefix;
   TCollection_AsciiString modeFile_In( "chmod 666 " ), modeFile_Out( "chmod 666 " );
   TCollection_AsciiString aLogFileName = aTmpDir + "Hexotic"+getSuffix()+".log";    // log
@@ -1788,7 +1788,7 @@ void HexoticPlugin_Hexotic::CancelCompute()
   _compute_canceled = true;
 #ifdef WIN32
 #else
-  TCollection_AsciiString aTmpDir = getTmpDir();
+  TCollection_AsciiString aTmpDir = _hexoticWorkingDirectory.c_str(); //getTmpDir();
   TCollection_AsciiString Hexotic_In = aTmpDir + "Hexotic_In.mesh";
   TCollection_AsciiString cmd = TCollection_AsciiString("ps ux | grep ") + Hexotic_In;
   cmd += TCollection_AsciiString(" | grep -v grep | awk '{print $2}' | xargs kill -9 > /dev/null 2>&1");
