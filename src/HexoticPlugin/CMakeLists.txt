@@ -63,27 +63,12 @@ SET(_link_LIBRARIES
 # --- headers ---
 
 # header files
-SET(NETGENEngine_HEADERS
-  NETGENPlugin_NETGEN_3D.hxx 
-  NETGENPlugin_NETGEN_3D_i.hxx 
-  NETGENPlugin_NETGEN_2D.hxx 
-  NETGENPlugin_NETGEN_2D_i.hxx 
-  NETGENPlugin_NETGEN_2D3D.hxx 
-  NETGENPlugin_NETGEN_2D3D_i.hxx 
-  NETGENPlugin_NETGEN_2D_ONLY.hxx 
-  NETGENPlugin_NETGEN_2D_ONLY_i.hxx 
-  NETGENPlugin_Hypothesis.hxx 
-  NETGENPlugin_Hypothesis_i.hxx 
-  NETGENPlugin_Hypothesis_2D.hxx 
-  NETGENPlugin_Hypothesis_2D_i.hxx 
-  NETGENPlugin_Hypothesis_3D_i.hxx 
-  NETGENPlugin_Hypothesis_2D_ONLY_i.hxx 
-  NETGENPlugin_SimpleHypothesis_2D.hxx 
-  NETGENPlugin_SimpleHypothesis_3D.hxx 
-  NETGENPlugin_SimpleHypothesis_2D_i.hxx 
-  NETGENPlugin_SimpleHypothesis_3D_i.hxx 
-  NETGENPlugin_Mesher.hxx 
-  NETGENPlugin_Defs.hxx
+SET(HexoticEngine_HEADERS
+  HexoticPlugin_Defs.hxx
+  HexoticPlugin_Hexotic.hxx
+  HexoticPlugin_Hexotic_i.hxx
+  HexoticPlugin_Hypothesis.hxx
+  HexoticPlugin_Hypothesis_i.hxx
 )
 
 # --- sources ---
@@ -115,5 +100,7 @@ SET(_python_SCRIPTS
 ADD_LIBRARY(HexoticEngine ${HexoticEngine_SOURCES})
 TARGET_LINK_LIBRARIES(HexoticEngine ${_link_LIBRARIES} )
 INSTALL(TARGETS HexoticEngine EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
+
+INSTALL(FILES ${HexoticEngine_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
 
 SALOME_INSTALL_SCRIPTS("${_python_SCRIPTS}" ${SALOME_INSTALL_PYTHON}/salome/HexoticPLUGIN)
