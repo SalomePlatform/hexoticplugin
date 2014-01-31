@@ -76,14 +76,14 @@ void HexoticPlugin_Hypothesis::SetHexesMaxLevel(int theVal) {
 
 void HexoticPlugin_Hypothesis::SetMinSize(double theVal) {
   if (theVal != _minSize) {
-	  _minSize = theVal;
+          _minSize = theVal;
     NotifySubMeshesHypothesisModification();
   }
 }
 
 void HexoticPlugin_Hypothesis::SetMaxSize(double theVal) {
   if (theVal != _maxSize) {
-	  _maxSize = theVal;
+          _maxSize = theVal;
     NotifySubMeshesHypothesisModification();
   }
 }
@@ -120,6 +120,16 @@ void HexoticPlugin_Hypothesis::SetHexoticWorkingDirectory(const std::string& pat
 {
   if ( _hexoticWorkingDirectory != path ) {
     _hexoticWorkingDirectory = path;
+    if ( !path.empty() )
+    {
+#ifdef WIN32
+      if( path[ path.size()-1 ] != '\\')
+        _hexoticWorkingDirectory += '\\';
+#else
+      if( path[ path.size()-1 ] != '/')
+        _hexoticWorkingDirectory += '/';
+#endif
+    }
     NotifySubMeshesHypothesisModification();
   }
 }
