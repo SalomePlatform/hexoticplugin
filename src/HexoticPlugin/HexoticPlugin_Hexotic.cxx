@@ -922,7 +922,11 @@ static TCollection_AsciiString getSuffix()
 {
   TCollection_AsciiString aSuffix = "";
   aSuffix += "_";
+#ifndef WIN32
   aSuffix += getenv("USER");
+#else
+  aSuffix += getenv("USERNAME");
+#endif
   aSuffix += "_";
   aSuffix += Kernel_Utils::GetHostname().c_str();
   aSuffix += "_";
@@ -969,7 +973,9 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   TCollection_AsciiString sizeMap = " --read_sizemap ";
   TCollection_AsciiString ignoreRidges = " --compute_ridges no ", invalideElements = " --allow_invalid_elements yes ";
   TCollection_AsciiString subdom = " --components ";
+#ifndef WIN32
   TCollection_AsciiString proc = " --max_number_of_threads ";
+#endif
   TCollection_AsciiString verb = " --verbose ";
   TCollection_AsciiString maxmem = " --max_memory ";
 
@@ -1025,7 +1031,9 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
 
   run_Hexotic += in + Hexotic_In + out + Hexotic_Out;
   run_Hexotic += subdom + mode;
+#ifndef WIN32
   run_Hexotic += proc + nbproc;
+#endif
   run_Hexotic += verb + verbosity;
   run_Hexotic += maxmem + maxMemory;
 

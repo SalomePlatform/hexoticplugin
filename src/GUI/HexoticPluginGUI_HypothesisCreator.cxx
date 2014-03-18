@@ -194,6 +194,10 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   HexoticPlugin::HexoticPlugin_Hypothesis::_narrow( initParamsHypothesis() );
   
   myStdWidget = new HexoticPluginGUI_StdWidget(aStdGroup);
+#ifdef WIN32
+  myStdWidget->label_6->hide();
+  myStdWidget->myHexoticNbProc->hide();
+#endif
   l->addWidget( myStdWidget, row++, 0, 1, 3 );
   myStdWidget->onSdModeSelected(SD_MODE_4);
 
@@ -407,8 +411,9 @@ void HexoticPluginGUI_HypothesisCreator::retrieveParams() const
     myStdWidget->myHexoticSharpAngleThreshold->setText("");
   else
     myStdWidget->myHexoticSharpAngleThreshold->setValue( data.myHexoticSharpAngleThreshold );
-
+#ifndef WIN32
   myStdWidget->myHexoticNbProc->setValue( data.myHexoticNbProc );
+#endif
   myStdWidget->myHexoticWorkingDir->setText( data.myHexoticWorkingDir );
 
   myStdWidget->myHexoticVerbosity->setValue( data.myHexoticVerbosity );
@@ -567,8 +572,9 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromWidgets( HexoticHypothesi
 
   h_data.myHexoticIgnoreRidges = myStdWidget->myHexoticIgnoreRidges->isChecked();
   h_data.myHexoticInvalidElements = myStdWidget->myHexoticInvalidElements->isChecked();
-
+#ifndef WIN32
   h_data.myHexoticNbProc = myStdWidget->myHexoticNbProc->value();
+#endif
   h_data.myHexoticWorkingDir = myStdWidget->myHexoticWorkingDir->text();
   h_data.myHexoticVerbosity = myStdWidget->myHexoticVerbosity->value();
   h_data.myHexoticMaxMemory = myStdWidget->myHexoticMaxMemory->value();
