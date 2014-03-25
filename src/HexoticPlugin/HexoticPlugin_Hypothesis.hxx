@@ -1,9 +1,9 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -30,6 +30,19 @@
 #include "SMESH_Hypothesis.hxx"
 #include "Utils_SALOME_Exception.hxx"
 
+#include <map>
+
+// class HexoticSizeMap
+// {
+// public:
+//   SizeMap(const TopoDS_Shape& theShape, double theSize)
+//   {
+//     shape=theShape;
+//     size=theSize;
+//   };
+//   TopoDS_Shape shape;
+//   double size;
+// }
 //  Parameters for work of Hexotic
 //
 
@@ -45,8 +58,11 @@ public:
   void SetHexesMaxLevel(int theVal);
   int GetHexesMaxLevel() const { return _hexesMaxLevel; }
 
-  void SetHexoticQuadrangles(bool theVal);
-  bool GetHexoticQuadrangles() const { return _hexoticQuadrangles; }
+  void SetMinSize(double theVal);
+  double GetMinSize() const { return _minSize; }
+
+  void SetMaxSize(double theVal);
+  double GetMaxSize() const { return _maxSize; }
 
   void SetHexoticIgnoreRidges(bool theVal);
   bool GetHexoticIgnoreRidges() const { return _hexoticIgnoreRidges; }
@@ -54,8 +70,8 @@ public:
   void SetHexoticInvalidElements(bool theVal);
   bool GetHexoticInvalidElements() const { return _hexoticInvalidElements; }
    
-  void SetHexoticSharpAngleThreshold(int theVal);
-  int GetHexoticSharpAngleThreshold() const { return _hexoticSharpAngleThreshold; }
+  void SetHexoticSharpAngleThreshold(double theVal);
+  double GetHexoticSharpAngleThreshold() const { return _hexoticSharpAngleThreshold; }
    
   void SetHexoticNbProc(int theVal);
   int GetHexoticNbProc() const { return _hexoticNbProc; }
@@ -63,16 +79,39 @@ public:
   void SetHexoticWorkingDirectory(const std::string& path);
   std::string GetHexoticWorkingDirectory() const { return _hexoticWorkingDirectory; }
 
-  // the parameters default values 
+  void SetHexoticSdMode(int theVal);
+  int GetHexoticSdMode() const { return _hexoticSdMode; }
 
+  void SetHexoticVerbosity(int theVal);
+  int GetHexoticVerbosity() const { return _hexoticVerbosity; }
+
+  void SetHexoticMaxMemory(int theVal);
+  int GetHexoticMaxMemory() const { return _hexoticMaxMemory; }
+  
+  // Size Maps
+  typedef std::map<std::string,double> THexoticSizeMaps;
+  
+  // For the GUI HexoticPluginGUI_HypothesisCreator::storeParamToHypo
+  THexoticSizeMaps GetSizeMaps() const { return _sizeMaps; }; 
+  
+  // Add one size map to the collection of size maps (user interface)
+  bool AddSizeMap(std::string theEntry, double theSize);
+  bool UnsetSizeMap(std::string theEntry);
+
+  // the parameters default values 
   static int GetDefaultHexesMinLevel();
   static int GetDefaultHexesMaxLevel();
-  static bool GetDefaultHexoticQuadrangles();
+  static double GetDefaultMinSize();
+  static double GetDefaultMaxSize();
   static bool GetDefaultHexoticIgnoreRidges();
   static bool GetDefaultHexoticInvalidElements();
-  static int GetDefaultHexoticSharpAngleThreshold();
+  static double GetDefaultHexoticSharpAngleThreshold();
   static int GetDefaultHexoticNbProc();
   static std::string GetDefaultHexoticWorkingDirectory();
+  static int GetDefaultHexoticSdMode();
+  static int GetDefaultHexoticVerbosity();
+  static int GetDefaultHexoticMaxMemory();
+  static THexoticSizeMaps GetDefaultHexoticSizeMaps();
 
   // Persistence
   virtual std::ostream& SaveTo(std::ostream& save);
@@ -95,13 +134,18 @@ public:
   virtual bool SetParametersByDefaults(const TDefaults& dflts, const SMESH_Mesh* theMesh=0);
 
 private:
-  int  _hexesMinLevel;
-  int  _hexesMaxLevel;
-  bool _hexoticQuadrangles;
-  bool _hexoticIgnoreRidges;
-  bool _hexoticInvalidElements;
-  int  _hexoticSharpAngleThreshold;
-  int  _hexoticNbProc;
+  int    _hexesMinLevel;
+  int    _hexesMaxLevel;
+  double _minSize;
+  double _maxSize;
+  bool   _hexoticIgnoreRidges;
+  bool   _hexoticInvalidElements;
+  double _hexoticSharpAngleThreshold;
+  int    _hexoticNbProc;
+  int    _hexoticSdMode;
+  int    _hexoticVerbosity;
+  int    _hexoticMaxMemory;
+  THexoticSizeMaps _sizeMaps;
   std::string _hexoticWorkingDirectory ;
 };
 

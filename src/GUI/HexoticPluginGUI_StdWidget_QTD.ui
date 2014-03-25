@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>HexoticPluginGUI_StdWidget_QTD</class>
+ <widget class="QWidget" name="HexoticPluginGUI_StdWidget_QTD">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>561</width>
+    <height>581</height>
+   </rect>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item row="0" column="0" colspan="2">
+    <widget class="QGroupBox" name="hexoticInputSize">
+     <property name="title">
+      <string>Hexotic_INPUT_SIZE</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Hexotic_MIN_SIZE</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="SalomeApp_DoubleSpinBox" name="myMinSize"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Hexotic_MAX_SIZE</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="SalomeApp_DoubleSpinBox" name="myMaxSize"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="2" colspan="2">
+    <widget class="QGroupBox" name="hexoticInputLevel">
+     <property name="title">
+      <string>Hexotic_INPUT_LEVEL</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Hexotic_HEXES_MIN_LEVEL</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="SalomeApp_IntSpinBox" name="myHexesMinLevel"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Hexotic_HEXES_MAX_LEVEL</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="SalomeApp_IntSpinBox" name="myHexesMaxLevel"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QCheckBox" name="myHexoticIgnoreRidges">
+     <property name="text">
+      <string>Hexotic_IGNORE_RIDGES</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Hexotic_SHARP_ANGLE_THRESHOLD</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3">
+    <widget class="SalomeApp_DoubleSpinBox" name="myHexoticSharpAngleThreshold"/>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Hexotic_NB_PROC</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="3">
+    <widget class="SalomeApp_IntSpinBox" name="myHexoticNbProc"/>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>Hexotic_WORKING_DIR</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1" colspan="2">
+    <widget class="QPushButton" name="dirBtn">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Hexotic_SELECT_DIR</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="3">
+    <widget class="QLineEdit" name="myHexoticWorkingDir"/>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="label_8">
+     <property name="text">
+      <string>Hexotic_VERBOSITY</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="3">
+    <widget class="QSpinBox" name="myHexoticVerbosity">
+     <property name="maximum">
+      <number>2</number>
+     </property>
+     <property name="value">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" colspan="4">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Hexotic_SUBDOMAIN_MESH_MODE</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QComboBox" name="myHexoticSdMode">
+        <property name="currentIndex">
+         <number>3</number>
+        </property>
+        <property name="maxVisibleItems">
+         <number>4</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>Hexotic_SD_MODE_1</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Hexotic_SD_MODE_2</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Hexotic_SD_MODE_3</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Hexotic_SD_MODE_4</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="sdModeLabel">
+        <property name="minimumSize">
+         <size>
+          <width>500</width>
+          <height>250</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>500</width>
+          <height>250</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="2" colspan="2">
+    <widget class="QCheckBox" name="myHexoticInvalidElements">
+     <property name="text">
+      <string>Hexotic_INVALID_ELEMENTS</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_9">
+     <property name="text">
+      <string>Hexotic_MAX_MEMORY</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="3">
+    <widget class="QSpinBox" name="myHexoticMaxMemory">
+     <property name="maximum">
+      <number>99999</number>
+     </property>
+     <property name="singleStep">
+      <number>128</number>
+     </property>
+     <property name="value">
+      <number>2048</number>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SalomeApp_DoubleSpinBox</class>
+   <extends>QLineEdit</extends>
+   <header location="global">SalomeApp_DoubleSpinBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SalomeApp_IntSpinBox</class>
+   <extends>QLineEdit</extends>
+   <header location="global">SalomeApp_IntSpinBox.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>myMinSize</tabstop>
+  <tabstop>myMaxSize</tabstop>
+  <tabstop>myHexesMinLevel</tabstop>
+  <tabstop>myHexesMaxLevel</tabstop>
+  <tabstop>myHexoticIgnoreRidges</tabstop>
+  <tabstop>myHexoticInvalidElements</tabstop>
+  <tabstop>myHexoticSharpAngleThreshold</tabstop>
+  <tabstop>myHexoticNbProc</tabstop>
+  <tabstop>dirBtn</tabstop>
+  <tabstop>myHexoticWorkingDir</tabstop>
+  <tabstop>myHexoticMaxMemory</tabstop>
+  <tabstop>myHexoticVerbosity</tabstop>
+  <tabstop>myHexoticSdMode</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>dirBtn</sender>
+   <signal>clicked()</signal>
+   <receiver>HexoticPluginGUI_StdWidget_QTD</receiver>
+   <slot>onDirBtnClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>261</x>
+     <y>220</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>390</x>
+     <y>143</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>myHexoticSdMode</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>HexoticPluginGUI_StdWidget_QTD</receiver>
+   <slot>onSdModeSelected(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>147</x>
+     <y>310</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>170</x>
+     <y>258</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onDirBtnClicked()</slot>
+  <slot>onSdModeSelected(int)</slot>
+ </slots>
+</ui>

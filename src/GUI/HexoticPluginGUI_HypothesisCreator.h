@@ -1,9 +1,9 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -28,21 +28,33 @@
 #include "HexoticPluginGUI.h"
 
 #include <SMESHGUI_Hypotheses.h>
+#include "StdMeshersGUI_ObjectReferenceParamWdg.h"
+#include "HexoticPlugin_Hypothesis.hxx"
+
+#include <QItemDelegate>
 
 class QtxIntSpinBox;
 class QCheckBox;
 class QLineEdit;
+class QTableWidgetItem;
+
+class HexoticPluginGUI_StdWidget;
+class HexoticPluginGUI_SizeMapsWidget;
 
 typedef struct
 {
   QString  myName;
   int      myHexesMinLevel, myHexesMaxLevel;
-  bool     myHexoticQuadrangles;
+  double   myMinSize, myMaxSize;
   bool     myHexoticInvalidElements;
   bool     myHexoticIgnoreRidges;
-  int      myHexoticSharpAngleThreshold;
+  double   myHexoticSharpAngleThreshold;
   int      myHexoticNbProc;
   QString  myHexoticWorkingDir;
+  int      myHexoticVerbosity;
+  int      myHexoticMaxMemory;
+  int      myHexoticSdMode;
+  HexoticPlugin_Hypothesis::THexoticSizeMaps mySizeMaps;
 } HexoticHypothesisData;
 
 /*!
@@ -56,7 +68,7 @@ public:
   HexoticPluginGUI_HypothesisCreator( const QString& );
   virtual ~HexoticPluginGUI_HypothesisCreator();
 
-  virtual bool checkParams() const;
+  virtual bool checkParams(QString&) const;
   virtual QString  helpPage() const;
 
 protected:
@@ -68,26 +80,56 @@ protected:
   virtual QPixmap  icon() const;
   virtual QString  type() const;
   
-protected slots:
-  void             onDirBtnClicked();
-
 private:
   bool readParamsFromHypo( HexoticHypothesisData& ) const;
   bool readParamsFromWidgets( HexoticHypothesisData& ) const;
+  bool readSizeMapsFromWidgets( HexoticHypothesisData& ) const;
+  void insertLocalSizeInWidget( std::string entry, std::string shapeName, double size, int row ) const;
   bool storeParamsToHypo( const HexoticHypothesisData& ) const;
+  void resizeEvent(QResizeEvent *event);
+  void printData(HexoticHypothesisData&) const;
+  
+  GEOM::GEOM_Object_var entryToObject( std::string entry) const;
 
 private:
- QLineEdit*       myName;
- QtxIntSpinBox*   myHexesMinLevel;
- QtxIntSpinBox*   myHexesMaxLevel;
- QCheckBox*       myHexoticQuadrangles;
- QCheckBox*       myHexoticIgnoreRidges;
- QCheckBox*       myHexoticInvalidElements;
- QtxIntSpinBox*   myHexoticSharpAngleThreshold;
- QtxIntSpinBox*   myHexoticNbProc;
- QLineEdit*       myHexoticWorkingDir;
 
- bool             myIs3D;
+//  QWidget* 		myStdGroup;
+  QLineEdit* 	myName;
+  HexoticPluginGUI_StdWidget*	         myStdWidget;
+  HexoticPluginGUI_SizeMapsWidget*       mySmpWidget;
+  StdMeshersGUI_ObjectReferenceParamWdg* myGeomSelWdg;
+
+  bool                           myIs3D;
+  std::vector< std::string >     mySizeMapsToRemove;
+  QVariant                       myNotModifiedSize;
+ 
+protected slots:
+  void             onAddLocalSize();
+  void             onRemoveLocalSize();
+  
+};
+
+class SizeMapsTableWidgetDelegate : public QItemDelegate
+{
+    Q_OBJECT
+
+public:
+  SizeMapsTableWidgetDelegate(QObject *parent = 0);
+
+  QWidget *createEditor(QWidget *parent, 
+                        const QStyleOptionViewItem &option,
+                        const QModelIndex &index) const;
+
+  void setEditorData(QWidget *editor, 
+                     const QModelIndex &index) const;
+                     
+  void setModelData(QWidget *editor, 
+                    QAbstractItemModel *model,
+                    const QModelIndex &index) const;
+
+  void updateEditorGeometry(QWidget *editor, 
+                            const QStyleOptionViewItem &option,
+                            const QModelIndex &index) const;
 };
 
 #endif

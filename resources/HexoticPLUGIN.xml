@@ -1,12 +1,12 @@
 <?xml version='1.0' encoding='us-ascii'?>
 <!DOCTYPE meshers PUBLIC "" "desktop.dtd">
 <!--
-  Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+  Copyright (C) 2007-2014  CEA/DEN, EDF R&D
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
-  version 2.1 of the License.
+  version 2.1 of the License, or (at your option) any later version.
 
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -27,13 +27,21 @@
 
 <meshers-group name="Hexotic"
                resources="HexoticPLUGIN"
+               idl-module="HexoticPlugin"
                server-lib="HexoticEngine"
                gui-lib="HexoticPluginGUI">
   <hypotheses>
     <hypothesis type="Hexotic_Parameters"
     label-id="Hexotic Parameters"
     icon-id="mesh_hypo_Hexotic.png"
-    dim="3"/>
+    dim="3">
+      <python-wrap>
+        <accumulative-methods>
+          SetSizeMap
+          UnsetSizeMap
+        </accumulative-methods>
+      </python-wrap>
+    </hypothesis>
   </hypotheses>
   <algorithms>
 
@@ -42,11 +50,12 @@
                icon-id="mesh_algo_Hexotic.png"
                hypos="Hexotic_Parameters"
                input="TRIA,QUAD"
+               output="HEXA"
                need-geom="false"
                dim="3">
       <python-wrap>
-        <algo>Hexotic_3D=Hexahedron(algo=smesh.Hexotic)</algo>
-        <hypo>Hexotic_Parameters=MinMaxQuad(SetHexesMinLevel(),SetHexesMaxLevel(),SetHexoticQuadrangles())</hypo>
+        <algo>Hexotic_3D=Hexahedron(algo=smeshBuilder.Hexotic)</algo>
+        <hypo>Hexotic_Parameters=Parameters()</hypo>
       </python-wrap>
     </algorithm>
 

@@ -34,36 +34,19 @@ tar zxf HexoticPLUGIN_SRC.tgz
 bash
 cd <salome>
 source env_build.sh
-export HexoticHOME=<salome>/Hexotic
 
-Note: you can avoid setting HexoticHOME environment variable but use
---with-hexotic key of configure script instead. You can also compile
-plugin withour Hexotic product installation. But you'll need to add
-path to the hexotic executable to the PATH environment variable in order
-to use Hexotic meshing plugin within SALOME.
+* cmake build procedure
 
-* configure build system
-
-cd HexoticPLUGIN_SRC
-./build_configure
-
-cd ..
 mkdir HexoticPLUGIN_BUILD
 cd HexoticPLUGIN_BUILD
-../HexoticPLUGIN_SRC/configure --prefix=<salome>/HexoticPLUGIN_INSTALL
+cmake -DCMAKE_BUILD_TYPE=<Mode> -DCMAKE_INSTALL_PREFIX=<HexoticPLUGIN_INSTALL> ../HexoticPLUGIN_SRC
 
-Note: you can use --with-hexotic option to pass the root directory of
-Hexotic product to the configure script. In this case you can avoid
-setting HexoticHOME environment variable. Try 'configure --help'
-command to learn more about available configure script options.
+,where <Mode> is build mode (Release or Debug), 
+<HexoticPLUGIN_INSTALL> is a destination folder to install 
+HexoticPLUGIN module of SALOME.
 
-Check "Summary" area in the log output of the configure script to
-verify that all pre-requisites required for the successful compilation
-of HexoticPLUFIN module have been found. All pre-requisite products
-should have status "yes". If any product has status "no", the
-compilation procedure will fail (the only exception is Hexotic
-product which is not required for the successful compilation of the
-plugin; it is needed in run-time only).
+Verify that all pre-requisites required for the successful compilation
+of HexoticPLUGIN module have been found.
 
 * compile and install plugin module 
 
@@ -74,7 +57,7 @@ exit
 
 If the compilation is finished successfully (make and make install
 steps are finished without errors) the HexoticPLUGIN meshing module
-should be installed in the directory <salome>/HexoticPLUGIN_INSTALL.
+should be installed in the directory <HexoticPLUGIN_INSTALL>.
 
 -----------------------------------
 3. Launch SALOME with HexoticPLUGIN
@@ -86,7 +69,7 @@ bash
 cd <salome>
 source env_products.sh
 
-export HexoticPLUGIN_ROOT_DIR=<salome>/HexoticPLUGIN_INSTALL
+export HexoticPLUGIN_ROOT_DIR=<HexoticPLUGIN_INSTALL>
 export SalomeAppConfig=${HexoticPLUGIN_ROOT_DIR}/share/salome/resources/hexoticplugin
 export PATH=<salome>/Hexotic:${PATH
 

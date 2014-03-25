@@ -1,9 +1,9 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -54,8 +54,11 @@ class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
   void SetHexesMaxLevel(CORBA::Long theVal);
   CORBA::Long GetHexesMaxLevel();
 
-  void SetHexoticQuadrangles(CORBA::Boolean theVal);
-  CORBA::Boolean GetHexoticQuadrangles();
+  void SetMinSize(CORBA::Double theVal);
+  CORBA::Double GetMinSize();
+
+  void SetMaxSize(CORBA::Double theVal);
+  CORBA::Double GetMaxSize();
 
   void SetHexoticIgnoreRidges(CORBA::Boolean theVal);
   CORBA::Boolean GetHexoticIgnoreRidges();
@@ -63,14 +66,30 @@ class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
   void SetHexoticInvalidElements(CORBA::Boolean theVal);
   CORBA::Boolean GetHexoticInvalidElements();
   
-  void SetHexoticSharpAngleThreshold(CORBA::Long theVal);
-  CORBA::Long GetHexoticSharpAngleThreshold();
+  void SetHexoticSharpAngleThreshold(CORBA::Double theVal);
+  CORBA::Double GetHexoticSharpAngleThreshold();
   
   void SetHexoticNbProc(CORBA::Long theVal);
   CORBA::Long GetHexoticNbProc();
   
   void SetHexoticWorkingDirectory(const char* path) throw ( SALOME::SALOME_Exception );
   char* GetHexoticWorkingDirectory();
+
+  void SetHexoticSdMode(CORBA::Long value);
+  CORBA::Long GetHexoticSdMode();
+
+  void SetHexoticVerbosity(CORBA::Long theVal);
+  CORBA::Long GetHexoticVerbosity();
+
+  void SetHexoticMaxMemory(CORBA::Long theVal);
+  CORBA::Long GetHexoticMaxMemory();
+  
+  void SetSizeMapEntry(const char* theEntry, CORBA::Double theSize);
+  void UnsetSizeMapEntry(const char* theEntry);
+  
+  void SetSizeMap(GEOM::GEOM_Object_ptr theGeomObj, double theSize);
+  void UnsetSizeMap(GEOM::GEOM_Object_ptr theGeomObj);
+  HexoticPlugin::HexoticPluginSizeMapsList* GetSizeMaps ();
 
   // Get implementation
   ::HexoticPlugin_Hypothesis* GetImpl();

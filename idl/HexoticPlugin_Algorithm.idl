@@ -1,9 +1,9 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -26,12 +26,23 @@
 #define _SMESH_HexoticALGORITHM_IDL_
 
 #include "SMESH_Hypothesis.idl"
+#include "GEOM_Gen.idl"
 
 /*!
  * HexoticPlugin: interfaces to Hexotic related hypotheses and algorithms
  */
 module HexoticPlugin
 {
+  /*!
+   * Type definitions for the size maps
+   */
+  struct HexoticPluginSizeMap {
+  string entry;
+  double size;
+  };
+  
+  typedef sequence<HexoticPluginSizeMap> HexoticPluginSizeMapsList;  
+
   /*!
    * HexoticPlugin_Hexotic: interface of Hexotic algorithm
    */
@@ -49,9 +60,12 @@ module HexoticPlugin
 
     void SetHexesMaxLevel(in long value);
     long GetHexesMaxLevel();
+    
+    void SetMinSize(in double value);
+    double GetMinSize();
 
-    void SetHexoticQuadrangles(in boolean value);
-    boolean GetHexoticQuadrangles();
+    void SetMaxSize(in double value);
+    double GetMaxSize();
 
     void SetHexoticIgnoreRidges(in boolean value);
     boolean GetHexoticIgnoreRidges();
@@ -59,14 +73,33 @@ module HexoticPlugin
     void SetHexoticInvalidElements(in boolean value);
     boolean GetHexoticInvalidElements();
    
-    void SetHexoticSharpAngleThreshold(in long value);
-    long GetHexoticSharpAngleThreshold();
+    void SetHexoticSharpAngleThreshold(in double value);
+    double GetHexoticSharpAngleThreshold();
    
     void SetHexoticNbProc(in long value);
     long GetHexoticNbProc();
 
     void SetHexoticWorkingDirectory(in string path) raises (SALOME::SALOME_Exception);
     string GetHexoticWorkingDirectory();
+   
+    void SetHexoticSdMode(in long value);
+    long GetHexoticSdMode();
+   
+    void SetHexoticVerbosity(in long value);
+    long GetHexoticVerbosity();
+
+    void SetHexoticMaxMemory(in long value);
+    long GetHexoticMaxMemory();
+
+    void SetSizeMapEntry(in string entry, 
+                         in double size);
+    void UnsetSizeMapEntry(in string entry);
+
+    void SetSizeMap(in GEOM::GEOM_Object GeomObj, 
+                    in double size);
+    void UnsetSizeMap(in GEOM::GEOM_Object GeomObj);
+
+    HexoticPluginSizeMapsList GetSizeMaps();
   };
 };
 

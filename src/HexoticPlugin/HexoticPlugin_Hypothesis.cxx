@@ -1,9 +1,9 @@
-// Copyright (C) 2007-2012  CEA/DEN, EDF R&D
+// Copyright (C) 2007-2014  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
 // License as published by the Free Software Foundation; either
-// version 2.1 of the License.
+// version 2.1 of the License, or (at your option) any later version.
 //
 // This library is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -37,12 +37,17 @@ HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, int studyId,
   : SMESH_Hypothesis(hypId, studyId, gen),
     _hexesMinLevel( GetDefaultHexesMinLevel() ),
     _hexesMaxLevel( GetDefaultHexesMaxLevel() ),
-    _hexoticQuadrangles( GetDefaultHexoticQuadrangles() ),
+    _minSize( GetDefaultMinSize() ),
+    _maxSize( GetDefaultMaxSize() ),
     _hexoticIgnoreRidges( GetDefaultHexoticIgnoreRidges() ),
     _hexoticInvalidElements( GetDefaultHexoticInvalidElements() ), 
     _hexoticSharpAngleThreshold( GetDefaultHexoticSharpAngleThreshold() ),
     _hexoticNbProc( GetDefaultHexoticNbProc() ),
-    _hexoticWorkingDirectory( GetDefaultHexoticWorkingDirectory() )
+    _hexoticWorkingDirectory( GetDefaultHexoticWorkingDirectory() ),
+    _hexoticSdMode(GetDefaultHexoticSdMode()),
+    _hexoticVerbosity(GetDefaultHexoticVerbosity()),
+    _hexoticMaxMemory(GetDefaultHexoticMaxMemory()),
+    _sizeMaps(GetDefaultHexoticSizeMaps())
 {
   MESSAGE("HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis");
   _name = "Hexotic_Parameters";
@@ -69,9 +74,16 @@ void HexoticPlugin_Hypothesis::SetHexesMaxLevel(int theVal) {
   }
 }
 
-void HexoticPlugin_Hypothesis::SetHexoticQuadrangles(bool theVal) {
-  if (theVal != _hexoticQuadrangles) {
-    _hexoticQuadrangles = theVal;
+void HexoticPlugin_Hypothesis::SetMinSize(double theVal) {
+  if (theVal != _minSize) {
+          _minSize = theVal;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
+void HexoticPlugin_Hypothesis::SetMaxSize(double theVal) {
+  if (theVal != _maxSize) {
+          _maxSize = theVal;
     NotifySubMeshesHypothesisModification();
   }
 }
@@ -90,7 +102,7 @@ void HexoticPlugin_Hypothesis::SetHexoticInvalidElements(bool theVal) {
   }
 }
 
-void HexoticPlugin_Hypothesis::SetHexoticSharpAngleThreshold(int theVal) {
+void HexoticPlugin_Hypothesis::SetHexoticSharpAngleThreshold(double theVal) {
   if (theVal != _hexoticSharpAngleThreshold) {
     _hexoticSharpAngleThreshold = theVal;
     NotifySubMeshesHypothesisModification();
@@ -108,8 +120,79 @@ void HexoticPlugin_Hypothesis::SetHexoticWorkingDirectory(const std::string& pat
 {
   if ( _hexoticWorkingDirectory != path ) {
     _hexoticWorkingDirectory = path;
+    if ( !path.empty() )
+    {
+#ifdef WIN32
+      if( path[ path.size()-1 ] != '\\')
+        _hexoticWorkingDirectory += '\\';
+#else
+      if( path[ path.size()-1 ] != '/')
+        _hexoticWorkingDirectory += '/';
+#endif
+    }
     NotifySubMeshesHypothesisModification();
   }
+}
+
+void HexoticPlugin_Hypothesis::SetHexoticSdMode(int theVal) {
+  if (theVal != _hexoticSdMode) {
+    _hexoticSdMode = theVal;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
+void HexoticPlugin_Hypothesis::SetHexoticVerbosity(int theVal) {
+  if (theVal != _hexoticVerbosity) {
+    _hexoticVerbosity = theVal;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
+void HexoticPlugin_Hypothesis::SetHexoticMaxMemory(int theVal) {
+  if (theVal != _hexoticMaxMemory) {
+    _hexoticMaxMemory = theVal;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
+bool HexoticPlugin_Hypothesis::AddSizeMap(std::string theEntry, double theSize) {
+  THexoticSizeMaps::iterator it;
+  it=_sizeMaps.find(theEntry);
+  
+  if(theSize <= 0)
+    return false;
+  
+  if( it == _sizeMaps.end() ) // If no size map is defined on the given object
+  {
+    _sizeMaps[theEntry] = theSize;
+    MESSAGE("NEW size map, entry :"<<theEntry<<", size : "<<theSize);
+    NotifySubMeshesHypothesisModification();
+    return true;
+  }
+  else if( it->second != theSize ) // If a size map exists with a different size value
+  {
+    it->second = theSize;
+    MESSAGE("MODIFIED size map, entry :"<<theEntry<<"with size : "<<theSize);
+    NotifySubMeshesHypothesisModification();
+    return true;
+  }
+  else
+  {
+    MESSAGE("NO size map added")
+    return false; // No size map added
+  }
+}
+
+bool HexoticPlugin_Hypothesis::UnsetSizeMap(std::string theEntry) {
+  THexoticSizeMaps::iterator it;
+  it=_sizeMaps.find(theEntry);
+  if( it != _sizeMaps.end() )
+  {
+    _sizeMaps.erase(it);  
+    return true;
+  }
+  else
+    return false;
 }
 
 //=============================================================================
@@ -119,25 +202,31 @@ void HexoticPlugin_Hypothesis::SetHexoticWorkingDirectory(const std::string& pat
 //=============================================================================
 std::ostream& HexoticPlugin_Hypothesis::SaveTo(std::ostream& save)
 {
-  /*save << _hexesMinLevel << " " << _hexesMaxLevel;
-  save << " " << (int)_hexoticQuadrangles;
-  save << " " << (int)_hexoticIgnoreRidges;
-  save << " " << (int)_hexoticInvalidElements;
-  save << " " << _hexoticSharpAngleThreshold;
-  std::cout <<std::endl;
-  std::cout << "save : " << save << std::endl;
-  std::cout << std::endl;*/
-
   //explicit outputs for future code compatibility of saved .hdf
   //save without any whitespaces!
+  int dummy = -1;
   save<<"hexesMinLevel="<<_hexesMinLevel<<";"; 
   save<<"hexesMaxLevel="<<_hexesMaxLevel<<";";
-  save<<"hexoticQuadrangles="<<(int)_hexoticQuadrangles<<";";
   save<<"hexoticIgnoreRidges="<<(int)_hexoticIgnoreRidges<<";";
   save<<"hexoticInvalidElements="<<(int)_hexoticInvalidElements<<";";
   save<<"hexoticSharpAngleThreshold="<<_hexoticSharpAngleThreshold<<";";
   save<<"hexoticNbProc="<<_hexoticNbProc<<";";
   save<<"hexoticWorkingDirectory="<<_hexoticWorkingDirectory<<";";
+  save<<"minSize="<<_minSize<<";";
+  save<<"maxSize="<<_maxSize<<";";
+  save<<"hexoticSdMode="<<_hexoticSdMode<<";";
+  save<<"hexoticVerbosity="<<_hexoticVerbosity<<";";
+  save<<"hexoticMaxMemory="<<_hexoticMaxMemory<<";";
+  THexoticSizeMaps::iterator it = _sizeMaps.begin();
+  if ( it != _sizeMaps.end() )
+  {
+    save<<"sizeMaps=";
+    for ( ; it!=_sizeMaps.end() ; it++ )
+    {
+      save<< it->first << "/" << it->second << "#" ;
+    }
+    save<<";";
+  }
   return save;
 }
 
@@ -171,12 +260,33 @@ std::istream& HexoticPlugin_Hypothesis::LoadFrom(std::istream& load)
 
       if (str3=="hexesMinLevel") _hexesMinLevel = atoi(str4.c_str());
       if (str3=="hexesMaxLevel") _hexesMaxLevel = atoi(str4.c_str());
-      if (str3=="hexoticQuadrangles") _hexoticQuadrangles = (bool) atoi(str4.c_str());
+      if (str3=="hexoticQuadrangles") {}
       if (str3=="hexoticIgnoreRidges") _hexoticIgnoreRidges = (bool) atoi(str4.c_str());
       if (str3=="hexoticInvalidElements") _hexoticInvalidElements = (bool) atoi(str4.c_str());
-      if (str3=="hexoticSharpAngleThreshold") _hexoticSharpAngleThreshold = atoi(str4.c_str());
+      if (str3=="hexoticSharpAngleThreshold") _hexoticSharpAngleThreshold = atof(str4.c_str());
       if (str3=="hexoticNbProc") _hexoticNbProc = atoi(str4.c_str());
       if (str3=="hexoticWorkingDirectory") _hexoticWorkingDirectory = str4;
+      if (str3=="minSize") _minSize = atof(str4.c_str());
+      if (str3=="maxSize") _maxSize = atof(str4.c_str());
+      if (str3=="hexoticSdMode") _hexoticSdMode = atoi(str4.c_str());
+      if (str3=="hexoticVerbosity") _hexoticVerbosity = atoi(str4.c_str());
+      if (str3=="hexoticMaxMemory") _hexoticMaxMemory = atoi(str4.c_str());
+      if (str3=="sizeMaps")
+      {
+        std::string sm_substr, sm_substr1, sm_substr2;
+        int sm_pos = 0;
+        int sm_len = str4.length();
+        while ( sm_pos < sm_len )
+        {
+          int sm_found = str4.find('#',sm_pos);
+          sm_substr = str4.substr(sm_pos,sm_found-sm_pos);
+          int sm_slashpos = sm_substr.find('/',0);
+          sm_substr1 = sm_substr.substr(0,sm_slashpos);
+          sm_substr2 = sm_substr.substr(sm_slashpos+1);
+          _sizeMaps[sm_substr1] = atof(sm_substr2.c_str());
+          sm_pos = sm_found + 1;
+        }
+      }
    }
    return load;
 }
@@ -239,9 +349,14 @@ int HexoticPlugin_Hypothesis::GetDefaultHexesMaxLevel()
   return 10;
 }
 
-bool HexoticPlugin_Hypothesis::GetDefaultHexoticQuadrangles()
+double HexoticPlugin_Hypothesis::GetDefaultMinSize()
 {
-  return true;
+  return 0.0;
+}
+
+double HexoticPlugin_Hypothesis::GetDefaultMaxSize()
+{
+  return 0.0;
 }
 
 bool HexoticPlugin_Hypothesis::GetDefaultHexoticIgnoreRidges()
@@ -254,30 +369,64 @@ bool HexoticPlugin_Hypothesis::GetDefaultHexoticInvalidElements()
   return false;
 }
 
-int HexoticPlugin_Hypothesis::GetDefaultHexoticSharpAngleThreshold()
+double HexoticPlugin_Hypothesis::GetDefaultHexoticSharpAngleThreshold()
 {
-  return 60;
+  return 60.0;
 }
 
 int HexoticPlugin_Hypothesis::GetDefaultHexoticNbProc()
 {
-  return 1;
+  return 4;
 }
 
 std::string HexoticPlugin_Hypothesis::GetDefaultHexoticWorkingDirectory()
 {
-  TCollection_AsciiString aTmpDir;
+  std::string aTmpDir;
 
   char *Tmp_dir = getenv("SALOME_TMP_DIR");
-  if(Tmp_dir != NULL) {
-    aTmpDir = Tmp_dir;
+#ifdef WIN32
+  if(Tmp_dir == NULL) {
+    Tmp_dir = getenv("TEMP");
+    if( Tmp_dir== NULL )
+      Tmp_dir = getenv("TMP");
+  }
+#endif
+  if( Tmp_dir != NULL ) {
+    aTmpDir = std::string(Tmp_dir);
+#ifdef WIN32
+    if(aTmpDir[aTmpDir.size()-1] != '\\') aTmpDir+='\\';
+#else
+    if(aTmpDir[aTmpDir.size()-1] != '/') aTmpDir+='/';
+#endif
   }
   else {
 #ifdef WIN32
-    aTmpDir = TCollection_AsciiString("C:\\");
+    aTmpDir = "C:\\";
 #else
-    aTmpDir = TCollection_AsciiString("/tmp/");
+    aTmpDir = "/tmp/";
 #endif
   }
-  return aTmpDir.ToCString();
+  return aTmpDir;
 }
+
+int HexoticPlugin_Hypothesis::GetDefaultHexoticSdMode()
+{
+  return 4;
+}
+
+int HexoticPlugin_Hypothesis::GetDefaultHexoticVerbosity()
+{
+  return 1;
+}
+
+int HexoticPlugin_Hypothesis::GetDefaultHexoticMaxMemory()
+{
+  return 2048;
+}
+
+HexoticPlugin_Hypothesis::THexoticSizeMaps HexoticPlugin_Hypothesis::GetDefaultHexoticSizeMaps()
+{
+  return THexoticSizeMaps();
+}
+
+

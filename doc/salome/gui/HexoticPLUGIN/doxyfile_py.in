@@ -1,9 +1,9 @@
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
-# version 2.1 of the License.
+# version 2.1 of the License, or (at your option) any later version.
 #
 # This library is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,7 +21,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME           = "SALOME HexoticPLUGIN User's Guide"
-OUTPUT_DIRECTORY       = .
+OUTPUT_DIRECTORY       = HexoticPLUGIN
 CREATE_SUBDIRS	       = NO
 OUTPUT_LANGUAGE        = English
 USE_WINDOWS_ENCODING   = NO
@@ -96,9 +96,11 @@ EXAMPLE_RECURSIVE      = NO
 #---------------------------------------------------------------------------
 #Input related options
 #---------------------------------------------------------------------------
-INPUT             = @top_srcdir@/src/HexoticPlugin/HexoticPLUGINDC.py
+INPUT             = tmp/HexoticPLUGINBuilder.py \
+                    tmp/smeshBuilder.py \
+                    tmp/smesh_algorithm.py
 FILE_PATTERNS     = 
-IMAGE_PATH        = @srcdir@/images
+IMAGE_PATH        = @CMAKE_CURRENT_SOURCE_DIR@/images
 RECURSIVE         = NO
 EXAMPLE_PATH      =
 
@@ -107,12 +109,13 @@ EXAMPLE_PATH      =
 #---------------------------------------------------------------------------
 GENERATE_HTML     = YES
 HTML_OUTPUT       = hexoticpluginpy_doc
-HTML_HEADER       = @builddir@/static/header_py.html
-HTML_FOOTER       = @srcdir@/static/footer.html
-HTML_STYLESHEET   = @srcdir@/static/doxygen.css
+HTML_HEADER       = @CMAKE_CURRENT_BINARY_DIR@/static/header_py.html
+HTML_FOOTER       = @CMAKE_CURRENT_SOURCE_DIR@/static/footer.html
+HTML_EXTRA_STYLESHEET   = @CMAKE_CURRENT_SOURCE_DIR@/static/salome_extra.css
 TOC_EXPAND        = YES
 DISABLE_INDEX     = NO
-GENERATE_TREEVIEW = NO
+GENERATE_TREEVIEW = YES
+TREEVIEW_WIDTH    = 300
 
 #---------------------------------------------------------------------------
 #LaTeX related option
@@ -129,24 +132,24 @@ GENERATE_RTF      = NO
 #---------------------------------------------------------------------------
 CLASS_DIAGRAMS         = NO
 HIDE_UNDOC_RELATIONS   = NO
-HAVE_DOT               = NO
-CLASS_GRAPH            = NO
+HAVE_DOT               = YES
+CLASS_GRAPH            = YES
 COLLABORATION_GRAPH    = NO
 GROUP_GRAPHS           = NO
 UML_LOOK               = NO
-TEMPLATE_RELATIONS     = NO
-INCLUDE_GRAPH          = NO
-INCLUDED_BY_GRAPH      = NO
+TEMPLATE_RELATIONS     = YES
+INCLUDE_GRAPH          = YES
+INCLUDED_BY_GRAPH      = YES
 CALL_GRAPH             = NO
-GRAPHICAL_HIERARCHY    = NO
-DIRECTORY_GRAPH        = NO
-DOT_IMAGE_FORMAT       = jpg
+GRAPHICAL_HIERARCHY    = YES
+DIRECTORY_GRAPH        = YES
+DOT_IMAGE_FORMAT       = png
 DOT_FONTNAME           = Arial
 DOT_PATH               = 
 DOTFILE_DIRS           = 
 MAX_DOT_GRAPH_WIDTH    = 1024
-MAX_DOT_GRAPH_HEIGHT   = 1200
-MAX_DOT_GRAPH_DEPTH    = 0
+MAX_DOT_GRAPH_HEIGHT   = 1024
+MAX_DOT_GRAPH_DEPTH    = 1000
 DOT_TRANSPARENT        = NO
 DOT_MULTI_TARGETS      = NO
 GENERATE_LEGEND        = NO
