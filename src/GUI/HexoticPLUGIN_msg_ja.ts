@@ -1,36 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS>
+<TS version="2.0" language="ja" sourcelanguage="en">
   <context>
     <name>@default</name>
-    <message>
-        <source>Hexotic_NULL_LOCAL_SIZE</source>
-        <translation type="unfinished">0 is not allowed as "Local size"</translation>
-    </message>
-    <message>
-        <source>Hexotic_SEL_SHAPE</source>
-        <translation type="unfinished">Select a shape</translation>
-    </message>
-    <message>
-        <source>Hexotic_SIZE</source>
-        <translation type="unfinished">Size</translation>
-    </message>
-    <message>
-        <source>Hexotic_NAME</source>
-        <translation type="unfinished">Name</translation>
-    </message>
-    <message>
-        <source>Hexotic_ENTRY</source>
-        <translation type="unfinished">Entry</translation>
-    </message>
-    <message>
-        <source>Hexotic_REMOVE</source>
-        <translation type="unfinished">Remove</translation>
-    </message>
-    <message>
-        <source>Hexotic_ADD</source>
-        <translation type="unfinished">Add</translation>
-    </message>
     <message>
       <source>Hexotic_3D_HYPOTHESIS</source>
       <translation>Hexotic 3D</translation>
@@ -114,6 +86,34 @@
     <message>
       <source>Hexotic_SD_MODE_4</source>
       <translation>ジオメトリ「マニホールド」</translation>
+    </message>
+    <message>
+      <source>Hexotic_ADD</source>
+      <translation>Hexotic_ADD</translation>
+    </message>
+    <message>
+      <source>Hexotic_REMOVE</source>
+      <translation>Hexotic_REMOVE</translation>
+    </message>
+    <message>
+      <source>Hexotic_ENTRY</source>
+      <translation>Hexotic_ENTRY</translation>
+    </message>
+    <message>
+      <source>Hexotic_NAME</source>
+      <translation>Hexotic_NAME</translation>
+    </message>
+    <message>
+      <source>Hexotic_SIZE</source>
+      <translation>Hexotic_SIZE</translation>
+    </message>
+    <message>
+      <source>Hexotic_SEL_SHAPE</source>
+      <translation>Hexotic_SEL_SHAPE</translation>
+    </message>
+    <message>
+      <source>Hexotic_NULL_LOCAL_SIZE</source>
+      <translation>Hexotic_NULL_LOCAL_SIZE</translation>
     </message>
   </context>
 </TS>
