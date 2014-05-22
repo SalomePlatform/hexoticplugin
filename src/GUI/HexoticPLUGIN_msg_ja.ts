@@ -89,31 +89,31 @@
     </message>
     <message>
       <source>Hexotic_ADD</source>
-      <translation>Hexotic_ADD</translation>
+      <translation>追加</translation>
     </message>
     <message>
       <source>Hexotic_REMOVE</source>
-      <translation>Hexotic_REMOVE</translation>
+      <translation>削除</translation>
     </message>
     <message>
       <source>Hexotic_ENTRY</source>
-      <translation>Hexotic_ENTRY</translation>
+      <translation>エントリー</translation>
     </message>
     <message>
       <source>Hexotic_NAME</source>
-      <translation>Hexotic_NAME</translation>
+      <translation>名前</translation>
     </message>
     <message>
       <source>Hexotic_SIZE</source>
-      <translation>Hexotic_SIZE</translation>
+      <translation>サイズ</translation>
     </message>
     <message>
       <source>Hexotic_SEL_SHAPE</source>
-      <translation>Hexotic_SEL_SHAPE</translation>
+      <translation>形の選択</translation>
     </message>
     <message>
       <source>Hexotic_NULL_LOCAL_SIZE</source>
-      <translation>Hexotic_NULL_LOCAL_SIZE</translation>
+      <translation>局所サイズとしてゼロは許されていない</translation>
     </message>
   </context>
 </TS>
