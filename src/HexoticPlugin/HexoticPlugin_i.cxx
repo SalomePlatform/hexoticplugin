@@ -51,10 +51,12 @@ extern "C"
     GenericHypothesisCreator_i* aCreator = 0;
 
     // Algorithms
-    if (strcmp(aHypName, "Hexotic_3D") == 0)
+    if (strcmp(aHypName, "Hexotic_3D") == 0 ||
+        strcmp(aHypName, "MG-Hexa") == 0)
       aCreator = new HexoticPlugin_Creator_i<HexoticPlugin_Hexotic_i>;
     // Hypotheses
-    else if (strcmp(aHypName, "Hexotic_Parameters") == 0)
+    else if (strcmp(aHypName, "Hexotic_Parameters") == 0 ||
+             strcmp(aHypName, "MG-Hexa Parameters") == 0)
       aCreator = new HexoticPlugin_Creator_i<HexoticPlugin_Hypothesis_i>;
     else ;
 

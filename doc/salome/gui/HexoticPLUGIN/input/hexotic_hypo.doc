@@ -1,8 +1,8 @@
 /*!
 
-\page hexotic_hypo_page Hexotic Parameters hypothesis
+\page hexotic_hypo_page MG-Hexa Parameters hypothesis
 
-\n Hexotic Parameters hypothesis works only with <b>Hexotic</b> 
+\n MG-Hexa Parameters hypothesis works only with <b>MG-Hexa</b> 
 algorithm. This algorithm is a commercial software.
 \n To get a licence, visit http://www.distene.com/en/corp/eval-distene.html
 
@@ -11,7 +11,7 @@ algorithm. This algorithm is a commercial software.
 \image html hexotic_parameters.png
 
 <ul>
-<li><b>Name</b> - allows to define the name of the hypothesis (Hexotic 
+<li><b>Name</b> - allows to define the name of the hypothesis (MG-Hexa 
 Parameters by default).</li>
 
 <li><b>Min size</b> - allows defining the minimal size of the elements (overrides "Nb. Hexes Max Level" value).</li>
@@ -53,10 +53,10 @@ Parameters by default).</li>
 </li>
 </ul>
 
-\note If BLSURF is used as 2D algo, and if a GMF file is defined as output file (using SetGMFFile(my2Dmesh.mesh)), then Hexotic will use this file as input.
+\note If BLSURF is used as 2D algo, and if a GMF file is defined as output file (using SetGMFFile(my2Dmesh.mesh)), then MG-Hexa will use this file as input.
 This allows to avoid the reconstruction of the GMF file from the SMESH structure and can improve the global computation time.
 
-<br><b>See Also</b> a sample TUI Script of the \ref tui_hexotic "creation of an Hexotic mesh"
+<br><b>See Also</b> a sample TUI Script of the \ref tui_hexotic "creation of a MG-Hexa mesh"
 
 \section hexotic_local_size_parameters Local size
 

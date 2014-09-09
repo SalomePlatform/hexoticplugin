@@ -6,7 +6,7 @@
 - Meshing 3D geometric entities.
 - Generating 3D meshes from 2D meshes, working without geometrical objects.
 
-\note HexoticPLUGIN plugin uses DISTENE Hexotic commercial meshing
+\note HexoticPLUGIN plugin uses DISTENE MG-Hexa commercial meshing
 software and requires a license at the run time (to work within the
 Mesh module).
 

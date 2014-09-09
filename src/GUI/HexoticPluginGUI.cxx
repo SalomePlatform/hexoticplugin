@@ -35,8 +35,9 @@ extern "C"
   SMESHGUI_GenericHypothesisCreator* GetHypothesisCreator( const QString& aHypType )
   {
     SMESHGUI_GenericHypothesisCreator* aCreator = NULL;
-    if( aHypType=="Hexotic_Parameters" )
-      aCreator =  new HexoticPluginGUI_HypothesisCreator( aHypType );
+    if( aHypType=="Hexotic_Parameters" ||
+        aHypType=="MG-Hexa Parameters")
+      aCreator =  new HexoticPluginGUI_HypothesisCreator( "MG-Hexa Parameters" );
     return aCreator;
   }
 }

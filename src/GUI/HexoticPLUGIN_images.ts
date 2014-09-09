@@ -12,7 +12,7 @@
         <translation>mesh_hypo_Hexotic.png</translation>
     </message>
     <message>
-        <source>ICON_SMESH_TREE_ALGO_Hexotic_2D3D</source>
+        <source>ICON_SMESH_TREE_ALGO_MG-Hexa</source>
         <translation>mesh_tree_algo_Hexotic.png</translation>
     </message>
     <message>
@@ -20,7 +20,7 @@
         <translation>mesh_tree_algo_Hexotic.png</translation>
     </message>
     <message>
-        <source>ICON_SMESH_TREE_HYPO_Hexotic_Parameters</source>
+        <source>ICON_SMESH_TREE_HYPO_MG-Hexa Parameters</source>
         <translation>mesh_tree_hypo_Hexotic.png</translation>
     </message>
     <message>

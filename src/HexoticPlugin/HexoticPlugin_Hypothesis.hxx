@@ -52,6 +52,8 @@ public:
 
   HexoticPlugin_Hypothesis(int hypId, int studyId, SMESH_Gen* gen);
 
+  static const char* GetHypType() { return "MG-Hexa Parameters"; }
+
   void SetHexesMinLevel(int theVal);
   int GetHexesMinLevel() const { return _hexesMinLevel; }
 

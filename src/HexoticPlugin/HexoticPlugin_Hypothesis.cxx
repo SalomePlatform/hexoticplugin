@@ -50,7 +50,7 @@ HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, int studyId,
     _sizeMaps(GetDefaultHexoticSizeMaps())
 {
   MESSAGE("HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis");
-  _name = "Hexotic_Parameters";
+  _name = GetHypType();
   _param_algo_dim = 3;
 }
 

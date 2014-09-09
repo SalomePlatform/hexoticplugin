@@ -36,8 +36,9 @@ except ImportError:
 # Mesh algo type identifiers
 #----------------------------
 
-## Algorithm type: Hexotic hexahedron 3D algorithm, see Hexotic_Algorithm
-Hexotic = "Hexotic_3D"
+## Algorithm type: MG-Hexa hexahedron 3D algorithm, see Hexotic_Algorithm
+MG_Hexa = "MG-Hexa"
+Hexotic = MG_Hexa
 
 #----------------------------
 # Algorithms
@@ -119,7 +120,7 @@ class Hexotic_Algorithm(Mesh_Algorithm):
     #  @return hypothesis object
     def Parameters(self):
         if not self.params:
-            self.params = self.Hypothesis("Hexotic_Parameters", [],
+            self.params = self.Hypothesis("MG-Hexa Parameters", [],
                                           "libHexoticEngine.so", UseExisting=0)
             pass
         return self.params

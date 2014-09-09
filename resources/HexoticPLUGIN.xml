@@ -31,8 +31,8 @@
                server-lib="HexoticEngine"
                gui-lib="HexoticPluginGUI">
   <hypotheses>
-    <hypothesis type="Hexotic_Parameters"
-    label-id="Hexotic Parameters"
+    <hypothesis type="MG-Hexa Parameters"
+    label-id="MG-Hexa Parameters"
     icon-id="mesh_hypo_Hexotic.png"
     dim="3">
       <python-wrap>
@@ -45,16 +45,16 @@
   </hypotheses>
   <algorithms>
 
-    <algorithm type="Hexotic_3D"
-               label-id="Hexahedron (Hexotic)"
+    <algorithm type="MG-Hexa"
+               label-id="MG-Hexa"
                icon-id="mesh_algo_Hexotic.png"
-               hypos="Hexotic_Parameters"
+               hypos="MG-Hexa Parameters"
                input="TRIA,QUAD"
                output="HEXA"
                need-geom="false"
                dim="3">
       <python-wrap>
-        <algo>Hexotic_3D=Hexahedron(algo=smeshBuilder.Hexotic)</algo>
+        <algo>Hexotic_3D=Hexahedron(algo=smeshBuilder.MG_Hexa)</algo>
         <hypo>Hexotic_Parameters=Parameters()</hypo>
       </python-wrap>
     </algorithm>

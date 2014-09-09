@@ -99,14 +99,14 @@ HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, int studyId, SMESH_Gen* 
   : SMESH_3D_Algo(hypId, studyId, gen)
 {
   MESSAGE("HexoticPlugin_Hexotic::HexoticPlugin_Hexotic");
-  _name = "Hexotic_3D";
+  _name = "MG-Hexa";
   _shapeType = (1 << TopAbs_SHELL) | (1 << TopAbs_SOLID);// 1 bit /shape type
 //   _onlyUnaryInput = false;
   _requireShape = false;
   _iShape=0;
   _nbShape=0;
   _hexoticFilesKept=false;
-  _compatibleHypothesis.push_back("Hexotic_Parameters");
+  _compatibleHypothesis.push_back( HexoticPlugin_Hypothesis::GetHypType() );
 #ifdef WITH_BLSURFPLUGIN
   _blsurfHypo = NULL;
 #endif
@@ -147,7 +147,7 @@ bool HexoticPlugin_Hexotic::CheckBLSURFHypothesis( SMESH_Mesh&         aMesh,
 
   // If a BLSURF hypothesis is applied, get it
   SMESH_HypoFilter blsurfFilter;
-  blsurfFilter.Init( blsurfFilter.HasName( "BLSURF_Parameters" ));
+  blsurfFilter.Init( blsurfFilter.HasName( BLSURFPlugin_Hypothesis::GetHypType() ));
   std::list<const SMESHDS_Hypothesis *> appliedHyps;
   aMesh.GetHypotheses( aShape, blsurfFilter, appliedHyps, false );
 
@@ -155,7 +155,7 @@ bool HexoticPlugin_Hexotic::CheckBLSURFHypothesis( SMESH_Mesh&         aMesh,
     itl = appliedHyps.begin();
     theHyp = (*itl); // use only the first hypothesis
     std::string hypName = theHyp->GetName();
-    if (hypName == "BLSURF_Parameters") {
+    if (hypName == BLSURFPlugin_Hypothesis::GetHypType()) {
       _blsurfHypo = static_cast<const BLSURFPlugin_Hypothesis*> (theHyp);
       ASSERT(_blsurfHypo);
       return true;
@@ -192,7 +192,7 @@ bool HexoticPlugin_Hexotic::CheckHypothesis( SMESH_Mesh&                        
   theHyp = (*itl); // use only the first hypothesis
 
   std::string hypName = theHyp->GetName();
-  if (hypName == "Hexotic_Parameters") {
+  if (hypName == HexoticPlugin_Hypothesis::GetHypType() ) {
     _hypothesis = static_cast<const HexoticPlugin_Hypothesis*> (theHyp);
     ASSERT(_hypothesis);
     aStatus = SMESH_Hypothesis::HYP_OK;
