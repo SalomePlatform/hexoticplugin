@@ -19,7 +19,7 @@
 
 import salome
 salome.salome_init()
-import GEOM
+
 from salome.geom import geomBuilder
 geompy = geomBuilder.New(salome.myStudy)
 
@@ -42,36 +42,36 @@ geompy.addToStudy( Cut_2, 'Cut_2' )
 
 # Create filters
 # aFilter1: elements inside small sphere
-aFilter1 = smesh.GetFilterFromCriteria([smesh.GetCriterion(SMESH.VOLUME,SMESH.FT_BelongToGeom,SMESH.FT_Undefined,Sphere_2)])
+aFilter1 = smesh.GetFilter(SMESH.VOLUME,SMESH.FT_BelongToGeom,'=',Sphere_2)
 # aFilter2: elements inside big sphere and not inside small sphere
-aFilter2 = smesh.GetFilterFromCriteria([smesh.GetCriterion(SMESH.VOLUME,SMESH.FT_BelongToGeom,SMESH.FT_Undefined,Sphere_1, SMESH.FT_LogicalAND),
-                                        smesh.GetCriterion(SMESH.VOLUME,SMESH.FT_BelongToGeom,SMESH.FT_Undefined,Sphere_2, SMESH.FT_LogicalNOT)])
+aFilter2 = smesh.GetFilterFromCriteria([smesh.GetCriterion(SMESH.VOLUME,SMESH.FT_BelongToGeom,'=',Sphere_1, SMESH.FT_LogicalAND),
+                                        smesh.GetCriterion(SMESH.VOLUME,SMESH.FT_BelongToGeom,'=',Sphere_2, SMESH.FT_LogicalNOT)])
 # aFilter3: elements not inside big sphere
-aFilter3 = smesh.GetFilterFromCriteria([smesh.GetCriterion(SMESH.VOLUME,SMESH.FT_BelongToGeom,SMESH.FT_Undefined,Sphere_1, SMESH.FT_LogicalNOT)])
+aFilter3 = smesh.GetFilter(SMESH.VOLUME,SMESH.FT_BelongToGeom,'=',Sphere_1, SMESH.FT_LogicalNOT)
 
 # Create mesh of Cut_2 with sd mode 3
 print "Create mesh of Cut_2 with sd mode 3"
-Mesh_hexotic_sd3 = smesh.Mesh(Cut_2, "Mesh_hexotic_sd3")
+Mesh_mghexa_sd3 = smesh.Mesh(Cut_2, "Mesh_mghexa_sd3")
 
-# Create the 2D algo: BlSurf with geometrical mesh
-Mesh_hexotic_sd3.Triangle(algo=smeshBuilder.BLSURF).Parameters().SetGeometricMesh( 1 )
+# Create the 2D algo: MG-CADSurf with geometrical mesh
+Mesh_mghexa_sd3.Triangle(algo=smeshBuilder.MG_CADSurf).SetGeometricMesh( 1 )
 
-# Create the 3D algo: Hexotic with:
+# Create the 3D algo: MG-Hexa with:
 # - minl = 4
 # - maxl = 8
 # - sd = 3
-Mesh_hexotic_sd3.Hexahedron(algo=smeshBuilder.Hexotic).SetMinMaxHexes(4, 8).SetHexoticSdMode( 3 )
+Mesh_mghexa_sd3.Hexahedron(algo=smeshBuilder.MG_Hexa).SetMinMaxHexes(4, 8).SetHexoticSdMode( 3 )
 
 # Create the groups on filters
-g1 = Mesh_hexotic_sd3.GroupOnFilter(SMESH.VOLUME, 'small sphere', aFilter1 )
+g1 = Mesh_mghexa_sd3.GroupOnFilter(SMESH.VOLUME, 'small sphere', aFilter1 )
 g1.SetColor( SALOMEDS.Color( 1, 0, 0 ))
-g2 = Mesh_hexotic_sd3.GroupOnFilter(SMESH.VOLUME, 'big sphere - small sphere', aFilter2 )
+g2 = Mesh_mghexa_sd3.GroupOnFilter(SMESH.VOLUME, 'big sphere - small sphere', aFilter2 )
 g2.SetColor( SALOMEDS.Color( 0, 1, 0 ))
-g3 = Mesh_hexotic_sd3.GroupOnFilter(SMESH.VOLUME, 'box - big sphere', aFilter3 )
+g3 = Mesh_mghexa_sd3.GroupOnFilter(SMESH.VOLUME, 'box - big sphere', aFilter3 )
 g3.SetColor( SALOMEDS.Color( 0, 0, 1 ))
 
 # Compute
-Mesh_hexotic_sd3.Compute()
+Mesh_mghexa_sd3.Compute()
 
 # End of script
 

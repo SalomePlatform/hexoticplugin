@@ -353,7 +353,7 @@ void getShape(Mesh* mesh, Shape shape, Tab *t_Shape) {
 
 static void printWarning(const int nbExpected, std::string aString, const int nbFound) {
   cout << std::endl;
-  cout << "WARNING : " << nbExpected << " " << aString << " expected, Hexotic has found " << nbFound << std::endl;
+  cout << "WARNING : " << nbExpected << " " << aString << " expected, MG-Hexa has found " << nbFound << std::endl;
   cout << "=======" << std::endl;
   cout << std::endl;
   return;
@@ -835,7 +835,7 @@ static bool readResult(std::string theFile,
 
 //=============================================================================
 /*!
- * Pass parameters to Hexotic
+ * Pass parameters to MG-Hexa
  */
 //=============================================================================
 
@@ -859,7 +859,7 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
   }
   else {
     cout << std::endl;
-    cout << "WARNING : The Hexotic default parameters are taken into account" << std::endl;
+    cout << "WARNING : The MG-Hexa default parameters are taken into account" << std::endl;
     cout << "=======" << std::endl;
     _hexesMinLevel = hyp->GetDefaultHexesMinLevel();
     _hexesMaxLevel = hyp->GetDefaultHexesMaxLevel();
@@ -941,7 +941,7 @@ static TCollection_AsciiString getSuffix()
 
 //================================================================================
 /*!
- * \brief Returns a command to run Hexotic mesher
+ * \brief Returns a command to run MG-Hexa mesher
  */
 //================================================================================
 
@@ -950,7 +950,7 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
                                                      const TCollection_AsciiString& Hexotic_SizeMap_Prefix) const
 {
   cout << std::endl;
-  cout << "Hexotic execution..." << std::endl;
+  cout << "MG-Hexa execution..." << std::endl;
   cout << _name << " parameters :" << std::endl;
   cout << "    " << _name << " Verbosity = " << _hexoticVerbosity << std::endl;
   cout << "    " << _name << " Max Memory = " << _hexoticMaxMemory << std::endl;
@@ -958,8 +958,8 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   cout << "    " << _name << " Segments Max Level = " << _hexesMaxLevel << std::endl;
   cout << "    " << _name << " Segments Min Size = " << _hexesMinSize << std::endl;
   cout << "    " << _name << " Segments Max Size = " << _hexesMaxSize << std::endl;
-  cout << "    " << "Hexotic can ignore ridges : " << (_hexoticIgnoreRidges ? "yes":"no") << std::endl;
-  cout << "    " << "Hexotic authorize invalide elements : " << ( _hexoticInvalidElements ? "yes":"no") << std::endl;
+  cout << "    " << "MG-Hexa can ignore ridges : " << (_hexoticIgnoreRidges ? "yes":"no") << std::endl;
+  cout << "    " << "MG-Hexa authorize invalide elements : " << ( _hexoticInvalidElements ? "yes":"no") << std::endl;
   cout << "    " << _name << " Sharp angle threshold = " << _hexoticSharpAngleThreshold << " degrees" << std::endl;
   cout << "    " << _name << " Number of threads = " << _hexoticNbProc << std::endl;
   cout << "    " << _name << " Working directory = \"" << _hexoticWorkingDirectory << "\"" << std::endl;
@@ -1430,7 +1430,7 @@ gp_Pnt HexoticPlugin_Hexotic::tangencyPoint(const gp_Pnt& p1,
 
 //=============================================================================
 /*!
- * Here we are going to use the Hexotic mesher
+ * Here we are going to use the MG-Hexa mesher
  */
 //=============================================================================
 
@@ -1523,7 +1523,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
       removeHexoticFiles(Hexotic_In, Hexotic_Out);
       splitQuads(aMesh); // quadrangles are no longer acceptable as input
       cout << std::endl;
-      cout << "Creating Hexotic input mesh file : " << Hexotic_In << std::endl;
+      cout << "Creating MG-Hexa input mesh file : " << Hexotic_In << std::endl;
       aMesh.ExportGMF(Hexotic_In.ToCString(), meshDS, true);
 #ifdef WITH_BLSURFPLUGIN
     }
@@ -1539,7 +1539,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     run_Hexotic += std::string(" 1> ") + aLogFileName.ToCString();  // dump into file
 
     cout << std::endl;
-    cout << "Hexotic command : " << run_Hexotic << std::endl;
+    cout << "MG-Hexa command : " << run_Hexotic << std::endl;
 
 #ifndef WIN32    
     modeFile_In += Hexotic_In;
@@ -1595,7 +1595,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     }
     else {
       hexahedraMessage = "failed";
-      cout << "Problem with Hexotic output file " << Hexotic_Out.ToCString() << std::endl;
+      cout << "Problem with MG-Hexa output file " << Hexotic_Out.ToCString() << std::endl;
       Ok = false;
       // analyse log file
       SMESH_File logFile( aLogFileName.ToCString() );
@@ -1608,11 +1608,11 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
       }
 #ifndef WIN32
       if ( status > 0 && WEXITSTATUS(status) == 127 )
-        error("hexotic: command not found");
+        error("mg-hexa.exe: command not found");
 #else
       int err = errno;
       if ( status == 0 && err == ENOENT ) {
-        error("hexotic: command not found");
+        error("mg-hexa.exe: command not found");
       }
 #endif
     }
@@ -1680,7 +1680,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   splitQuads(aMesh); // quadrangles are no longer acceptable as input
 
   cout << std::endl;
-  cout << "Creating Hexotic input mesh file : " << Hexotic_In << std::endl;
+  cout << "Creating MG-Hexa input mesh file : " << Hexotic_In << std::endl;
   aMesh.ExportGMF(Hexotic_In.ToCString(), aHelper->GetMeshDS());
 #ifndef WIN32    
   modeFile_In += Hexotic_In;
@@ -1692,7 +1692,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   MESSAGE("HexoticPlugin_Hexotic::Compute");
 
   cout << std::endl;
-  cout << "Hexotic command : " << run_Hexotic << std::endl;
+  cout << "MG-Hexa command : " << run_Hexotic << std::endl;
   system( run_Hexotic.data() );
 
   // --------------
@@ -1740,7 +1740,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
     myError->myName = COMPERR_EXCEPTION;
 */
     hexahedraMessage = "failed";
-    cout << "Problem with Hexotic output file " << Hexotic_Out << std::endl;
+    cout << "Problem with MG-Hexa output file " << Hexotic_Out << std::endl;
     // analyse log file
     SMESH_File logFile( aLogFileName.ToCString() );
     if ( !logFile.eof() )
@@ -1750,7 +1750,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
       if ( std::search( fileBeg, fileEnd, msgLic, msgLic+strlen(msgLic)) != fileEnd )
         return error("Licence problems.");
     }
-    return error(SMESH_Comment("Problem with Hexotic output file ")<<Hexotic_Out);
+    return error(SMESH_Comment("Problem with MG-Hexa output file ")<<Hexotic_Out);
   }
   cout << "Hexahedra meshing " << hexahedraMessage << std::endl;
   cout << std::endl;

@@ -33,7 +33,7 @@
 #include "HexoticPlugin_Hexotic.hxx"
 
 // ======================================================
-// Hexotic 3d algorithm
+// MG-Hexa 3d algorithm
 // ======================================================
 class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hexotic_i:
   public virtual POA_HexoticPlugin::HexoticPlugin_Hexotic,

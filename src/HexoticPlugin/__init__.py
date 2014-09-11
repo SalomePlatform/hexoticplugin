@@ -19,4 +19,4 @@
 
 ##
 # @package HexoticPluginBuilder
-# Python API for the Hexotic meshing plug-in module.
+# Python API for the MG-Hexa meshing plug-in module.

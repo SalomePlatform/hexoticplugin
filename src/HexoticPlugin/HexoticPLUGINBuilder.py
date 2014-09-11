@@ -19,7 +19,7 @@
 
 ##
 # @package HexoticPLUGINBuilder
-# Python API for the Hexotic meshing plug-in module.
+# Python API for the MG-Hexa meshing plug-in module.
 
 from salome.smesh.smesh_algorithm import Mesh_Algorithm
 from salome.smesh.smeshBuilder import AssureGeomPublished
@@ -46,7 +46,7 @@ Hexotic = MG_Hexa
 
 ## Defines a hexahedron 3D algorithm
 #
-#  It is created by calling smeshBuilder.Mesh.Hexahedron( smeshBuilder.Hexotic, geom=0 )
+#  It is created by calling smeshBuilder.Mesh.Hexahedron( smeshBuilder.MG_Hexa, geom=0 )
 class Hexotic_Algorithm(Mesh_Algorithm):
 
     ## name of the dynamic method in smeshBuilder.Mesh class
@@ -54,7 +54,7 @@ class Hexotic_Algorithm(Mesh_Algorithm):
     meshMethod = "Hexahedron"
     ## type of algorithm used with helper function in smeshBuilder.Mesh class
     #  @internal
-    algoType   = Hexotic
+    algoType   = MG_Hexa
     ## doc string of the method in smeshBuilder.Mesh class
     #  @internal
     docHelper  = "Creates hexahedron 3D algorithm for volumes"
@@ -66,11 +66,11 @@ class Hexotic_Algorithm(Mesh_Algorithm):
     def __init__(self, mesh, geom=0):
         Mesh_Algorithm.__init__(self)
         if noHexoticPlugin: print "Warning: HexoticPlugin module unavailable"
-        self.Create(mesh, geom, Hexotic, "libHexoticEngine.so")
+        self.Create(mesh, geom, MG_Hexa, "libHexoticEngine.so")
         self.params = None
         pass
 
-    ## Defines "SetMinMaxHexes" hypothesis to give two hexotic parameters
+    ## Defines "SetMinMaxHexes" hypothesis to give two MG-Hexa parameters
     #  @param min minimal level of recursive partitioning on the initial octree cube
     #  @param max maximal level of recursive partitioning on the initial octree cube
     #  @return hypothesis object
@@ -79,7 +79,7 @@ class Hexotic_Algorithm(Mesh_Algorithm):
         self.Parameters().SetHexesMaxLevel(max)
         return self.Parameters()
 
-    ## Defines "SetMinMaxSize" hypothesis to give two hexotic parameters
+    ## Defines "SetMinMaxSize" hypothesis to give two MG-Hexa parameters
     #  @param min minimal element's size
     #  @param max maximal element's size
     #  @return hypothesis object
@@ -107,7 +107,7 @@ class Hexotic_Algorithm(Mesh_Algorithm):
         self.Parameters().UnsetSizeMap(theObject)
         return self.Parameters()
 
-    ## (OBSOLETE) Defines "MinMaxQuad" hypothesis to give three hexotic parameters
+    ## (OBSOLETE) Defines "MinMaxQuad" hypothesis to give three MG-Hexa parameters
     #  @param min minimal level of recursive partitioning on the initial octree cube
     #  @param max maximal level of recursive partitioning on the initial octree cube
     #  @param quad not documented

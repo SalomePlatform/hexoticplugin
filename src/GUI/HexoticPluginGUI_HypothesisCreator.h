@@ -58,7 +58,7 @@ typedef struct
 } HexoticHypothesisData;
 
 /*!
- * \brief Class for creation of Hexotic hypotheses
+ * \brief Class for creation of MG-Hexa hypotheses
 */
 class HEXOTICPLUGIN_GUI_EXPORT HexoticPluginGUI_HypothesisCreator : public SMESHGUI_GenericHypothesisCreator
 {

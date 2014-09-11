@@ -43,7 +43,7 @@
 //   TopoDS_Shape shape;
 //   double size;
 // }
-//  Parameters for work of Hexotic
+//  Parameters for work of MG-Hexa
 //
 
 class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis: public SMESH_Hypothesis

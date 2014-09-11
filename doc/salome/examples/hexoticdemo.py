@@ -19,11 +19,10 @@
 
 import salome
 salome.salome_init()
-import GEOM
+
 from salome.geom import geomBuilder
 geompy = geomBuilder.New(salome.myStudy)
 
-import SMESH, SALOMEDS
 from salome.smesh import smeshBuilder
 smesh =  smeshBuilder.New(salome.myStudy)
 
@@ -33,23 +32,23 @@ sphere = geompy.MakeSphereR(100.)
 geompy.addToStudy(sphere, "sphere")
 
 # create a mesh on the sphere
-hexoticMesh = smesh.Mesh(sphere,"sphere: BLSurf and Hexotic mesh")
+mghexaMesh = smesh.Mesh(sphere,"sphere: MG-CADSurf and MG-Hexa mesh")
 
-# create a BLSurf algorithm for faces
-BLSURF = hexoticMesh.Triangle(algo=smeshBuilder.BLSURF)
-BLSURF.SetGeometricMesh( 1 )
+# create a MG-CADSurf algorithm for faces
+MG_CADSurf = mghexaMesh.Triangle(algo=smeshBuilder.MG_CADSurf)
+MG_CADSurf.SetGeometricMesh( 1 )
 
-# create a Hexotic algorithm for volumes
-HEXOTIC = hexoticMesh.Hexahedron(algo=smeshBuilder.Hexotic)
+# create a MG-Hexa algorithm for volumes
+MG_Hexa = mghexaMesh.Hexahedron(algo=smeshBuilder.MG_Hexa)
 
 ## compute the mesh
-#hexoticMesh.Compute()
+#mghexaMesh.Compute()
 
 # Change the level of subdivision
-HEXOTIC.SetMinMaxHexes(4, 8)
+MG_Hexa.SetMinMaxHexes(4, 8)
 
 ## compute the mesh
-#hexoticMesh.Compute()
+#mghexaMesh.Compute()
 
 # Local size
 
@@ -57,10 +56,10 @@ HEXOTIC.SetMinMaxHexes(4, 8)
 faces = geompy.SubShapeAll(sphere, geompy.ShapeType["FACE"])
 
 # Set a local size on the face
-HEXOTIC.SetMinMaxSize(10, 20)
-HEXOTIC.SetSizeMap(faces[0], 10)
+MG_Hexa.SetMinMaxSize(10, 20)
+MG_Hexa.SetSizeMap(faces[0], 10)
 
 # compute the mesh
-hexoticMesh.Compute()
+mghexaMesh.Compute()
 
 # End of script

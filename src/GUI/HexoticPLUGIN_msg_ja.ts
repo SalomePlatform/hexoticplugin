@@ -5,7 +5,7 @@
     <name>@default</name>
     <message>
       <source>Hexotic_3D_HYPOTHESIS</source>
-      <translation>Hexotic 3D</translation>
+      <translation>MG-Hexa</translation>
     </message>
     <message>
       <source>Hexotic_3D_TITLE</source>
