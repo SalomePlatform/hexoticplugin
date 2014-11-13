@@ -5,7 +5,7 @@
     <name>@default</name>
     <message>
         <source>Hexotic_NULL_LOCAL_SIZE</source>
-        <translation type="unfinished">0 is not allowed as "Local size"</translation>
+        <translation>0 n&apos;est pas une &quot;taille locale&quot; permise</translation>
     </message>
     <message>
         <source>Hexotic_3D_HYPOTHESIS</source>
@@ -89,7 +89,7 @@
     </message>
     <message>
         <source>Hexotic_SD_MODE_4</source>
-        <translation>Géométries "non-manifold"</translation>
+        <translation>Géométries &quot;non-manifold&quot;</translation>
     </message>
     <message>
         <source>Hexotic_ADD</source>
