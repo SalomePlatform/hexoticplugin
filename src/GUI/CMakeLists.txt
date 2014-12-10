@@ -95,6 +95,7 @@ SET(_ts_RESOURCES
   HexoticPLUGIN_images.ts
   HexoticPLUGIN_msg_en.ts
   HexoticPLUGIN_msg_fr.ts
+  HexoticPLUGIN_msg_ja.ts
 ) 
 
 # resource files / to be processed by uic
