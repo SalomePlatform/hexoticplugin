@@ -1503,8 +1503,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     if ( aTmpDir.Value(aTmpDir.Length()) != '/' ) aTmpDir += '/';
 #endif
     TCollection_AsciiString Hexotic_In(""), Hexotic_Out, Hexotic_SizeMap_Prefix;
-    TCollection_AsciiString modeFile_In( "chmod 666 " ), modeFile_Out( "chmod 666 " );
-    TCollection_AsciiString aLogFileName = aTmpDir + "Hexotic"+getSuffix()+".log";    // log
+    TCollection_AsciiString modeFile_In( "chmod 666 " ), modeFile_Out( "chmod 666 " );    TCollection_AsciiString aLogFileName = aTmpDir + "Hexotic"+getSuffix()+".log";    // log
 
     std::map <int,int> aSmdsToHexoticIdMap;
     std::map <int,const SMDS_MeshNode*> aHexoticIdToNodeMap;
@@ -1557,8 +1556,10 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     // --------------
 
     std::ifstream fileRes( Hexotic_Out.ToCString() );
+#ifndef WIN32  
     modeFile_Out += Hexotic_Out;
     system( modeFile_Out.ToCString() );
+#endif
     if ( ! fileRes.fail() ) {
       Ok = readResult( Hexotic_Out.ToCString(),
                        this,
