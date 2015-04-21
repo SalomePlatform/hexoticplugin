@@ -222,7 +222,7 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   SMESH_NumberFilter* aFilter = new SMESH_NumberFilter("GEOM", TopAbs_SHAPE, 0, SM_ShapeTypes);
   
   // Selection widget
-  myGeomSelWdg = new StdMeshersGUI_ObjectReferenceParamWdg( aFilter, mySmpWidget, /*multiSel=*/false,/*stretch=*/false);
+  myGeomSelWdg = new StdMeshersGUI_ObjectReferenceParamWdg( aFilter, mySmpWidget, /*multiSel=*/false);
   myGeomSelWdg->SetDefaultText(tr("Hexotic_SEL_SHAPE"), "QLineEdit { color: grey }");
   mySmpWidget->gridLayout->addWidget(myGeomSelWdg, 0, 1);
   
