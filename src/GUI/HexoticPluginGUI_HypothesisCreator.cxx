@@ -58,7 +58,8 @@
 // Main widget tabs identification
 enum {
   STD_TAB = 0,
-  SMP_TAB
+  SMP_TAB,
+  VL_TAB
 };
 
 // Size maps tab, table columns order
@@ -245,19 +246,48 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   aSmpLayout->setMargin( 0 );
   aSmpLayout->addWidget( mySmpWidget);
   
- 
+  // Viscous Layers tab
+  QWidget* aVLGroup = new QWidget();
+  lay->addWidget( aVLGroup );
+
+  // Viscous layers widget creation and initialisation
+  myVLWidget = new HexoticPluginGUI_ViscousLayersWidget(aVLGroup);
+
+  QString aMainEntry = SMESHGUI_GenericHypothesisCreator::getMainShapeEntry();
+  QString aSubEntry  = SMESHGUI_GenericHypothesisCreator::getShapeEntry();
+
+  if ( !aMainEntry.isEmpty() )
+  {
+    myVLWidget->myFacesWithLayers->SetGeomShapeEntry( aSubEntry, aMainEntry );
+    myVLWidget->myImprintedFaces->SetGeomShapeEntry( aSubEntry, aMainEntry );
+  }
+  else
+  {
+	myVLWidget->labelFacesWithLayers->setVisible(false);
+    myVLWidget->myFacesWithLayers->setVisible(false);
+    myVLWidget->labelImprintedFaces->setVisible(false);
+    myVLWidget->myImprintedFaces->setVisible(false);
+  }
+
+  // Add the viscous layers widget to a layout
+  QHBoxLayout* aVLLayout = new QHBoxLayout( aVLGroup );
+  aVLLayout->setSpacing( 6 );
+  aVLLayout->setMargin( 11 );
+  aVLLayout->addWidget( myVLWidget );
+
 //  resizeEvent();
   
   aTabWidget->insertTab( STD_TAB, aStdGroup, tr( "SMESH_ARGUMENTS" ) );
   aTabWidget->insertTab( SMP_TAB, aSmpGroup, tr( "LOCAL_SIZE" ) );
+  aTabWidget->insertTab( VL_TAB, aVLGroup, tr( "Hexotic_VISCOUS_LAYERS") );
   
   myIs3D = true;
   
   // Size Maps
   mySizeMapsToRemove.clear();
-  connect( mySmpWidget->pushButton_1,  SIGNAL( clicked() ),                              this,  SLOT( onAddLocalSize() ) );
-  connect( mySmpWidget->pushButton_2,  SIGNAL( clicked() ),                              this,  SLOT( onRemoveLocalSize() ) );
-  
+  connect( mySmpWidget->pushButton_1, SIGNAL( clicked() ),          this, SLOT( onAddLocalSize() ) );
+  connect( mySmpWidget->pushButton_2, SIGNAL( clicked() ),          this, SLOT( onRemoveLocalSize() ) );
+  connect( aTabWidget,                SIGNAL( currentChanged(int)), this, SLOT( onTabChanged( int ) ) );
   return fr;
 }
 
@@ -434,6 +464,39 @@ void HexoticPluginGUI_HypothesisCreator::retrieveParams() const
     insertLocalSizeInWidget( entry, shapeName, size , row );
   }
 
+  myVLWidget->myNbLayers->setCleared(data.myNbLayers == 0);
+  if (data.myNbLayers == 0)
+    myVLWidget->myNbLayers->setText("");
+  else
+    myVLWidget->myNbLayers->setValue( data.myNbLayers );
+
+  myVLWidget->myFirstLayerSize->setCleared(data.myFirstLayerSize == 0);
+  if (data.myFirstLayerSize == 0)
+    myVLWidget->myFirstLayerSize->setText("");
+  else
+    myVLWidget->myFirstLayerSize->setValue( data.myFirstLayerSize );
+
+  myVLWidget->myDirection->setCurrentIndex( data.myDirection ? 0 : 1 );
+  myVLWidget->myGrowth->setCleared(data.myGrowth == 0);
+  if (data.myGrowth == 0)
+    myVLWidget->myGrowth->setText("");
+  else
+    myVLWidget->myGrowth->setValue( data.myGrowth );
+
+  std::vector<int> vector = data.myFacesWithLayers;
+  SMESH::long_array_var aVec = new SMESH::long_array;
+  aVec->length(vector.size());
+  for (int i = 0; i < vector.size(); i++)
+    aVec[i]=vector.at(i);
+  myVLWidget->myFacesWithLayers->SetListOfIDs(aVec);
+  vector = data.myImprintedFaces;
+  aVec = new SMESH::long_array;
+  aVec->length(vector.size());
+  for (int i = 0; i < vector.size(); i++)
+    aVec[i]=vector.at(i);
+  myVLWidget->myImprintedFaces->SetListOfIDs(aVec);
+
+
   std::cout << "myStdWidget->myMinSize->value(): " << myStdWidget->myMinSize->value() << std::endl;
   std::cout << "myStdWidget->myMaxSize->value(): " << myStdWidget->myMaxSize->value() << std::endl;
   std::cout << "myStdWidget->myHexesMinLevel->value(): " << myStdWidget->myHexesMinLevel->value() << std::endl;
@@ -481,6 +544,11 @@ QString HexoticPluginGUI_HypothesisCreator::storeParams() const
   valStr += tr("Hexotic_MAX_MEMORY") + " = " + QString::number( data.myHexoticMaxMemory ) + "; ";
   valStr += tr("Hexotic_SD_MODE") + " = " + QString::number( data.myHexoticSdMode) + "; ";
 
+  valStr += tr("Hexotic_NB_LAYERS") + " = " + QString::number(data.myNbLayers) + ";";
+  valStr += tr("Hexotic_FIRST_LAYER_SIZE") + " = " + QString::number(data.myFirstLayerSize) + ";";
+  valStr += tr("Hexotic_DIRECTION") + " = " + QString::number(data.myDirection) + ";";
+  valStr += tr("Hexotic_GROWTH") + " = " + QString::number(data.myGrowth) + ";";
+
 //  std::cout << "Data: " << valStr.toStdString() << std::endl;
 
   return valStr;
@@ -517,6 +585,18 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromHypo( HexoticHypothesisDa
     MESSAGE("READING Size map : entry "<<entry<<" size : "<<size)
   }
   
+  // Viscous layers
+  h_data.myNbLayers = h->GetNbLayers();
+  h_data.myFirstLayerSize = h->GetFirstLayerSize();
+  h_data.myDirection = h->GetDirection();
+  h_data.myGrowth = h->GetGrowth();
+  SMESH::long_array_var vector = h->GetFacesWithLayers();
+  for (int i = 0; i < vector->length(); i++)
+    h_data.myFacesWithLayers.push_back(vector[i]);
+  vector = h->GetImprintedFaces();
+  for (int i = 0; i < vector->length(); i++)
+    h_data.myImprintedFaces.push_back(vector[i]);
+
   return true;
 }
 
@@ -557,6 +637,26 @@ bool HexoticPluginGUI_HypothesisCreator::storeParamsToHypo( const HexoticHypothe
     {
       h->UnsetSizeMapEntry(entry_it->c_str());
     }
+
+    // Viscous layers
+    h->SetNbLayers( h_data.myNbLayers );
+    h->SetFirstLayerSize( h_data.myFirstLayerSize );
+    h->SetDirection( h_data.myDirection );
+    h->SetGrowth( h_data.myGrowth );
+    
+    std::vector<int> vector = h_data.myFacesWithLayers;
+    SMESH::long_array_var aVec = new SMESH::long_array;
+    aVec->length(vector.size());
+    for (int i = 0; i < vector.size(); i++)
+      aVec[i]=vector.at(i);
+    h->SetFacesWithLayers( aVec );
+    
+    vector = h_data.myImprintedFaces;
+    aVec = new SMESH::long_array;
+    aVec->length(vector.size());
+    for (int i = 0; i < vector.size(); i++)
+      aVec[i]=vector.at(i);
+    h->SetImprintedFaces( aVec );
   }
   catch(const SALOME::SALOME_Exception& ex)
   {
@@ -591,6 +691,17 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromWidgets( HexoticHypothesi
   if ( !ok )
     return false;
   
+  h_data.myNbLayers = myVLWidget->myNbLayers->text().isEmpty() ? 0.0 : myVLWidget->myNbLayers->value();
+  h_data.myFirstLayerSize = myVLWidget->myFirstLayerSize->text().isEmpty() ? 0.0 : myVLWidget->myFirstLayerSize->value();
+  h_data.myDirection = myVLWidget->myDirection->currentIndex() == 0 ? true : false;
+  h_data.myGrowth = myVLWidget->myGrowth->text().isEmpty() ? 0.0 : myVLWidget->myGrowth->value();
+  SMESH::long_array_var ids = myVLWidget->myFacesWithLayers->GetListOfIDs();
+  for (int i = 0; i < ids->length(); i++)
+    h_data.myFacesWithLayers.push_back( ids[i] );
+  ids = myVLWidget->myImprintedFaces->GetListOfIDs();
+  for (int i = 0; i < ids->length(); i++)
+    h_data.myImprintedFaces.push_back( ids[i] );
+
   printData(h_data);
 
   return true;
@@ -650,4 +761,10 @@ QString HexoticPluginGUI_HypothesisCreator::type() const
 QString HexoticPluginGUI_HypothesisCreator::helpPage() const
 {
   return "hexotic_hypo_page.html";
+}
+
+void HexoticPluginGUI_HypothesisCreator::onTabChanged(int i)
+{
+  myVLWidget->myFacesWithLayers->ShowPreview( i == VL_TAB );
+  myVLWidget->myImprintedFaces->ShowPreview( false );
 }

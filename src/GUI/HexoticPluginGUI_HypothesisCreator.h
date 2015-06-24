@@ -40,6 +40,7 @@ class QTableWidgetItem;
 
 class HexoticPluginGUI_StdWidget;
 class HexoticPluginGUI_SizeMapsWidget;
+class HexoticPluginGUI_ViscousLayersWidget;
 
 typedef struct
 {
@@ -55,6 +56,12 @@ typedef struct
   int      myHexoticMaxMemory;
   int      myHexoticSdMode;
   HexoticPlugin_Hypothesis::THexoticSizeMaps mySizeMaps;
+  int      myNbLayers;
+  double   myFirstLayerSize;
+  bool     myDirection;
+  double   myGrowth;
+  std::vector<int> myFacesWithLayers;
+  std::vector<int> myImprintedFaces;
 } HexoticHypothesisData;
 
 /*!
@@ -97,6 +104,7 @@ private:
   QLineEdit* 	myName;
   HexoticPluginGUI_StdWidget*	         myStdWidget;
   HexoticPluginGUI_SizeMapsWidget*       mySmpWidget;
+  HexoticPluginGUI_ViscousLayersWidget*  myVLWidget;
   StdMeshersGUI_ObjectReferenceParamWdg* myGeomSelWdg;
 
   bool                           myIs3D;
@@ -106,6 +114,7 @@ private:
 protected slots:
   void             onAddLocalSize();
   void             onRemoveLocalSize();
+  void             onTabChanged(int);
   
 };
 

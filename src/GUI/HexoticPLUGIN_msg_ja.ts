@@ -12,6 +12,10 @@
       <translation>仮定の構成</translation>
     </message>
     <message>
+      <source>Hexotic_VISCOUS_LAYERS</source>
+      <translation>境界層設定</translation>
+    </message>
+    <message>
       <source>Hexotic_INPUT_SIZE</source>
       <translation>サイズ</translation>
     </message>
@@ -114,6 +118,30 @@
     <message>
       <source>Hexotic_NULL_LOCAL_SIZE</source>
       <translation>局所サイズとしてゼロは許されていない</translation>
+    </message>
+    <message>
+        <source>Hexotic_NB_LAYERS</source>
+        <translation>層数</translation>
+    </message>
+    <message>
+        <source>Hexotic_FIRST_LAYER_SIZE</source>
+        <translation type="unfinished">Size of the first layer</translation>
+    </message>
+    <message>
+        <source>Hexotic_DIRECTION</source>
+        <translation type="unfinished">Direction of the layers</translation>
+    </message>
+    <message>
+        <source>Hexotic_GROWTH</source>
+        <translation type="unfinished">Growth</translation>
+    </message>
+    <message>
+        <source>Hexotic_FACES_WITH_LAYERS</source>
+        <translation>面層</translation>
+    </message>
+    <message>
+        <source>Hexotic_IMPRINTED_FACES</source>
+        <translation type="unfinished">Imprinted faces</translation>
     </message>
   </context>
 </TS>

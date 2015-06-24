@@ -91,6 +91,24 @@ class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
   void UnsetSizeMap(GEOM::GEOM_Object_ptr theGeomObj);
   HexoticPlugin::HexoticPluginSizeMapsList* GetSizeMaps ();
 
+  void SetNbLayers(CORBA::Long theVal);
+  CORBA::Long GetNbLayers();
+
+  void SetFirstLayerSize(CORBA::Double theVal);
+  CORBA::Double GetFirstLayerSize();
+
+  void SetDirection(CORBA::Boolean theVal);
+  CORBA::Boolean GetDirection();
+
+  void SetGrowth(CORBA::Double theVal);
+  CORBA::Double GetGrowth();
+
+  void SetFacesWithLayers(const SMESH::long_array& theVal);
+  SMESH::long_array* GetFacesWithLayers();
+
+  void SetImprintedFaces(const SMESH::long_array& theVal);
+  SMESH::long_array* GetImprintedFaces();
+
   // Get implementation
   ::HexoticPlugin_Hypothesis* GetImpl();
   

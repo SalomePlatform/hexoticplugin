@@ -26,6 +26,7 @@
 #define _SMESH_HexoticALGORITHM_IDL_
 
 #include "SMESH_Hypothesis.idl"
+#include "SMESH_Mesh.idl"
 #include "GEOM_Gen.idl"
 
 /*!
@@ -100,6 +101,24 @@ module HexoticPlugin
     void UnsetSizeMap(in GEOM::GEOM_Object GeomObj);
 
     HexoticPluginSizeMapsList GetSizeMaps();
+    
+    void SetNbLayers(in long theVal);
+    long GetNbLayers();
+
+    void SetFirstLayerSize(in double theVal);
+    double GetFirstLayerSize();
+
+    void SetDirection(in boolean theVal);
+    boolean GetDirection();
+
+    void SetGrowth(in double theVal);
+    double GetGrowth();
+
+    void SetFacesWithLayers(in SMESH::long_array theVal);
+    SMESH::long_array GetFacesWithLayers();
+
+    void SetImprintedFaces(in SMESH::long_array theVal);
+    SMESH::long_array GetImprintedFaces();
   };
 };
 

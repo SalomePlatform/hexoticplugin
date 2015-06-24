@@ -35,6 +35,11 @@ Below you can see examples of usage of this class for hexahedral mesh generation
 
 \image html hexotic_basic_subdivisions_4_8.png Left: MG-Hexa mesh without hypothesis, right: MG-Hexa mesh with an hypothesis defined by minl=4 and maxl=8
 
+<h2>Example of mesh generation with MG-Hexa algorithm and viscous layers parameters:</h2>
+\tui_script{hexoticdemo_vl.py}
+
+\image html hexotic_vl_example.png Left: MG-Hexa mesh without viscous layers parameters, right: MG-Hexa mesh with viscous layers parameters
+
 \subsection tui_local_size Local size
 
 \image html hexotic_local_size_example.png Example of use of a local size on the skin of a sphere

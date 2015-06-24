@@ -12,6 +12,10 @@
         <translation>Hypothesis Construction</translation>
     </message>
     <message>
+        <source>Hexotic_VISCOUS_LAYERS</source>
+        <translation>Viscous layers</translation>
+    </message>
+    <message>
         <source>Hexotic_INPUT_SIZE</source>
         <translation>Sizes</translation>
     </message>
@@ -114,6 +118,30 @@
     <message>
         <source>Hexotic_NULL_LOCAL_SIZE</source>
         <translation>0 is not allowed as "Local size"</translation>
+    </message>
+    <message>
+        <source>Hexotic_NB_LAYERS</source>
+        <translation>Number of layers</translation>
+    </message>
+    <message>
+        <source>Hexotic_FIRST_LAYER_SIZE</source>
+        <translation>Size of the first layer</translation>
+    </message>
+    <message>
+        <source>Hexotic_DIRECTION</source>
+        <translation>Direction of the layers</translation>
+    </message>
+    <message>
+        <source>Hexotic_GROWTH</source>
+        <translation>Growth</translation>
+    </message>
+    <message>
+        <source>Hexotic_FACES_WITH_LAYERS</source>
+        <translation>Faces with layers</translation>
+    </message>
+    <message>
+        <source>Hexotic_IMPRINTED_FACES</source>
+        <translation>Imprinted faces</translation>
     </message>
 </context>
 </TS>

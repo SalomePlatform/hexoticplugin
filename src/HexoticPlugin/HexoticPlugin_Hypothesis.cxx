@@ -47,7 +47,13 @@ HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, int studyId,
     _hexoticSdMode(GetDefaultHexoticSdMode()),
     _hexoticVerbosity(GetDefaultHexoticVerbosity()),
     _hexoticMaxMemory(GetDefaultHexoticMaxMemory()),
-    _sizeMaps(GetDefaultHexoticSizeMaps())
+    _sizeMaps(GetDefaultHexoticSizeMaps()),
+    _nbLayers(GetDefaultNbLayers()),
+    _firstLayerSize(GetDefaultFirstLayerSize()),
+    _direction(GetDefaultDirection()),
+    _growth(GetDefaultGrowth()),
+    _facesWithLayers(GetDefaultFacesWithLayers()),
+    _imprintedFaces(GetDefaultImprintedFaces())
 {
   MESSAGE("HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis");
   _name = GetHypType();
@@ -195,6 +201,52 @@ bool HexoticPlugin_Hypothesis::UnsetSizeMap(std::string theEntry) {
     return false;
 }
 
+void HexoticPlugin_Hypothesis::SetNbLayers(int theVal) {
+  if (theVal != _nbLayers) {
+    _nbLayers = theVal;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
+void HexoticPlugin_Hypothesis::SetFirstLayerSize(double theVal) {
+  if (theVal != _firstLayerSize) {
+    _firstLayerSize = theVal;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
+void HexoticPlugin_Hypothesis::SetDirection(bool theVal) {
+  if (theVal != _direction) {
+    _direction = theVal;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
+void HexoticPlugin_Hypothesis::SetGrowth(double theVal) {
+  if (theVal != _growth) {
+    _growth = theVal;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
+bool HexoticPlugin_Hypothesis::SetFacesWithLayers(const std::vector<int>& theVal) {
+  if ( _facesWithLayers != theVal ) {
+	  _facesWithLayers = theVal;
+    NotifySubMeshesHypothesisModification();
+    return true;
+  }
+  return false;
+}
+
+bool HexoticPlugin_Hypothesis::SetImprintedFaces(const std::vector<int>& theVal) {
+  if ( _imprintedFaces != theVal ) {
+	  _imprintedFaces = theVal;
+    NotifySubMeshesHypothesisModification();
+    return true;
+  }
+  return false;
+}
+
 //=============================================================================
 /*!
  *  
@@ -224,6 +276,28 @@ std::ostream& HexoticPlugin_Hypothesis::SaveTo(std::ostream& save)
     for ( ; it!=_sizeMaps.end() ; it++ )
     {
       save<< it->first << "/" << it->second << "#" ;
+    }
+    save<<";";
+  }
+  save<<"nbLayers="<<_nbLayers<<";";
+  save<<"firstLayerSize="<<_firstLayerSize<<";";
+  save<<"direction="<<_direction<<";";
+  save<<"growth="<<_growth<<";";
+  if ( !_facesWithLayers.empty() )
+  {
+    save<<"facesWithLayers=";
+    for ( int i = 0; i < _facesWithLayers.size(); i++ )
+    {
+      save<< _facesWithLayers.at(i) << "#" ;
+    }
+    save<<";";
+  }
+  if ( !_imprintedFaces.empty() )
+  {
+    save<<"imprintedFaces=";
+    for ( int i = 0; i < _imprintedFaces.size(); i++ )
+    {
+      save<< _imprintedFaces.at(i) << "#" ;
     }
     save<<";";
   }
@@ -285,6 +359,34 @@ std::istream& HexoticPlugin_Hypothesis::LoadFrom(std::istream& load)
           sm_substr2 = sm_substr.substr(sm_slashpos+1);
           _sizeMaps[sm_substr1] = atof(sm_substr2.c_str());
           sm_pos = sm_found + 1;
+        }
+      }
+      if (str3 == "nbLayers") _nbLayers = atoi(str4.c_str());
+      if (str3 == "firstLayerSize") _firstLayerSize = atof(str4.c_str());
+      if (str3 == "direction") _direction = atoi(str4.c_str());
+      if (str3 == "growth") _growth = atof(str4.c_str());
+      if (str3 == "facesWithLayers")
+      {
+        std::string id;
+        int pos = 0;
+        while ( pos < str4.length() )
+        {
+          int found = str4.find('#',pos);
+          id = str4.substr(pos, found-pos);
+          _facesWithLayers.push_back(atoi(id.c_str()));
+          pos = found + 1;
+        }
+      }
+      if (str3 == "imprintedFaces")
+      {
+        std::string id;
+        int pos = 0;
+        while ( pos < str4.length() )
+        {
+          int found = str4.find('#',pos);
+          id = str4.substr(pos, found-pos);
+          _imprintedFaces.push_back(atoi(id.c_str()));
+          pos = found + 1;
         }
       }
    }
@@ -429,4 +531,32 @@ HexoticPlugin_Hypothesis::THexoticSizeMaps HexoticPlugin_Hypothesis::GetDefaultH
   return THexoticSizeMaps();
 }
 
+int HexoticPlugin_Hypothesis::GetDefaultNbLayers()
+{
+  return 0;
+}
 
+double HexoticPlugin_Hypothesis::GetDefaultFirstLayerSize()
+{
+  return 0.0;
+}
+
+bool HexoticPlugin_Hypothesis::GetDefaultDirection()
+{
+  return true;
+}
+
+double HexoticPlugin_Hypothesis::GetDefaultGrowth()
+{
+  return 0.0;
+}
+
+std::vector<int> HexoticPlugin_Hypothesis::GetDefaultFacesWithLayers()
+{
+  return std::vector<int>();
+}
+
+std::vector<int> HexoticPlugin_Hypothesis::GetDefaultImprintedFaces()
+{
+  return std::vector<int>();
+}

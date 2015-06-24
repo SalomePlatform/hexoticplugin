@@ -31,6 +31,7 @@
 #include "Utils_SALOME_Exception.hxx"
 
 #include <map>
+#include <vector>
 
 // class HexoticSizeMap
 // {
@@ -100,6 +101,24 @@ public:
   bool AddSizeMap(std::string theEntry, double theSize);
   bool UnsetSizeMap(std::string theEntry);
 
+  void SetNbLayers(int theVal);
+  int GetNbLayers() const { return _nbLayers; }
+
+  void SetFirstLayerSize(double theVal);
+  double GetFirstLayerSize() const { return _firstLayerSize; }
+
+  void SetDirection(bool theVal);
+  bool GetDirection() const { return _direction; }
+
+  void SetGrowth(double theVal);
+  double GetGrowth() const { return _growth; }
+
+  bool SetFacesWithLayers(const std::vector<int>& theVal);
+  std::vector<int> GetFacesWithLayers() const { return _facesWithLayers; }
+
+  bool SetImprintedFaces(const std::vector<int>& theVal);
+  std::vector<int> GetImprintedFaces() const { return _imprintedFaces; }
+
   // the parameters default values 
   static int GetDefaultHexesMinLevel();
   static int GetDefaultHexesMaxLevel();
@@ -114,6 +133,12 @@ public:
   static int GetDefaultHexoticVerbosity();
   static int GetDefaultHexoticMaxMemory();
   static THexoticSizeMaps GetDefaultHexoticSizeMaps();
+  static int GetDefaultNbLayers();
+  static double GetDefaultFirstLayerSize();
+  static bool GetDefaultDirection();
+  static double GetDefaultGrowth();
+  static std::vector<int> GetDefaultFacesWithLayers();
+  static std::vector<int> GetDefaultImprintedFaces();
 
   // Persistence
   virtual std::ostream& SaveTo(std::ostream& save);
@@ -149,6 +174,12 @@ private:
   int    _hexoticMaxMemory;
   THexoticSizeMaps _sizeMaps;
   std::string _hexoticWorkingDirectory ;
+  int    _nbLayers;
+  double _firstLayerSize;
+  bool   _direction;
+  double _growth;
+  std::vector<int> _facesWithLayers;
+  std::vector<int> _imprintedFaces;
 };
 
 #endif

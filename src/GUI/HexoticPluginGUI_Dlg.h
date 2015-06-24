@@ -38,7 +38,10 @@ enum {
 
 #include "ui_HexoticPluginGUI_StdWidget_QTD.h"
 #include "ui_HexoticPluginGUI_SizeMapsWidget_QTD.h"
+#include "ui_HexoticPluginGUI_ViscousLayersWidget_QTD.h"
 #include "HexoticPluginGUI.h"
+
+#include <StdMeshersGUI_SubShapeSelectorWdg.h>
 
 class HEXOTICPLUGIN_GUI_EXPORT HexoticPluginGUI_StdWidget : public QWidget,
                                             public Ui::HexoticPluginGUI_StdWidget_QTD
@@ -67,5 +70,21 @@ public:
   ~HexoticPluginGUI_SizeMapsWidget();
 };
 
+class HEXOTICPLUGIN_GUI_EXPORT HexoticPluginGUI_ViscousLayersWidget : public QWidget,
+                                            public Ui::HexoticPluginGUI_ViscousLayersWidget_QTD
+{
+  Q_OBJECT
+
+public:
+  HexoticPluginGUI_ViscousLayersWidget( QWidget* = 0, Qt::WindowFlags = 0 );
+  ~HexoticPluginGUI_ViscousLayersWidget();
+
+public slots:
+  void onSelectionChanged();
+
+public:
+  StdMeshersGUI_SubShapeSelectorWdg* myFacesWithLayers;
+  StdMeshersGUI_SubShapeSelectorWdg* myImprintedFaces;
+};
 
 #endif

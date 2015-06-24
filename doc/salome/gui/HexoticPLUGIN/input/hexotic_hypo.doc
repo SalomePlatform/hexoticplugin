@@ -74,4 +74,22 @@ The area where the mesh has to be refined is given as a geometrical shape.
 
 \note The local size will only influence the density towards a locally denser mesh. If the required density is coarser than the one determined automatically by the global size parameters 
 (min size, max size, min level, max level), it will be ignored and the default density will be used.
+
+\section hexotic_viscous_layers_parameters Viscous layers
+
+The viscous layers allows you to set up parameters of Viscous Layers supported by MG_Hexa mesher.
+
+\image html hexotic_vl_parameters.png
+ 
+<ul>
+<li><b>Number of layers</b> - number of boundary layers.</li>
+<li><b>Size of the first layer</b> - height of the first layer.</li>
+<li><b>Direction of the layers</b> - describes whether the layers grow inwards or outwards.</li>
+<li><b>Growth</b> - geometric progression for the boundary layer growth.</li>
+<li><b>Faces with layers</b> - list of surface references from which the boundary 
+layers should be grown.</li>
+<li><b>Imprinted faces</b> - list of surface references that can be imprinted by 
+boundary layers.</li>
+</ul>
+
 */

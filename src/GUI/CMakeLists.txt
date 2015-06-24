@@ -85,6 +85,7 @@ SET(_other_SOURCES
   HexoticPluginGUI.cxx
   HexoticPluginGUI_StdWidget.cxx
   HexoticPluginGUI_SizeMapsWidget.cxx
+  HexoticPluginGUI_ViscousLayersWidget.cxx
   HexoticPluginGUI_HypothesisCreator.cxx
 )
 
@@ -102,6 +103,7 @@ SET(_ts_RESOURCES
 SET(_uic_files
   HexoticPluginGUI_StdWidget_QTD.ui
   HexoticPluginGUI_SizeMapsWidget_QTD.ui
+  HexoticPluginGUI_ViscousLayersWidget_QTD.ui
 )
 
 # header files / uic wrappings

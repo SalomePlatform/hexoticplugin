@@ -76,6 +76,12 @@ HexoticPlugin_Hypothesis_i::~HexoticPlugin_Hypothesis_i()
  *  HexoticPlugin_Hypothesis_i::SetHexoticSdMode
  *  HexoticPlugin_Hypothesis_i::SetVerbosity
  *  HexoticPlugin_Hypothesis_i::SetHexoticMaxMemory
+ *  HexoticPlugin_Hypothesis_i::SetNbLayers
+ *  HexoticPlugin_Hypothesis_i::SetFirstLayerSize
+ *  HexoticPlugin_Hypothesis_i::SetDirection
+ *  HexoticPlugin_Hypothesis_i::SetGrowth
+ *  HexoticPlugin_Hypothesis_i::SetFacesWithLayers
+ *  HexoticPlugin_Hypothesis_i::SetImprintedFaces
  */
 //=============================================================================
 
@@ -266,6 +272,70 @@ void HexoticPlugin_Hypothesis_i::UnsetSizeMap (const GEOM::GEOM_Object_ptr theGe
   UnsetSizeMapEntry( entry.c_str());
 }
 
+void HexoticPlugin_Hypothesis_i::SetNbLayers(CORBA::Long theVal)
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::SetNbLayers");
+  ASSERT(myBaseImpl);
+  CORBA::Long oldValue = GetNbLayers();
+  this->GetImpl()->SetNbLayers(theVal);
+  if (theVal != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetNbLayers( " << theVal << " )";
+}
+
+void HexoticPlugin_Hypothesis_i::SetFirstLayerSize(CORBA::Double theVal)
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::SetFirstLayerSize");
+  ASSERT(myBaseImpl);
+  CORBA::Double oldValue = GetFirstLayerSize();
+  this->GetImpl()->SetFirstLayerSize(theVal);
+  if (theVal != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetFirstLayerSize( " << theVal << " )";
+}
+
+void HexoticPlugin_Hypothesis_i::SetDirection(CORBA::Boolean theVal)
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::SetDirection");
+  ASSERT(myBaseImpl);
+  CORBA::Boolean oldValue = GetDirection();
+  this->GetImpl()->SetDirection(theVal);
+  if (theVal != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetDirection( " << theVal << " )";
+}
+
+void HexoticPlugin_Hypothesis_i::SetGrowth(CORBA::Double theVal)
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::SetGrowth");
+  ASSERT(myBaseImpl);
+  CORBA::Double oldValue = GetGrowth();
+  this->GetImpl()->SetGrowth(theVal);
+  if (theVal != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetGrowth( " << theVal << " )";
+}
+
+void HexoticPlugin_Hypothesis_i::SetFacesWithLayers(const ::SMESH::long_array& theVal)
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::SetFacesWithLayers");
+  vector<int> ids( theVal.length() );
+  for ( unsigned i = 0; i < ids.size(); ++i )
+   ids[i] = theVal[i];
+
+  bool valueChanged = this->GetImpl()->SetFacesWithLayers(ids);
+  if (valueChanged)
+    SMESH::TPythonDump() << _this() << ".SetFacesWithLayers( "<< theVal << " )";
+}
+
+void HexoticPlugin_Hypothesis_i::SetImprintedFaces(const ::SMESH::long_array& theVal)
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::SetImprintedFaces");
+  vector<int> ids( theVal.length() );
+  for ( unsigned i = 0; i < ids.size(); ++i )
+   ids[i] = theVal[i];
+
+  bool valueChanged = this->GetImpl()->SetImprintedFaces(ids);
+  if (valueChanged)
+    SMESH::TPythonDump() << _this() << ".SetImprintedFaces( "<< theVal << " )";
+}
+
 //=============================================================================
 /*!
  *  HexoticPlugin_Hypothesis_i::GetHexesMinLevel
@@ -280,6 +350,12 @@ void HexoticPlugin_Hypothesis_i::UnsetSizeMap (const GEOM::GEOM_Object_ptr theGe
  *  HexoticPlugin_Hypothesis_i::GetHexoticSdMode
  *  HexoticPlugin_Hypothesis_i::GetVerbosity
  *  HexoticPlugin_Hypothesis_i::GetHexoticMaxMemory
+ *  HexoticPlugin_Hypothesis_i::GetNbLayers
+ *  HexoticPlugin_Hypothesis_i::GetFirstLayerSize
+ *  HexoticPlugin_Hypothesis_i::GetDirection
+ *  HexoticPlugin_Hypothesis_i::GetGrowth
+ *  HexoticPlugin_Hypothesis_i::GetFacesWithLayers
+ *  HexoticPlugin_Hypothesis_i::GetImprintedFaces
  */
 //=============================================================================
 
@@ -366,6 +442,59 @@ CORBA::Long HexoticPlugin_Hypothesis_i::GetHexoticMaxMemory()
   return this->GetImpl()->GetHexoticMaxMemory();
 }
 
+CORBA::Long HexoticPlugin_Hypothesis_i::GetNbLayers()
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::GetNbLayers");
+  ASSERT(myBaseImpl);
+  return this->GetImpl()->GetNbLayers();
+}
+
+CORBA::Double HexoticPlugin_Hypothesis_i::GetFirstLayerSize()
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::GetFirstLayerSize");
+  ASSERT(myBaseImpl);
+  return this->GetImpl()->GetFirstLayerSize();
+}
+
+CORBA::Boolean HexoticPlugin_Hypothesis_i::GetDirection()
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::GetDirection");
+  ASSERT(myBaseImpl);
+  return this->GetImpl()->GetDirection();
+}
+
+CORBA::Double HexoticPlugin_Hypothesis_i::GetGrowth()
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::GetGrowth");
+  ASSERT(myBaseImpl);
+  return this->GetImpl()->GetGrowth();
+}
+
+SMESH::long_array* HexoticPlugin_Hypothesis_i::GetFacesWithLayers()
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::GetFacesWithLayers");
+  ASSERT(myBaseImpl);
+  std::vector<int> idsVec = this->GetImpl()->GetFacesWithLayers();
+  SMESH::long_array_var ids = new SMESH::long_array;
+  ids->length( idsVec.size() );
+  std::vector<int>::const_iterator anIt;
+  for ( unsigned i = 0; i < idsVec.size(); ++i )
+    ids[i] = idsVec[i];
+  return ids._retn();
+}
+
+SMESH::long_array* HexoticPlugin_Hypothesis_i::GetImprintedFaces()
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::GetImprintedFaces");
+  ASSERT(myBaseImpl);
+  std::vector<int> idsVec = this->GetImpl()->GetImprintedFaces();
+  SMESH::long_array_var ids = new SMESH::long_array;
+  ids->length( idsVec.size() );
+  std::vector<int>::const_iterator anIt;
+  for ( unsigned i = 0; i < idsVec.size(); ++i )
+    ids[i] = idsVec[i];
+  return ids._retn();
+}
 //=============================================================================
 /*!
  *  HexoticPlugin_Hypothesis_i::GetImpl

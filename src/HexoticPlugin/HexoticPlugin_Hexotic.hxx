@@ -136,6 +136,12 @@ private:
   int _hexoticMaxMemory;
   int _hexoticSdMode;
   HexoticPlugin_Hypothesis::THexoticSizeMaps _sizeMaps;
+  int    _nbLayers;
+  double _firstLayerSize;
+  bool   _direction;
+  double _growth;
+  std::vector<int> _facesWithLayers;
+  std::vector<int> _imprintedFaces;
   SMDS_MeshNode** _tabNode;
   
 #ifdef WITH_BLSURFPLUGIN

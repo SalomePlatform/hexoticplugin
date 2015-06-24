@@ -16,6 +16,10 @@
         <translation>Construction de l&apos;hypothèse</translation>
     </message>
     <message>
+        <source>Hexotic_VISCOUS_LAYERS</source>
+        <translation>Couches limites</translation>
+    </message>
+    <message>
         <source>Hexotic_INPUT_SIZE</source>
         <translation>Tailles</translation>
     </message>
@@ -114,6 +118,30 @@
     <message>
         <source>Hexotic_SEL_SHAPE</source>
         <translation>Sélectionnez un objet géométrique</translation>
+    </message>
+    <message>
+        <source>Hexotic_NB_LAYERS</source>
+        <translation>Nombre de couches</translation>
+    </message>
+    <message>
+        <source>Hexotic_FIRST_LAYER_SIZE</source>
+        <translation>Taille de la première couche</translation>
+    </message>
+    <message>
+        <source>Hexotic_DIRECTION</source>
+        <translation>Direction des couches</translation>
+    </message>
+    <message>
+        <source>Hexotic_GROWTH</source>
+        <translation>Accroissement</translation>
+    </message>
+    <message>
+        <source>Hexotic_FACES_WITH_LAYERS</source>
+        <translation>Faces avec couche limite</translation>
+    </message>
+    <message>
+        <source>Hexotic_IMPRINTED_FACES</source>
+        <translation type="unfinished">Imprinted faces</translation>
     </message>
 </context>
 </TS>

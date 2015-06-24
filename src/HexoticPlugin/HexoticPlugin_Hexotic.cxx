@@ -856,6 +856,12 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _hexoticMaxMemory = hyp->GetHexoticMaxMemory();
     _hexoticSdMode = hyp->GetHexoticSdMode();
     _sizeMaps = hyp->GetSizeMaps();
+    _nbLayers = hyp->GetNbLayers();
+    _firstLayerSize = hyp->GetFirstLayerSize();
+    _direction = hyp->GetDirection();
+    _growth = hyp->GetGrowth();
+    _facesWithLayers = hyp->GetFacesWithLayers();
+    _imprintedFaces = hyp->GetImprintedFaces();
   }
   else {
     cout << std::endl;
@@ -874,6 +880,12 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _hexoticMaxMemory = hyp->GetDefaultHexoticMaxMemory();
     _hexoticSdMode = hyp->GetDefaultHexoticSdMode();
     _sizeMaps = hyp->GetDefaultHexoticSizeMaps();
+    _nbLayers = hyp->GetDefaultNbLayers();
+    _firstLayerSize = hyp->GetDefaultFirstLayerSize();
+    _direction = hyp->GetDefaultDirection();
+    _growth = hyp->GetDefaultGrowth();
+    _facesWithLayers = hyp->GetDefaultFacesWithLayers();
+    _imprintedFaces = hyp->GetDefaultImprintedFaces();
   }
 }
 
@@ -964,6 +976,30 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   cout << "    " << _name << " Number of threads = " << _hexoticNbProc << std::endl;
   cout << "    " << _name << " Working directory = \"" << _hexoticWorkingDirectory << "\"" << std::endl;
   cout << "    " << _name << " Sub. Dom mode = " << _hexoticSdMode << std::endl;
+  cout << "    " << _name << " Number of layers = " << _nbLayers << std::endl;
+  cout << "    " << _name << " Size of the first layer  = " << _firstLayerSize << std::endl;
+  cout << "    " << _name << " Direction of the layers = " << ( _direction ? "Inward" : "Outward" ) << std::endl;
+  cout << "    " << _name << " Growth = " << _growth << std::endl;
+  if (!_facesWithLayers.empty()) {
+    cout << "    " << _name << " Faces with layers = ";
+    for (int i = 0; i < _facesWithLayers.size(); i++)
+    {
+      cout << _facesWithLayers.at(i);
+      if ((i + 1) != _facesWithLayers.size())
+        cout << ", ";
+    }
+    cout << std::endl;
+  }
+  if (!_imprintedFaces.empty()) {
+    cout << "    " << _name << " Imprinted faces = ";
+    for (int i = 0; i < _imprintedFaces.size(); i++)
+    {
+      cout << _imprintedFaces.at(i);
+      if ((i + 1) != _imprintedFaces.size())
+        cout << ", ";
+    }
+    cout << std::endl;
+  }
 
   TCollection_AsciiString run_Hexotic( "mg-hexa.exe" );
 
@@ -979,7 +1015,15 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   TCollection_AsciiString verb = " --verbose ";
   TCollection_AsciiString maxmem = " --max_memory ";
 
-  TCollection_AsciiString minLevel, maxLevel, minSize, maxSize, sharpAngle, mode, nbproc, verbosity, maxMemory;
+  TCollection_AsciiString comNbLayers = " --number_of_boundary_layers ";
+  TCollection_AsciiString comFirstLayerSize = " --height_of_the_first_layer ";
+  TCollection_AsciiString comDirection = " --boundary_layers_subdomain_direction ";
+  TCollection_AsciiString comGrowth = " --boundary_layers_geometric_progression ";
+  TCollection_AsciiString comFacesWithLayers = " --boundary_layers_surface_ids ";
+  TCollection_AsciiString comImptintedFaces = " --imprinted_surface_ids ";
+
+  TCollection_AsciiString minLevel, maxLevel, minSize, maxSize, sharpAngle, mode, nbproc, verbosity, maxMemory,
+                          nbLayers, firstLayerSize, direction, growth, facesWithLayers, imprintedFaces;
   minLevel = _hexesMinLevel;
   maxLevel = _hexesMaxLevel;
   minSize = _hexesMinSize;
@@ -1004,6 +1048,22 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   nbproc = _hexoticNbProc;
   verbosity = _hexoticVerbosity;
   maxMemory = _hexoticMaxMemory;
+  nbLayers = _nbLayers;
+  firstLayerSize = _firstLayerSize;
+  direction = _direction ? "1" : "-1";
+  growth = _growth;
+  for (int i = 0; i < _facesWithLayers.size(); i++)
+  {
+    facesWithLayers += _facesWithLayers[i];
+    if ((i + 1) != _facesWithLayers.size())
+      facesWithLayers += ",";
+  }
+  for (int i = 0; i < _imprintedFaces.size(); i++)
+  {
+    imprintedFaces += _imprintedFaces[i];
+    if ((i + 1) != _imprintedFaces.size())
+      imprintedFaces += ",";
+  }
 
   if (_hexoticIgnoreRidges)
     run_Hexotic +=  ignoreRidges;
@@ -1028,6 +1088,23 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   
   if (_sizeMaps.begin() != _sizeMaps.end())
     run_Hexotic += sizeMap + Hexotic_SizeMap_Prefix;
+
+  if (_nbLayers > 0)
+    run_Hexotic += comNbLayers + nbLayers;
+
+  if (_firstLayerSize > 0)
+    run_Hexotic += comFirstLayerSize + firstLayerSize;
+
+  run_Hexotic += comDirection + direction;
+
+  if (_growth > 0)
+    run_Hexotic += comGrowth + growth;
+
+  if (!_facesWithLayers.empty())
+    run_Hexotic += comFacesWithLayers + facesWithLayers;
+
+  if (!_imprintedFaces.empty())
+    run_Hexotic += comImptintedFaces + imprintedFaces;
 
   run_Hexotic += in + Hexotic_In + out + Hexotic_Out;
   run_Hexotic += subdom + mode;
