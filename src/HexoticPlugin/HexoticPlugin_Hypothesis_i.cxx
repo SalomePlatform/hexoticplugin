@@ -477,7 +477,6 @@ SMESH::long_array* HexoticPlugin_Hypothesis_i::GetFacesWithLayers()
   std::vector<int> idsVec = this->GetImpl()->GetFacesWithLayers();
   SMESH::long_array_var ids = new SMESH::long_array;
   ids->length( idsVec.size() );
-  std::vector<int>::const_iterator anIt;
   for ( unsigned i = 0; i < idsVec.size(); ++i )
     ids[i] = idsVec[i];
   return ids._retn();
@@ -490,7 +489,6 @@ SMESH::long_array* HexoticPlugin_Hypothesis_i::GetImprintedFaces()
   std::vector<int> idsVec = this->GetImpl()->GetImprintedFaces();
   SMESH::long_array_var ids = new SMESH::long_array;
   ids->length( idsVec.size() );
-  std::vector<int>::const_iterator anIt;
   for ( unsigned i = 0; i < idsVec.size(); ++i )
     ids[i] = idsVec[i];
   return ids._retn();

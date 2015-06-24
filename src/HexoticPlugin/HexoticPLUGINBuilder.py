@@ -23,6 +23,7 @@
 
 from salome.smesh.smesh_algorithm import Mesh_Algorithm
 from salome.smesh.smeshBuilder import AssureGeomPublished
+from salome.geom import geomBuilder
 
 # import HexoticPlugin module if possible
 noHexoticPlugin = 0
@@ -58,6 +59,11 @@ class Hexotic_Algorithm(Mesh_Algorithm):
     ## doc string of the method in smeshBuilder.Mesh class
     #  @internal
     docHelper  = "Creates hexahedron 3D algorithm for volumes"
+
+    ## Direction of viscous layers
+    #  @internal
+    Inward = True
+    Outward = False
 
     ## Private constructor.
     #  @param mesh parent mesh object algorithm is assigned to
@@ -130,14 +136,30 @@ class Hexotic_Algorithm(Mesh_Algorithm):
     #         boundary layers
     #  @return hypothesis object
     def SetViscousLayers(self, numberOfLayers, firstLayerSize, growth, 
-                          direction="Inward", facesWithLayers=[], imprintedFaces=[]): 
+                          direction=Inward, facesWithLayers=[], imprintedFaces=[]): 
         self.Parameters().SetNbLayers(numberOfLayers)
         self.Parameters().SetFirstLayerSize(firstLayerSize)
         self.Parameters().SetGrowth(growth)
-        if direction == "Inward":
-          self.Parameters().SetDirection(True)
-        elif direction == "Outward":
-          self.Parameters().SetDirection(False)
+        self.Parameters().SetDirection(direction)
+        if facesWithLayers and isinstance( facesWithLayers[0], geomBuilder.GEOM._objref_GEOM_Object ):
+          import GEOM
+          facesWithLayersIDs = []
+          for f in facesWithLayers:
+            if self.mesh.geompyD.ShapeIdToType( f.GetType() ) == "GROUP":
+              facesWithLayersIDs += f.GetSubShapeIndices()
+            else:
+              facesWithLayersIDs += [self.mesh.geompyD.GetSubShapeID(self.mesh.geom, f)]
+          facesWithLayers = facesWithLayersIDs
+          
+        if imprintedFaces and isinstance( imprintedFaces[0], geomBuilder.GEOM._objref_GEOM_Object ):
+          import GEOM
+          imprintedFacesIDs = []
+          for f in imprintedFaces:
+            if self.mesh.geompyD.ShapeIdToType( f.GetType() ) == "GROUP":
+              imprintedFacesIDs += f.GetSubShapeIndices()
+            else:
+              imprintedFacesIDs += [self.mesh.geompyD.GetSubShapeID(self.mesh.geom, f)]
+          imprintedFaces = imprintedFacesIDs
         self.Parameters().SetFacesWithLayers(facesWithLayers)
         self.Parameters().SetImprintedFaces(imprintedFaces)
         
