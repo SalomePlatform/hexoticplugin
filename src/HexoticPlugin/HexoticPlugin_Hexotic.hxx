@@ -135,6 +135,7 @@ private:
   int _hexoticVerbosity;
   int _hexoticMaxMemory;
   int _hexoticSdMode;
+  std::string _textOptions;
   HexoticPlugin_Hypothesis::THexoticSizeMaps _sizeMaps;
   int    _nbLayers;
   double _firstLayerSize;

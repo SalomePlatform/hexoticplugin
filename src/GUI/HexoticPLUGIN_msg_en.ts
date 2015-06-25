@@ -92,6 +92,14 @@
         <translation>Non-manifold geometries</translation>
     </message>
     <message>
+        <source>Hexotic_ADVANCED</source>
+        <translation>Advanced options</translation>
+    </message>
+    <message>
+        <source>Hexotic_TEXT_OPTIONS</source>
+        <translation>Options as text</translation>
+    </message>
+    <message>
         <source>Hexotic_ADD</source>
         <translation>Add</translation>
     </message>

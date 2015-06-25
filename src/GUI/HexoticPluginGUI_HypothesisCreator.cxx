@@ -452,6 +452,8 @@ void HexoticPluginGUI_HypothesisCreator::retrieveParams() const
 
   myStdWidget->myHexoticSdMode->setCurrentIndex(data.myHexoticSdMode);
   
+  myStdWidget->myTextOptions->setText(data.myTextOptions);
+
   HexoticPlugin_Hypothesis::THexoticSizeMaps::const_iterator it = data.mySizeMaps.begin();
   for ( int row = 0; it != data.mySizeMaps.end(); it++, row++ )
   {
@@ -520,6 +522,7 @@ void HexoticPluginGUI_HypothesisCreator::printData( HexoticHypothesisData& data)
   valStr += tr("Hexotic_VERBOSITY") + " = " + QString::number( data.myHexoticVerbosity ) + "; ";
   valStr += tr("Hexotic_MAX_MEMORY") + " = " + QString::number( data.myHexoticMaxMemory ) + "; ";
   valStr += tr("Hexotic_SD_MODE") + " = " + QString::number( data.myHexoticSdMode ) + "; ";
+  valStr += tr("Hexotic_TEXT_OPTIONS") + " = " + data.myTextOptions + ";";
 
   std::cout << "Data: " << valStr.toStdString() << std::endl;
 }
@@ -543,6 +546,7 @@ QString HexoticPluginGUI_HypothesisCreator::storeParams() const
   valStr += tr("Hexotic_VERBOSITY") + " = " + QString::number( data.myHexoticVerbosity) + "; ";
   valStr += tr("Hexotic_MAX_MEMORY") + " = " + QString::number( data.myHexoticMaxMemory ) + "; ";
   valStr += tr("Hexotic_SD_MODE") + " = " + QString::number( data.myHexoticSdMode) + "; ";
+  valStr += tr("Hexotic_TEXT_OPTIONS") + " = " + data.myTextOptions + "; ";
 
   valStr += tr("Hexotic_NB_LAYERS") + " = " + QString::number(data.myNbLayers) + ";";
   valStr += tr("Hexotic_FIRST_LAYER_SIZE") + " = " + QString::number(data.myFirstLayerSize) + ";";
@@ -573,6 +577,7 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromHypo( HexoticHypothesisDa
   h_data.myHexoticVerbosity = h->GetHexoticVerbosity();
   h_data.myHexoticMaxMemory = h->GetHexoticMaxMemory();
   h_data.myHexoticSdMode = h->GetHexoticSdMode()-1;
+  h_data.myTextOptions = h->GetTextOptions();
   
   // Size maps
   HexoticPlugin::HexoticPluginSizeMapsList_var sizeMaps = h->GetSizeMaps();
@@ -624,6 +629,7 @@ bool HexoticPluginGUI_HypothesisCreator::storeParamsToHypo( const HexoticHypothe
     h->SetHexoticVerbosity( h_data.myHexoticVerbosity );
     h->SetHexoticMaxMemory( h_data.myHexoticMaxMemory );
     h->SetHexoticSdMode( h_data.myHexoticSdMode+1 );
+    h->SetTextOptions( h_data.myTextOptions.toLatin1().constData() );
     
     HexoticPlugin_Hypothesis::THexoticSizeMaps::const_iterator it;
     
@@ -679,6 +685,7 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromWidgets( HexoticHypothesi
   h_data.myHexoticVerbosity = myStdWidget->myHexoticVerbosity->value();
   h_data.myHexoticMaxMemory = myStdWidget->myHexoticMaxMemory->value();
   h_data.myHexoticSdMode = myStdWidget->myHexoticSdMode->currentIndex();
+  h_data.myTextOptions = myStdWidget->myTextOptions->text();
 
   h_data.myMinSize = myStdWidget->myMinSize->text().isEmpty() ? 0.0 : myStdWidget->myMinSize->value();
   h_data.myMaxSize = myStdWidget->myMaxSize->text().isEmpty() ? 0.0 : myStdWidget->myMaxSize->value();

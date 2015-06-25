@@ -91,6 +91,9 @@ public:
   void SetHexoticMaxMemory(int theVal);
   int GetHexoticMaxMemory() const { return _hexoticMaxMemory; }
   
+  void SetTextOptions(const std::string& theOptions);
+  std::string GetTextOptions() const { return _textOptions; }
+
   // Size Maps
   typedef std::map<std::string,double> THexoticSizeMaps;
   
@@ -132,6 +135,7 @@ public:
   static int GetDefaultHexoticSdMode();
   static int GetDefaultHexoticVerbosity();
   static int GetDefaultHexoticMaxMemory();
+  static std::string GetDefaultTextOptions();
   static THexoticSizeMaps GetDefaultHexoticSizeMaps();
   static int GetDefaultNbLayers();
   static double GetDefaultFirstLayerSize();
@@ -172,8 +176,9 @@ private:
   int    _hexoticSdMode;
   int    _hexoticVerbosity;
   int    _hexoticMaxMemory;
+  std::string _textOptions;
   THexoticSizeMaps _sizeMaps;
-  std::string _hexoticWorkingDirectory ;
+  std::string _hexoticWorkingDirectory;
   int    _nbLayers;
   double _firstLayerSize;
   bool   _direction;

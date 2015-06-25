@@ -96,6 +96,14 @@
         <translation>Géométries &quot;non-manifold&quot;</translation>
     </message>
     <message>
+        <source>Hexotic_ADVANCED</source>
+        <translation>Options avancées</translation>
+    </message>
+    <message>
+        <source>Hexotic_TEXT_OPTIONS</source>
+        <translation>Options comme texte</translation>
+    </message>
+    <message>
         <source>Hexotic_ADD</source>
         <translation>Ajouter</translation>
     </message>

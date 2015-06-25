@@ -92,6 +92,14 @@
       <translation>ジオメトリ「マニホールド」</translation>
     </message>
     <message>
+        <source>Hexotic_ADVANCED</source>
+        <translation type="unfinished">Advanced options</translation>
+    </message>
+    <message>
+        <source>Hexotic_TEXT_OPTIONS</source>
+        <translation type="unfinished">Option as text</translation>
+    </message>
+    <message>
       <source>Hexotic_ADD</source>
       <translation>追加</translation>
     </message>

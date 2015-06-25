@@ -47,6 +47,7 @@ HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, int studyId,
     _hexoticSdMode(GetDefaultHexoticSdMode()),
     _hexoticVerbosity(GetDefaultHexoticVerbosity()),
     _hexoticMaxMemory(GetDefaultHexoticMaxMemory()),
+    _textOptions(GetDefaultTextOptions()),
     _sizeMaps(GetDefaultHexoticSizeMaps()),
     _nbLayers(GetDefaultNbLayers()),
     _firstLayerSize(GetDefaultFirstLayerSize()),
@@ -161,6 +162,14 @@ void HexoticPlugin_Hypothesis::SetHexoticMaxMemory(int theVal) {
   }
 }
 
+void HexoticPlugin_Hypothesis::SetTextOptions(const std::string& theOptions)
+{
+  if (_textOptions != theOptions ) {
+    _textOptions = theOptions;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
 bool HexoticPlugin_Hypothesis::AddSizeMap(std::string theEntry, double theSize) {
   THexoticSizeMaps::iterator it;
   it=_sizeMaps.find(theEntry);
@@ -269,6 +278,8 @@ std::ostream& HexoticPlugin_Hypothesis::SaveTo(std::ostream& save)
   save<<"hexoticSdMode="<<_hexoticSdMode<<";";
   save<<"hexoticVerbosity="<<_hexoticVerbosity<<";";
   save<<"hexoticMaxMemory="<<_hexoticMaxMemory<<";";
+  replace(_textOptions.begin(), _textOptions.end(), ' ', '*');
+  save<<"textOptions="<<_textOptions<<";";
   THexoticSizeMaps::iterator it = _sizeMaps.begin();
   if ( it != _sizeMaps.end() )
   {
@@ -345,6 +356,11 @@ std::istream& HexoticPlugin_Hypothesis::LoadFrom(std::istream& load)
       if (str3=="hexoticSdMode") _hexoticSdMode = atoi(str4.c_str());
       if (str3=="hexoticVerbosity") _hexoticVerbosity = atoi(str4.c_str());
       if (str3=="hexoticMaxMemory") _hexoticMaxMemory = atoi(str4.c_str());
+      if (str3=="textOptions")
+      {
+        replace(str4.begin(), str4.end(), '*', ' ');
+        _textOptions = str4;
+      }
       if (str3=="sizeMaps")
       {
         std::string sm_substr, sm_substr1, sm_substr2;
@@ -524,6 +540,11 @@ int HexoticPlugin_Hypothesis::GetDefaultHexoticVerbosity()
 int HexoticPlugin_Hypothesis::GetDefaultHexoticMaxMemory()
 {
   return 2048;
+}
+
+std::string HexoticPlugin_Hypothesis::GetDefaultTextOptions()
+{
+  return "";
 }
 
 HexoticPlugin_Hypothesis::THexoticSizeMaps HexoticPlugin_Hypothesis::GetDefaultHexoticSizeMaps()

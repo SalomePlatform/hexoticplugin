@@ -76,6 +76,7 @@ HexoticPlugin_Hypothesis_i::~HexoticPlugin_Hypothesis_i()
  *  HexoticPlugin_Hypothesis_i::SetHexoticSdMode
  *  HexoticPlugin_Hypothesis_i::SetVerbosity
  *  HexoticPlugin_Hypothesis_i::SetHexoticMaxMemory
+ *  HexoticPlugin_Hypothesis_i::SetTextOptions
  *  HexoticPlugin_Hypothesis_i::SetNbLayers
  *  HexoticPlugin_Hypothesis_i::SetFirstLayerSize
  *  HexoticPlugin_Hypothesis_i::SetDirection
@@ -221,6 +222,16 @@ void HexoticPlugin_Hypothesis_i::SetHexoticMaxMemory (CORBA::Long theValue)
     SMESH::TPythonDump() << _this() << ".SetHexoticMaxMemory( " << theValue << " )";
 }
 
+void HexoticPlugin_Hypothesis_i::SetTextOptions(const char* theOptions)
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::SetTextOptions");
+  ASSERT(myBaseImpl);
+  string oldValue(GetTextOptions());
+  this->GetImpl()->SetTextOptions(theOptions);
+  if (theOptions != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetTextOptions( '" << theOptions << "' )";
+}
+
 HexoticPlugin::HexoticPluginSizeMapsList* HexoticPlugin_Hypothesis_i::GetSizeMaps ()
 {
   // Get the std::map < string entry, double size >
@@ -350,6 +361,7 @@ void HexoticPlugin_Hypothesis_i::SetImprintedFaces(const ::SMESH::long_array& th
  *  HexoticPlugin_Hypothesis_i::GetHexoticSdMode
  *  HexoticPlugin_Hypothesis_i::GetVerbosity
  *  HexoticPlugin_Hypothesis_i::GetHexoticMaxMemory
+ *  HexoticPlugin_Hypothesis_i::GetTextOptions
  *  HexoticPlugin_Hypothesis_i::GetNbLayers
  *  HexoticPlugin_Hypothesis_i::GetFirstLayerSize
  *  HexoticPlugin_Hypothesis_i::GetDirection
@@ -440,6 +452,13 @@ CORBA::Long HexoticPlugin_Hypothesis_i::GetHexoticMaxMemory()
   // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexoticMaxMemory");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetHexoticMaxMemory();
+}
+
+char* HexoticPlugin_Hypothesis_i::GetTextOptions()
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::GetTextOptions");
+  ASSERT(myBaseImpl);
+  return CORBA::string_dup( this->GetImpl()->GetTextOptions().c_str() );
 }
 
 CORBA::Long HexoticPlugin_Hypothesis_i::GetNbLayers()

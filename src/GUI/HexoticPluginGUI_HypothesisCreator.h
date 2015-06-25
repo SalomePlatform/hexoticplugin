@@ -55,6 +55,7 @@ typedef struct
   int      myHexoticVerbosity;
   int      myHexoticMaxMemory;
   int      myHexoticSdMode;
+  QString  myTextOptions;
   HexoticPlugin_Hypothesis::THexoticSizeMaps mySizeMaps;
   int      myNbLayers;
   double   myFirstLayerSize;

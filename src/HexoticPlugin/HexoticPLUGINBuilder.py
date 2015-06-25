@@ -41,6 +41,10 @@ except ImportError:
 MG_Hexa = "MG-Hexa"
 Hexotic = MG_Hexa
 
+## Direction of viscous layers for MG_Hexa algorithm
+Inward = True
+Outward = False
+
 #----------------------------
 # Algorithms
 #----------------------------
@@ -59,11 +63,6 @@ class Hexotic_Algorithm(Mesh_Algorithm):
     ## doc string of the method in smeshBuilder.Mesh class
     #  @internal
     docHelper  = "Creates hexahedron 3D algorithm for volumes"
-
-    ## Direction of viscous layers
-    #  @internal
-    Inward = True
-    Outward = False
 
     ## Private constructor.
     #  @param mesh parent mesh object algorithm is assigned to

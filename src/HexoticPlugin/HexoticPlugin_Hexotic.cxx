@@ -855,6 +855,7 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _hexoticVerbosity = hyp->GetHexoticVerbosity();
     _hexoticMaxMemory = hyp->GetHexoticMaxMemory();
     _hexoticSdMode = hyp->GetHexoticSdMode();
+    _textOptions = hyp->GetTextOptions();
     _sizeMaps = hyp->GetSizeMaps();
     _nbLayers = hyp->GetNbLayers();
     _firstLayerSize = hyp->GetFirstLayerSize();
@@ -879,6 +880,7 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _hexoticVerbosity = hyp->GetDefaultHexoticVerbosity();
     _hexoticMaxMemory = hyp->GetDefaultHexoticMaxMemory();
     _hexoticSdMode = hyp->GetDefaultHexoticSdMode();
+    _textOptions = hyp->GetDefaultTextOptions();
     _sizeMaps = hyp->GetDefaultHexoticSizeMaps();
     _nbLayers = hyp->GetDefaultNbLayers();
     _firstLayerSize = hyp->GetDefaultFirstLayerSize();
@@ -976,6 +978,7 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   cout << "    " << _name << " Number of threads = " << _hexoticNbProc << std::endl;
   cout << "    " << _name << " Working directory = \"" << _hexoticWorkingDirectory << "\"" << std::endl;
   cout << "    " << _name << " Sub. Dom mode = " << _hexoticSdMode << std::endl;
+  cout << "    " << _name << " Text options = \"" << _textOptions << "\"" << std::endl;
   cout << "    " << _name << " Number of layers = " << _nbLayers << std::endl;
   cout << "    " << _name << " Size of the first layer  = " << _firstLayerSize << std::endl;
   cout << "    " << _name << " Direction of the layers = " << ( _direction ? "Inward" : "Outward" ) << std::endl;
@@ -1023,7 +1026,7 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   TCollection_AsciiString comImptintedFaces = " --imprinted_surface_ids ";
 
   TCollection_AsciiString minLevel, maxLevel, minSize, maxSize, sharpAngle, mode, nbproc, verbosity, maxMemory,
-                          nbLayers, firstLayerSize, direction, growth, facesWithLayers, imprintedFaces;
+                          textOptions, nbLayers, firstLayerSize, direction, growth, facesWithLayers, imprintedFaces;
   minLevel = _hexesMinLevel;
   maxLevel = _hexesMaxLevel;
   minSize = _hexesMinSize;
@@ -1048,6 +1051,7 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   nbproc = _hexoticNbProc;
   verbosity = _hexoticVerbosity;
   maxMemory = _hexoticMaxMemory;
+  textOptions = (" " + _textOptions + " ").c_str();
   nbLayers = _nbLayers;
   firstLayerSize = _firstLayerSize;
   direction = _direction ? "1" : "-1";
@@ -1113,6 +1117,9 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
 #endif
   run_Hexotic += verb + verbosity;
   run_Hexotic += maxmem + maxMemory;
+
+  if (!_textOptions.empty())
+    run_Hexotic += textOptions;
 
   return run_Hexotic.ToCString();
 }

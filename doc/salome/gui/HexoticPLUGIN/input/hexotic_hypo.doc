@@ -51,6 +51,9 @@ Parameters by default).</li>
 <li>sd 4 : meshes non-manifold geometries as such and generates subdomains accordingly.</li>
 </ul>
 </li>
+
+<li><b>Options as text</b> - allows to input in the command line any text for MG-Hexa, for example, advanced options.
+</li>
 </ul>
 
 \note If MG-CADSurf is used as 2D algo, and if a GMF file is defined as output file (using SetGMFFile(my2Dmesh.mesh)), then MG-Hexa will use this file as input.

@@ -42,7 +42,7 @@ MEFISTO_2D = Mesh_mghexa_vl.Triangle(algo=smeshBuilder.MEFISTO)
 
 MG_Hexa = Mesh_mghexa_vl.Hexahedron(algo=smeshBuilder.MG_Hexa)
 MG_Hexa_Parameters = MG_Hexa.Parameters()
-MG_Hexa.SetViscousLayers(5,5,3,MG_Hexa.Inward,[13,23])
+MG_Hexa.SetViscousLayers(5,5,3,smeshBuilder.Inward,[13,23])
 MG_Hexa_Parameters.SetMinSize( 2 )
 MG_Hexa_Parameters.SetMaxSize( 4 )
 MG_Hexa_Parameters.SetHexesMinLevel( 2 )
