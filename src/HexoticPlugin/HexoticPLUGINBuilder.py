@@ -126,16 +126,16 @@ class Hexotic_Algorithm(Mesh_Algorithm):
     #  @param firstLayerSize height of the first layer
     #  @param growth geometric progression for the boundary layer growth
     #  @param direction describes whether the layers grow inwards or outwards. 
-    #         if direction is:
-    #         \c Inward : means the layers grow inwards,
-    #         \c Outward : means the layers grow outwards
-    #  @param facesWithLayers list of surface references from which the boundary
+    #         Possible values are:
+    #         - \c smeshBuilder.Inward : means the layers grow inwards,
+    #         - \c smeshBuilder.Outward : means the layers grow outwards
+    #  @param facesWithLayers list of surfaces from which the boundary
     #         layers should be grown
-    #  @param imprintedFaces list of surface references that can be imprinted by
+    #  @param imprintedFaces list of surfaces that can be imprinted by
     #         boundary layers
     #  @return hypothesis object
     def SetViscousLayers(self, numberOfLayers, firstLayerSize, growth, 
-                          direction=Inward, facesWithLayers=[], imprintedFaces=[]): 
+                          facesWithLayers, imprintedFaces=[], direction=Inward): 
         self.Parameters().SetNbLayers(numberOfLayers)
         self.Parameters().SetFirstLayerSize(firstLayerSize)
         self.Parameters().SetGrowth(growth)

@@ -1592,8 +1592,9 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
 #ifdef WITH_BLSURFPLUGIN
     bool defaultInputFile = true;
     if (_blsurfHypo && !_blsurfHypo->GetQuadAllowed()) {
-      Hexotic_In = TCollection_AsciiString(_blsurfHypo->GetGMFFile().c_str());
-      if (Hexotic_In != "")
+      Hexotic_In = _blsurfHypo->GetGMFFile().c_str();
+      if ( !Hexotic_In.IsEmpty() &&
+           SMESH_File( _blsurfHypo->GetGMFFile() ).exists() )
         defaultInputFile = false;
     }
     if (defaultInputFile) {
