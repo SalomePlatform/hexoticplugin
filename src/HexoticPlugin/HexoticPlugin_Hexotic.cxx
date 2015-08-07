@@ -1093,23 +1093,19 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   if (_sizeMaps.begin() != _sizeMaps.end())
     run_Hexotic += sizeMap + Hexotic_SizeMap_Prefix;
 
-  if (_nbLayers > 0)
+  if (_nbLayers       > 0 &&
+      _firstLayerSize > 0 &&
+      _growth         > 0 &&
+      !_facesWithLayers.empty())
+  {
     run_Hexotic += comNbLayers + nbLayers;
-
-  if (_firstLayerSize > 0)
     run_Hexotic += comFirstLayerSize + firstLayerSize;
-
-  run_Hexotic += comDirection + direction;
-
-  if (_growth > 0)
+    run_Hexotic += comDirection + direction;
     run_Hexotic += comGrowth + growth;
-
-  if (!_facesWithLayers.empty())
     run_Hexotic += comFacesWithLayers + facesWithLayers;
-
-  if (!_imprintedFaces.empty())
-    run_Hexotic += comImptintedFaces + imprintedFaces;
-
+    if (!_imprintedFaces.empty())
+      run_Hexotic += comImptintedFaces + imprintedFaces;
+  }
   run_Hexotic += in + Hexotic_In + out + Hexotic_Out;
   run_Hexotic += subdom + mode;
 #ifndef WIN32
