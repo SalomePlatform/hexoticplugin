@@ -13,7 +13,7 @@
     </message>
     <message>
       <source>Hexotic_VISCOUS_LAYERS</source>
-      <translation>境界層設定</translation>
+      <translation>粘性層</translation>
     </message>
     <message>
       <source>Hexotic_INPUT_SIZE</source>
@@ -92,12 +92,12 @@
       <translation>ジオメトリ「マニホールド」</translation>
     </message>
     <message>
-        <source>Hexotic_ADVANCED</source>
-        <translation type="unfinished">Advanced options</translation>
+      <source>Hexotic_ADVANCED</source>
+      <translation>詳細オプション</translation>
     </message>
     <message>
-        <source>Hexotic_TEXT_OPTIONS</source>
-        <translation type="unfinished">Option as text</translation>
+      <source>Hexotic_TEXT_OPTIONS</source>
+      <translation>テキストのオプション</translation>
     </message>
     <message>
       <source>Hexotic_ADD</source>
@@ -128,28 +128,28 @@
       <translation>局所サイズとしてゼロは許されていない</translation>
     </message>
     <message>
-        <source>Hexotic_NB_LAYERS</source>
-        <translation>層数</translation>
+      <source>Hexotic_NB_LAYERS</source>
+      <translation>層数</translation>
     </message>
     <message>
-        <source>Hexotic_FIRST_LAYER_SIZE</source>
-        <translation type="unfinished">Size of the first layer</translation>
+      <source>Hexotic_FIRST_LAYER_SIZE</source>
+      <translation>最初の層のサイズ</translation>
     </message>
     <message>
-        <source>Hexotic_DIRECTION</source>
-        <translation type="unfinished">Direction of the layers</translation>
+      <source>Hexotic_DIRECTION</source>
+      <translation>層の方向</translation>
     </message>
     <message>
-        <source>Hexotic_GROWTH</source>
-        <translation type="unfinished">Growth</translation>
+      <source>Hexotic_GROWTH</source>
+      <translation>成長率</translation>
     </message>
     <message>
-        <source>Hexotic_FACES_WITH_LAYERS</source>
-        <translation>面層</translation>
+      <source>Hexotic_FACES_WITH_LAYERS</source>
+      <translation>層の面</translation>
     </message>
     <message>
-        <source>Hexotic_IMPRINTED_FACES</source>
-        <translation type="unfinished">Imprinted faces</translation>
+      <source>Hexotic_IMPRINTED_FACES</source>
+      <translation>刻印面</translation>
     </message>
   </context>
 </TS>
