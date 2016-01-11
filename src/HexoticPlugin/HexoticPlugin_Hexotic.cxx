@@ -250,44 +250,6 @@ static TopoDS_Shape findShape(SMDS_MeshNode**     t_Node,
 }
 
 //=======================================================================
-//function : findEdge
-//purpose  :
-//=======================================================================
-
-static int findEdge(const SMDS_MeshNode* aNode,
-                    const SMESHDS_Mesh*  aMesh,
-                    const int            nEdge,
-                    const TopoDS_Shape*  t_Edge) {
-
-  TopoDS_Shape aPntShape, foundEdge;
-  TopoDS_Vertex aVertex;
-  gp_Pnt aPnt( aNode->X(), aNode->Y(), aNode->Z() );
-
-  int foundInd, ind;
-  double nearest = RealLast(), *t_Dist;
-  double epsilon = Precision::Confusion();
-
-  t_Dist = new double[ nEdge ];
-  aPntShape = BRepBuilderAPI_MakeVertex( aPnt ).Shape();
-  aVertex   = TopoDS::Vertex( aPntShape );
-
-  for ( ind=0; ind < nEdge; ind++ ) {
-    BRepExtrema_DistShapeShape aDistance ( aVertex, t_Edge[ind] );
-    t_Dist[ind] = aDistance.Value();
-    if ( t_Dist[ind] < nearest ) {
-      nearest   = t_Dist[ind];
-      foundEdge = t_Edge[ind];
-      foundInd  = ind;
-      if ( nearest < epsilon )
-        ind = nEdge;
-    }
-  }
-
-  delete [] t_Dist;
-  return aMesh->ShapeToIndex( foundEdge );
-}
-
-//=======================================================================
 //function : getNbShape
 //purpose  :
 //=======================================================================
@@ -399,29 +361,6 @@ static bool readResult(std::string         theFile,
                        double**            tabBox)
 {
   // ---------------------------------
-  // Optimisation of the plugin ...
-  // Retrieve the correspondance edge --> shape
-  // (which is very costly) only when user
-  // has defined at least one group of edges
-  // which should be rare for a 3d mesh !
-  // ---------------------------------
-  
-  bool retrieve_edges = false;
-  const std::set<SMESHDS_GroupBase*>& aGroups = theMesh->GetGroups();
-  set<SMESHDS_GroupBase*>::const_iterator GrIt = aGroups.begin();
-  for (; GrIt != aGroups.end(); GrIt++)
-    {
-      SMESHDS_GroupBase* aGrp = *GrIt;
-      if ( !aGrp )
-        continue;
-      if ( aGrp->GetType() == SMDSAbs_Edge )
-        {
-          retrieve_edges = true;
-          break;
-        }
-    }
-  
-  // ---------------------------------
   // Read generated elements and nodes
   // ---------------------------------
 
@@ -496,7 +435,7 @@ static bool readResult(std::string         theFile,
     }
 
     nbElem = 0;
-    if ( nField < (mapField.size() - 1) && nField >= 0 )
+    if ( nField < int(mapField.size() - 1) && nField >= 0 )
       fileRes >> nbElem;
 
     switch (nField) {
@@ -565,6 +504,10 @@ static bool readResult(std::string         theFile,
                 if ( aPnt.Distance( HexoticPnt ) < epsilon )
                   break;
               }
+              if ( nodeAssigne[ nodeID[0] ] != 0 ) { // because "Edges" go before "Corners"
+                theMesh->UnSetNodeOnShape( node[0] );
+                nodeAssigne[ nodeID[0] ] = 0;
+              }
               break;
             }
             case 4: { // "Edges"
@@ -573,10 +516,7 @@ static bool readResult(std::string         theFile,
               int iNode = 1;
               if ( nodeAssigne[ nodeID[0] ] == 0 || nodeAssigne[ nodeID[0] ] == 2 )
                 iNode = 0;
-              if(retrieve_edges)
-                shapeID = findEdge( node[iNode], theMesh, nbShapeEdge, tabEdge );
-              else
-                shapeID = 0;
+              shapeID = dummy;
               break;
             }
             case 5: { // "Ridges"
@@ -738,7 +678,7 @@ static bool readResult(std::string theFile,
     }
 
     nbElem = 0;
-    if ( nField < (mapField.size() - 1) && nField >= 0 )
+    if ( nField < int(mapField.size() - 1) && nField >= 0 )
       fileRes >> nbElem;
 
     switch (nField) {
@@ -896,36 +836,36 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
 //purpose  :
 //=======================================================================
 
-static TCollection_AsciiString getTmpDir()
-{
-  TCollection_AsciiString aTmpDir;
+// static TCollection_AsciiString getTmpDir()
+// {
+//   TCollection_AsciiString aTmpDir;
 
-  char *Tmp_dir = getenv("SALOME_TMP_DIR");
-#ifdef WIN32
-  if(Tmp_dir == NULL) {
-    Tmp_dir = getenv("TEMP");
-    if( Tmp_dir== NULL )
-      Tmp_dir = getenv("TMP");
-  }
-#endif
+//   char *Tmp_dir = getenv("SALOME_TMP_DIR");
+// #ifdef WIN32
+//   if(Tmp_dir == NULL) {
+//     Tmp_dir = getenv("TEMP");
+//     if( Tmp_dir== NULL )
+//       Tmp_dir = getenv("TMP");
+//   }
+// #endif
 
-  if(Tmp_dir != NULL) {
-    aTmpDir = Tmp_dir;
-#ifdef WIN32
-    if(aTmpDir.Value(aTmpDir.Length()) != '\\') aTmpDir+='\\';
-#else
-    if(aTmpDir.Value(aTmpDir.Length()) != '/') aTmpDir+='/';
-#endif
-  }
-  else {
-#ifdef WIN32
-    aTmpDir = TCollection_AsciiString("C:\\");
-#else
-    aTmpDir = TCollection_AsciiString("/tmp/");
-#endif
-  }
-  return aTmpDir;
-}
+//   if(Tmp_dir != NULL) {
+//     aTmpDir = Tmp_dir;
+// #ifdef WIN32
+//     if(aTmpDir.Value(aTmpDir.Length()) != '\\') aTmpDir+='\\';
+// #else
+//     if(aTmpDir.Value(aTmpDir.Length()) != '/') aTmpDir+='/';
+// #endif
+//   }
+//   else {
+// #ifdef WIN32
+//     aTmpDir = TCollection_AsciiString("C:\\");
+// #else
+//     aTmpDir = TCollection_AsciiString("/tmp/");
+// #endif
+//   }
+//   return aTmpDir;
+// }
 
 //=======================================================================
 //function : getSuffix
@@ -985,7 +925,7 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   cout << "    " << _name << " Growth = " << _growth << std::endl;
   if (!_facesWithLayers.empty()) {
     cout << "    " << _name << " Faces with layers = ";
-    for (int i = 0; i < _facesWithLayers.size(); i++)
+    for (size_t i = 0; i < _facesWithLayers.size(); i++)
     {
       cout << _facesWithLayers.at(i);
       if ((i + 1) != _facesWithLayers.size())
@@ -995,7 +935,7 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   }
   if (!_imprintedFaces.empty()) {
     cout << "    " << _name << " Imprinted faces = ";
-    for (int i = 0; i < _imprintedFaces.size(); i++)
+    for (size_t i = 0; i < _imprintedFaces.size(); i++)
     {
       cout << _imprintedFaces.at(i);
       if ((i + 1) != _imprintedFaces.size())
@@ -1056,13 +996,13 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
   firstLayerSize = _firstLayerSize;
   direction = _direction ? "1" : "-1";
   growth = _growth;
-  for (int i = 0; i < _facesWithLayers.size(); i++)
+  for (size_t i = 0; i < _facesWithLayers.size(); i++)
   {
     facesWithLayers += _facesWithLayers[i];
     if ((i + 1) != _facesWithLayers.size())
       facesWithLayers += ",";
   }
-  for (int i = 0; i < _imprintedFaces.size(); i++)
+  for (size_t i = 0; i < _imprintedFaces.size(); i++)
   {
     imprintedFaces += _imprintedFaces[i];
     if ((i + 1) != _imprintedFaces.size())
@@ -1842,7 +1782,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   removeFile(Hexotic_Out);
   removeFile(Hexotic_In);
   removeFile(aLogFileName);
-  for( int i=0; i<sizeMapFiles.size(); i++)
+  for( size_t i=0; i<sizeMapFiles.size(); i++)
   {
     removeFile( TCollection_AsciiString(sizeMapFiles[i].c_str()) );
   }

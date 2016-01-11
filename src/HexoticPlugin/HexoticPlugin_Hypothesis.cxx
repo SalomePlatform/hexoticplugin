@@ -43,12 +43,12 @@ HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, int studyId,
     _hexoticInvalidElements( GetDefaultHexoticInvalidElements() ), 
     _hexoticSharpAngleThreshold( GetDefaultHexoticSharpAngleThreshold() ),
     _hexoticNbProc( GetDefaultHexoticNbProc() ),
-    _hexoticWorkingDirectory( GetDefaultHexoticWorkingDirectory() ),
     _hexoticSdMode(GetDefaultHexoticSdMode()),
     _hexoticVerbosity(GetDefaultHexoticVerbosity()),
     _hexoticMaxMemory(GetDefaultHexoticMaxMemory()),
     _textOptions(GetDefaultTextOptions()),
     _sizeMaps(GetDefaultHexoticSizeMaps()),
+    _hexoticWorkingDirectory( GetDefaultHexoticWorkingDirectory() ),
     _nbLayers(GetDefaultNbLayers()),
     _firstLayerSize(GetDefaultFirstLayerSize()),
     _direction(GetDefaultDirection()),
@@ -240,7 +240,7 @@ void HexoticPlugin_Hypothesis::SetGrowth(double theVal) {
 
 bool HexoticPlugin_Hypothesis::SetFacesWithLayers(const std::vector<int>& theVal) {
   if ( _facesWithLayers != theVal ) {
-	  _facesWithLayers = theVal;
+          _facesWithLayers = theVal;
     NotifySubMeshesHypothesisModification();
     return true;
   }
@@ -249,7 +249,7 @@ bool HexoticPlugin_Hypothesis::SetFacesWithLayers(const std::vector<int>& theVal
 
 bool HexoticPlugin_Hypothesis::SetImprintedFaces(const std::vector<int>& theVal) {
   if ( _imprintedFaces != theVal ) {
-	  _imprintedFaces = theVal;
+          _imprintedFaces = theVal;
     NotifySubMeshesHypothesisModification();
     return true;
   }
@@ -265,7 +265,7 @@ std::ostream& HexoticPlugin_Hypothesis::SaveTo(std::ostream& save)
 {
   //explicit outputs for future code compatibility of saved .hdf
   //save without any whitespaces!
-  int dummy = -1;
+  //int dummy = -1;
   save<<"hexesMinLevel="<<_hexesMinLevel<<";"; 
   save<<"hexesMaxLevel="<<_hexesMaxLevel<<";";
   save<<"hexoticIgnoreRidges="<<(int)_hexoticIgnoreRidges<<";";
@@ -297,7 +297,7 @@ std::ostream& HexoticPlugin_Hypothesis::SaveTo(std::ostream& save)
   if ( !_facesWithLayers.empty() )
   {
     save<<"facesWithLayers=";
-    for ( int i = 0; i < _facesWithLayers.size(); i++ )
+    for ( size_t i = 0; i < _facesWithLayers.size(); i++ )
     {
       save<< _facesWithLayers.at(i) << "#" ;
     }
@@ -306,7 +306,7 @@ std::ostream& HexoticPlugin_Hypothesis::SaveTo(std::ostream& save)
   if ( !_imprintedFaces.empty() )
   {
     save<<"imprintedFaces=";
-    for ( int i = 0; i < _imprintedFaces.size(); i++ )
+    for ( size_t i = 0; i < _imprintedFaces.size(); i++ )
     {
       save<< _imprintedFaces.at(i) << "#" ;
     }
@@ -384,7 +384,7 @@ std::istream& HexoticPlugin_Hypothesis::LoadFrom(std::istream& load)
       if (str3 == "facesWithLayers")
       {
         std::string id;
-        int pos = 0;
+        size_t pos = 0;
         while ( pos < str4.length() )
         {
           int found = str4.find('#',pos);
@@ -396,7 +396,7 @@ std::istream& HexoticPlugin_Hypothesis::LoadFrom(std::istream& load)
       if (str3 == "imprintedFaces")
       {
         std::string id;
-        int pos = 0;
+        size_t pos = 0;
         while ( pos < str4.length() )
         {
           int found = str4.find('#',pos);
