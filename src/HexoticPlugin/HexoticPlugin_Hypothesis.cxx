@@ -327,7 +327,7 @@ std::istream& HexoticPlugin_Hypothesis::LoadFrom(std::istream& load)
    std::string str1,str2,str3,str4;
 
    //save without any whitespaces!
-   isOK = (load >> str1);
+   isOK = static_cast<bool>(load >> str1);
    if (!(isOK)) {
      //defaults values assumed
      load.clear(std::ios::badbit | load.rdstate());
