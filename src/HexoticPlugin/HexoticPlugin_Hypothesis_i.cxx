@@ -172,8 +172,8 @@ void HexoticPlugin_Hypothesis_i::SetHexoticWorkingDirectory(const char* path) th
     THROW_SALOME_CORBA_EXCEPTION( "Null working directory",SALOME::BAD_PARAM );
 
   ASSERT(myBaseImpl);
-  string file(path);
-  string oldValue(GetHexoticWorkingDirectory());
+  std::string file(path);
+  std::string oldValue(GetHexoticWorkingDirectory());
   bool doDump = false;
   if (oldValue != file)
     doDump = true;
@@ -226,7 +226,7 @@ void HexoticPlugin_Hypothesis_i::SetTextOptions(const char* theOptions)
 {
   // MESSAGE("HexoticPlugin_Hypothesis_i::SetTextOptions");
   ASSERT(myBaseImpl);
-  string oldValue(GetTextOptions());
+  std::string oldValue(GetTextOptions());
   this->GetImpl()->SetTextOptions(theOptions);
   if (theOptions != oldValue)
     SMESH::TPythonDump() << _this() << ".SetTextOptions( '" << theOptions << "' )";
@@ -234,7 +234,7 @@ void HexoticPlugin_Hypothesis_i::SetTextOptions(const char* theOptions)
 
 HexoticPlugin::HexoticPluginSizeMapsList* HexoticPlugin_Hypothesis_i::GetSizeMaps ()
 {
-  // Get the std::map < string entry, double size >
+  // Get the std::map < std::string entry, double size >
   HexoticPlugin::HexoticPluginSizeMapsList_var result = new HexoticPlugin::HexoticPluginSizeMapsList();
   const ::HexoticPlugin_Hypothesis::THexoticSizeMaps sizeMaps = this->GetImpl()->GetSizeMaps();
   result->length( sizeMaps.size() );
@@ -326,7 +326,7 @@ void HexoticPlugin_Hypothesis_i::SetGrowth(CORBA::Double theVal)
 void HexoticPlugin_Hypothesis_i::SetFacesWithLayers(const ::SMESH::long_array& theVal)
 {
   // MESSAGE("HexoticPlugin_Hypothesis_i::SetFacesWithLayers");
-  vector<int> ids( theVal.length() );
+  std::vector<int> ids( theVal.length() );
   for ( unsigned i = 0; i < ids.size(); ++i )
    ids[i] = theVal[i];
 
@@ -338,7 +338,7 @@ void HexoticPlugin_Hypothesis_i::SetFacesWithLayers(const ::SMESH::long_array& t
 void HexoticPlugin_Hypothesis_i::SetImprintedFaces(const ::SMESH::long_array& theVal)
 {
   // MESSAGE("HexoticPlugin_Hypothesis_i::SetImprintedFaces");
-  vector<int> ids( theVal.length() );
+  std::vector<int> ids( theVal.length() );
   for ( unsigned i = 0; i < ids.size(); ++i )
    ids[i] = theVal[i];
 

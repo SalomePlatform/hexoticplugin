@@ -263,7 +263,7 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   }
   else
   {
-	myVLWidget->labelFacesWithLayers->setVisible(false);
+        myVLWidget->labelFacesWithLayers->setVisible(false);
     myVLWidget->myFacesWithLayers->setVisible(false);
     myVLWidget->labelImprintedFaces->setVisible(false);
     myVLWidget->myImprintedFaces->setVisible(false);
@@ -294,7 +294,7 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
 void HexoticPluginGUI_HypothesisCreator::onAddLocalSize()
 {
   int rowCount = mySmpWidget->tableWidget->rowCount();
-  int columnCount = mySmpWidget->tableWidget->columnCount();
+  //int columnCount = mySmpWidget->tableWidget->columnCount();
   
   // Get the selected object properties
   GEOM::GEOM_Object_var sizeMapObject = myGeomSelWdg->GetObject< GEOM::GEOM_Object >(0);
@@ -488,13 +488,13 @@ void HexoticPluginGUI_HypothesisCreator::retrieveParams() const
   std::vector<int> vector = data.myFacesWithLayers;
   SMESH::long_array_var aVec = new SMESH::long_array;
   aVec->length(vector.size());
-  for (int i = 0; i < vector.size(); i++)
+  for (size_t i = 0; i < vector.size(); i++)
     aVec[i]=vector.at(i);
   myVLWidget->myFacesWithLayers->SetListOfIDs(aVec);
   vector = data.myImprintedFaces;
   aVec = new SMESH::long_array;
   aVec->length(vector.size());
-  for (int i = 0; i < vector.size(); i++)
+  for (size_t i = 0; i < vector.size(); i++)
     aVec[i]=vector.at(i);
   myVLWidget->myImprintedFaces->SetListOfIDs(aVec);
 
@@ -581,7 +581,7 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromHypo( HexoticHypothesisDa
   
   // Size maps
   HexoticPlugin::HexoticPluginSizeMapsList_var sizeMaps = h->GetSizeMaps();
-  for ( int i = 0 ; i < sizeMaps->length() ; i++) 
+  for ( CORBA::ULong i = 0 ; i < sizeMaps->length() ; i++) 
   {
     HexoticPlugin::HexoticPluginSizeMap aSizeMap = sizeMaps[i];
     std::string entry = CORBA::string_dup(aSizeMap.entry.in());
@@ -596,10 +596,10 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromHypo( HexoticHypothesisDa
   h_data.myDirection = h->GetDirection();
   h_data.myGrowth = h->GetGrowth();
   SMESH::long_array_var vector = h->GetFacesWithLayers();
-  for (int i = 0; i < vector->length(); i++)
+  for ( CORBA::ULong i = 0; i < vector->length(); i++)
     h_data.myFacesWithLayers.push_back(vector[i]);
   vector = h->GetImprintedFaces();
-  for (int i = 0; i < vector->length(); i++)
+  for ( CORBA::ULong i = 0; i < vector->length(); i++)
     h_data.myImprintedFaces.push_back(vector[i]);
 
   return true;
@@ -653,14 +653,14 @@ bool HexoticPluginGUI_HypothesisCreator::storeParamsToHypo( const HexoticHypothe
     std::vector<int> vector = h_data.myFacesWithLayers;
     SMESH::long_array_var aVec = new SMESH::long_array;
     aVec->length(vector.size());
-    for (int i = 0; i < vector.size(); i++)
+    for ( size_t i = 0; i < vector.size(); i++)
       aVec[i]=vector.at(i);
     h->SetFacesWithLayers( aVec );
     
     vector = h_data.myImprintedFaces;
     aVec = new SMESH::long_array;
     aVec->length(vector.size());
-    for (int i = 0; i < vector.size(); i++)
+    for ( size_t i = 0; i < vector.size(); i++)
       aVec[i]=vector.at(i);
     h->SetImprintedFaces( aVec );
   }
@@ -703,10 +703,10 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromWidgets( HexoticHypothesi
   h_data.myDirection = myVLWidget->myDirection->currentIndex() == 0 ? true : false;
   h_data.myGrowth = myVLWidget->myGrowth->text().isEmpty() ? 0.0 : myVLWidget->myGrowth->value();
   SMESH::long_array_var ids = myVLWidget->myFacesWithLayers->GetListOfIDs();
-  for (int i = 0; i < ids->length(); i++)
+  for ( CORBA::ULong i = 0; i < ids->length(); i++)
     h_data.myFacesWithLayers.push_back( ids[i] );
   ids = myVLWidget->myImprintedFaces->GetListOfIDs();
-  for (int i = 0; i < ids->length(); i++)
+  for ( CORBA::ULong i = 0; i < ids->length(); i++)
     h_data.myImprintedFaces.push_back( ids[i] );
 
   printData(h_data);
