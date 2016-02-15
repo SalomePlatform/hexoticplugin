@@ -1468,7 +1468,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
 
   // to prevent from displaying error message after computing,
   // SetIsAlwaysComputed( true ) to empty sub-meshes
-  vector< SMESH_subMesh* > subMeshesAlwaysComp;
+  std::vector< SMESH_subMesh* > subMeshesAlwaysComp;
   for ( int i = 0; i < _nbShape; ++i )
     if ( SMESH_subMesh* sm = aMesh.GetSubMeshContaining( aShape ))
     {
