@@ -46,8 +46,8 @@ site:
 
   <http://www.salome-platform.org/downloads/license/>
 
-Note: SALOME MG-Hexa plug-in needs SALOME KERNEL, SALOME GUI,
-SALOME Geometry and SALOME Mesh as pre-requisites.
+Note: SALOME MG-Hexa plug-in needs SALOME KERNEL, SALOME GUI, SALOME Geometry,
+SALOME Mesh and, optionally, SALOME MG-CADSurf plug-in as pre-requisites.
 
 ------------------
 Basic Installation
