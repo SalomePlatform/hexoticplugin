@@ -1,111 +1,147 @@
-SALOME platform
-Hexotic meshing plugin
-------------------------------
+****************************
+About SALOME MG-Hexa plug-in
+****************************
 
-Contents:
+SALOME MG-Hexa plug-in adds DISTENE MG-Hexa (former Hexotic)
+meshing algorithm to the SALOME Mesh module.
 
-1. Pre-requisites
-2. Installation
-3. Launch SALOME with HexoticPLUGIN
-4. HexoticPLUGIN plugin usage
+MG-Hexa plug-in is destined for:
+- Meshing of 3D geometric entities with hexahedra;
+- Generating 3D meshes from 2D meshes, working without geometrical objects.
 
------------------
-1. Pre-requisites
------------------
+For more information please visit the SALOME platform web site:
 
-The information in this file assumes that:
+  <http://www.salome-platform.org/>
 
-* The SALOME platform is installed to the directory <salome>
-* The Hexotic product is installed to the directory <salome>/Hexotic
+=======
+License
+=======
 
----------------
-2. Installation
----------------
+SALOME platform is distributed under the GNU Lesser General Public License.
+See COPYING file for more details.
 
-2.1. Unpack HexoticPLUGIN module sources
+Also, additional information can be found at SALOME platform web site:
 
-cd <salome>
-tar zxf HexoticPLUGIN_SRC.tgz
+  <http://www.salome-platform.org/downloads/license/>
 
-2.2. Build HexoticPLUGIN module
+============
+Installation
+============
 
-* set environment 
+--------------
+Pre-requisites
+--------------
 
-bash
-cd <salome>
-source env_build.sh
+SALOME platform relies on a set of third-party softwares; some of them are needed
+at build time only, while other ones are needed in runtime also.
 
-* cmake build procedure
+For more information about the pre-requisites please visit SALOME platform web
+site:
 
-mkdir HexoticPLUGIN_BUILD
-cd HexoticPLUGIN_BUILD
-cmake -DCMAKE_BUILD_TYPE=<Mode> -DCMAKE_INSTALL_PREFIX=<HexoticPLUGIN_INSTALL> ../HexoticPLUGIN_SRC
+* Check Release Notes and Software Requirements of the latest SALOME release at
 
-,where <Mode> is build mode (Release or Debug), 
-<HexoticPLUGIN_INSTALL> is a destination folder to install 
-HexoticPLUGIN module of SALOME.
+  <http://www.salome-platform.org/downloads/current-version/>
 
-Verify that all pre-requisites required for the successful compilation
-of HexoticPLUGIN module have been found.
+* Pre-requisites page at SALOME web site:
 
-* compile and install plugin module 
+  <http://www.salome-platform.org/downloads/license/>
 
-make
-make install
+Note: SALOME MG-Hexa plug-in needs SALOME KERNEL, SALOME GUI, SALOME Geometry,
+SALOME Mesh and, optionally, SALOME MG-CADSurf plug-in as pre-requisites.
 
-exit
+------------------
+Basic Installation
+------------------
 
-If the compilation is finished successfully (make and make install
-steps are finished without errors) the HexoticPLUGIN meshing module
-should be installed in the directory <HexoticPLUGIN_INSTALL>.
+The build procedure of the SALOME platform is implemented with CMake.
+In order to build the plug-in you have to do the following actions: 
 
------------------------------------
-3. Launch SALOME with HexoticPLUGIN
------------------------------------
+1. Set up environment for pre-requisites (see "Pre-requisites" section above).
 
-* set environment
+2. Create a build directory:
 
-bash
-cd <salome>
-source env_products.sh
+   % mkdir HexoticPLUGIN_BUILD
 
-export HexoticPLUGIN_ROOT_DIR=<HexoticPLUGIN_INSTALL>
-export SalomeAppConfig=${HexoticPLUGIN_ROOT_DIR}/share/salome/resources/hexoticplugin
-export PATH=<salome>/Hexotic:${PATH
+3. Configure the build procedure:
 
-* run SALOME
+   % cd HexoticPLUGIN_BUILD
+   % cmake -DCMAKE_BUILD_TYPE=<mode> -DCMAKE_INSTALL_PREFIX=<installation_directory> <path_to_src_dir>
 
-runSalome
+   where
+   - <mode> is either Release or Debug (default: Release);
+   - <installation_directory> is a destination folder to install SALOME MG-Hexa
+     plug-in (default: /usr); 
+   - <path_to_src_dir> is a path to the SALOME MG-Hexa plug-in sources
+     directory.
 
------------------------------
-4. HexoticPLUGIN plugin usage
------------------------------
+   Note: by default (if CMAKE_INSTALL_PREFIX option is not given), SALOME MG-Hexa
+   plug-in will be configured for installation to the /usr directory that
+   requires root permissions to complete the installation.
 
-* Create new study
+4. Build and install:
 
-* Activate Geometry module and create simple geometry object
+   % make
+   % make install
 
-* Activate Mesh module
+   This will install SALOME MG-Hexa plug-in to the <installation_directory>
+   specified to cmake command on the previous step.
 
-* Invoke menu "Mesh/Create Mesh"
+-------------------
+Custom installation
+-------------------
+
+SALOME MG-Hexa plug-in supports a set of advanced configuration options;
+for more details learn CMakeLists.txt file in the root source directory.
+
+You can also use other options of cmake command to customize your installation.
+Learn more about available options by typing
+
+   % cmake --help
+
+=====
+Usage
+=====
+
+* Start SALOME.
+
+* Create new study.
+
+* Activate Geometry module and create simple geometry object.
+
+* Activate Mesh module.
+
+* Invoke menu "Mesh/Create Mesh".
 
 * Select previously created geometry object by clicking it with the
-mouse in the Object Browser
+  mouse in the Object Browser.
 
 * In the "Create mesh" dialog box:
-- activate "3D" page
-- In the "Algorithm" combo box select "Hexotic"
-- Click on the button at the right of the "Hypothesis" combo box and
-select "Hexotic parameters" item in the drop-down menu
+  - Activate "3D" page;
+  - In the "Algorithm" combo box select "MG-Hexa";
+  - Click on the button at the right of the "Hypothesis" combo box and
+    select "MG-Hexa Parameters" item in the drop-down menu.
 
-* In the "Hypothesis Construction" dialog box set parameters of Hexotic
-  meshing algorithm and click "OK" button
+* In the "Hypothesis Construction" dialog box set parameters of MG-Hexa
+  meshing algorithm and click "OK" button.
 
 * In the "Create mesh" dialog box Click "Apply & Close" button to
-  define mesh and close the dialog box
+  define mesh and close the dialog box.
 
 * In the Object Browser select "Mesh_1" object, invoke context popup
-menu for it by clicking right mouse button and select "Compute" item
+  menu for it by clicking right mouse button and select "Compute" item.
 
-The resulting mesh created with Hexotic plugin will be shown in the 3D
+The resulting mesh created with MG-Hexa plugin will be shown in the 3D
 viewer.
+
+=============
+Documentation
+=============
+
+The directory doc contains additional documentation file of SALOME MG-Hexa
+plug-in.
+
+===============
+Troubleshooting
+===============
+
+Please, send a mail to webmaster.salome@opencascade.com.
