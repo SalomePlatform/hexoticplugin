@@ -1558,6 +1558,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     std::string run_Hexotic = getHexoticCommand(Hexotic_In, Hexotic_Out, Hexotic_SizeMap_Prefix);
     run_Hexotic += std::string(" 1> ") + aLogFileName.ToCString();  // dump into file
 
+    cout << "Creating MG-Hexa log file : " << aLogFileName << std::endl;
     cout << std::endl;
     cout << "MG-Hexa command : " << run_Hexotic << std::endl;
 
@@ -1604,7 +1605,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
         #ifndef _DEBUG_
         removeFile(Hexotic_Out);
         removeFile(Hexotic_In);
-        removeFile(aLogFileName);
+        //removeFile(aLogFileName);
         for( int i=0; i<sizeMapFiles.size(); i++)
         {
           removeFile( TCollection_AsciiString( sizeMapFiles[i].c_str() ) );
@@ -1703,6 +1704,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
 
   cout << std::endl;
   cout << "Creating MG-Hexa input mesh file : " << Hexotic_In << std::endl;
+  cout << "Creating MG-Hexa log file : " << aLogFileName << std::endl;
   aMesh.ExportGMF(Hexotic_In.ToCString(), aHelper->GetMeshDS());
 #ifndef WIN32    
   modeFile_In += Hexotic_In;
