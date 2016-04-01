@@ -879,7 +879,9 @@ static TCollection_AsciiString getSuffix()
 #ifndef WIN32
   aSuffix += getenv("USER");
 #else
-  aSuffix += getenv("USERNAME");
+  std::string uname = std::string(getenv("USERNAME"));
+  replace(uname.begin(), uname.end(), ' ', '_');
+  aSuffix += uname.c_str();
 #endif
   aSuffix += "_";
   aSuffix += Kernel_Utils::GetHostname().c_str();
@@ -1517,7 +1519,9 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
 
 //     TCollection_AsciiString aTmpDir = getTmpDir();
     TCollection_AsciiString aTmpDir = _hexoticWorkingDirectory.c_str();
+    TCollection_AsciiString aQuote("");
 #ifdef WIN32
+    aQuote = "\"";
     if ( aTmpDir.Value(aTmpDir.Length()) != '\\' ) aTmpDir += '\\';
 #else
     if ( aTmpDir.Value(aTmpDir.Length()) != '/' ) aTmpDir += '/';
@@ -1555,8 +1559,8 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     Hexotic_SizeMap_Prefix = aTmpDir + "Hexotic_SizeMap" + getSuffix();
     std::vector<std::string> sizeMapFiles = writeSizeMapFile( Hexotic_SizeMap_Prefix.ToCString() );
     
-    std::string run_Hexotic = getHexoticCommand(Hexotic_In, Hexotic_Out, Hexotic_SizeMap_Prefix);
-    run_Hexotic += std::string(" 1> ") + aLogFileName.ToCString();  // dump into file
+    std::string run_Hexotic = getHexoticCommand(aQuote + Hexotic_In + aQuote, aQuote + Hexotic_Out + aQuote, Hexotic_SizeMap_Prefix);
+    run_Hexotic += std::string(" 1> ") + aQuote.ToCString() + aLogFileName.ToCString() + aQuote.ToCString();  // dump into file
 
     cout << "Creating MG-Hexa log file : " << aLogFileName << std::endl;
     cout << std::endl;
@@ -1677,7 +1681,10 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
 */
   bool Ok = true;
   TCollection_AsciiString hexahedraMessage;
-
+  TCollection_AsciiString aQuote("");
+#ifdef WIN32
+    aQuote = "\"";
+#endif
   SetParameters(_hypothesis);
 
   TCollection_AsciiString aTmpDir = _hexoticWorkingDirectory.c_str();//getTmpDir();
@@ -1695,8 +1702,8 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   
   std::vector<std::string> sizeMapFiles = writeSizeMapFile( Hexotic_SizeMap_Prefix.ToCString() );
 
-  std::string run_Hexotic = getHexoticCommand(Hexotic_In, Hexotic_Out, Hexotic_SizeMap_Prefix);
-  run_Hexotic += std::string(" 1> ") + aLogFileName.ToCString();  // dump into file
+  std::string run_Hexotic = getHexoticCommand(aQuote + Hexotic_In + aQuote, aQuote + Hexotic_Out + aQuote, Hexotic_SizeMap_Prefix);
+  run_Hexotic += std::string(" 1> ") + aQuote.ToCString() + aLogFileName.ToCString() + aQuote.ToCString();  // dump into file
 
   removeHexoticFiles(Hexotic_In, Hexotic_Out);
 
