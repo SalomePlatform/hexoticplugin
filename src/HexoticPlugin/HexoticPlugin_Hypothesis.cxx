@@ -162,6 +162,13 @@ void HexoticPlugin_Hypothesis::SetHexoticMaxMemory(int theVal) {
   }
 }
 
+void HexoticPlugin_Hypothesis::SetAdvancedOption(const std::string& theOptions)
+{
+  if (_textOptions != theOptions ) {
+    _textOptions = theOptions;
+    NotifySubMeshesHypothesisModification();
+  }
+}
 void HexoticPlugin_Hypothesis::SetTextOptions(const std::string& theOptions)
 {
   if (_textOptions != theOptions ) {
@@ -278,8 +285,9 @@ std::ostream& HexoticPlugin_Hypothesis::SaveTo(std::ostream& save)
   save<<"hexoticSdMode="<<_hexoticSdMode<<";";
   save<<"hexoticVerbosity="<<_hexoticVerbosity<<";";
   save<<"hexoticMaxMemory="<<_hexoticMaxMemory<<";";
-  replace(_textOptions.begin(), _textOptions.end(), ' ', '*');
-  save<<"textOptions="<<_textOptions<<";";
+  std::string textOptions = _textOptions; // save _textOptions
+  replace(textOptions.begin(), textOptions.end(), ' ', '*');
+  save<<"textOptions="<<textOptions<<";";
   THexoticSizeMaps::iterator it = _sizeMaps.begin();
   if ( it != _sizeMaps.end() )
   {

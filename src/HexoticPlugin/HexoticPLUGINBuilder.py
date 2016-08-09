@@ -112,6 +112,13 @@ class Hexotic_Algorithm(Mesh_Algorithm):
         self.Parameters().UnsetSizeMap(theObject)
         return self.Parameters()
 
+    ## Set values of advanced options
+    #  @param theOptions string in a form "option_1 v1 option_2 v2"
+    def SetAdvancedOption(self, theOptions):
+        self.Parameters().SetAdvancedOption(theOptions)
+    def GetAdvancedOption(self):
+        return self.Parameters().GetAdvancedOption()
+
     ## (OBSOLETE) Defines "MinMaxQuad" hypothesis to give three MG-Hexa parameters
     #  @param min minimal level of recursive partitioning on the initial octree cube
     #  @param max maximal level of recursive partitioning on the initial octree cube

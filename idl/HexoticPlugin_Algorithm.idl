@@ -92,7 +92,9 @@ module HexoticPlugin
     void SetHexoticMaxMemory(in long value);
     long GetHexoticMaxMemory();
     
-    void SetTextOptions(in string option);
+    void SetAdvancedOption(in string option);
+    string GetAdvancedOption();
+    void SetTextOptions(in string option);// obsolete
     string GetTextOptions();
 
     void SetSizeMapEntry(in string entry, 

@@ -51,15 +51,21 @@ Parameters by default).</li>
 <li>sd 4 : meshes non-manifold geometries as such and generates subdomains accordingly.</li>
 </ul>
 </li>
-
-<li><b>Options as text</b> - allows to input in the command line any text for MG-Hexa, for example, advanced options.
-</li>
 </ul>
 
 \note If MG-CADSurf is used as 2D algo, and if a GMF file is defined as output file (using SetGMFFile(my2Dmesh.mesh)), then MG-Hexa will use this file as input.
 This allows to avoid the reconstruction of the GMF file from the SMESH structure and can improve the global computation time.
 
 <br><b>See Also</b> a sample TUI Script of the \ref tui_hexotic "creation of a MG-Hexa mesh"
+
+\section hexotic_adv_options Advanced parameters
+
+\image html hexotic_advanced_options.png
+
+In \b Advanced tab page you can specify advanced options of MG-Hexa not exposed in other pages.
+
+<b>Add option</b> adds a line to the table where you can type an option and its value as text.
+A check box in the first column activates/deactivates the option of the current row. A deactivated option will be erased upon pressing \a Ok.
 
 \section hexotic_local_size_parameters Local size
 

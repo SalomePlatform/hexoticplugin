@@ -41,6 +41,7 @@ class QTableWidgetItem;
 class HexoticPluginGUI_StdWidget;
 class HexoticPluginGUI_SizeMapsWidget;
 class HexoticPluginGUI_ViscousLayersWidget;
+class SMESH_AdvOptionsWdg;
 
 typedef struct
 {
@@ -101,9 +102,10 @@ private:
 
 private:
 
-//  QWidget* 		myStdGroup;
-  QLineEdit* 	myName;
-  HexoticPluginGUI_StdWidget*	         myStdWidget;
+//  QWidget*            myStdGroup;
+  QLineEdit*    myName;
+  HexoticPluginGUI_StdWidget*            myStdWidget;
+  SMESH_AdvOptionsWdg*                   myAdvWidget;
   HexoticPluginGUI_SizeMapsWidget*       mySmpWidget;
   HexoticPluginGUI_ViscousLayersWidget*  myVLWidget;
   StdMeshersGUI_ObjectReferenceParamWdg* myGeomSelWdg;

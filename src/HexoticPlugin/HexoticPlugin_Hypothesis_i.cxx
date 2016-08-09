@@ -226,10 +226,20 @@ void HexoticPlugin_Hypothesis_i::SetTextOptions(const char* theOptions)
 {
   // MESSAGE("HexoticPlugin_Hypothesis_i::SetTextOptions");
   ASSERT(myBaseImpl);
-  std::string oldValue(GetTextOptions());
-  this->GetImpl()->SetTextOptions(theOptions);
+  std::string oldValue(GetAdvancedOption());
+  this->GetImpl()->SetAdvancedOption(theOptions);
   if (theOptions != oldValue)
-    SMESH::TPythonDump() << _this() << ".SetTextOptions( '" << theOptions << "' )";
+    SMESH::TPythonDump() << _this() << ".SetAdvancedOption( '" << theOptions << "' )";
+}
+
+void HexoticPlugin_Hypothesis_i::SetAdvancedOption(const char* theOptions)
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::SetAdvancedOption");
+  ASSERT(myBaseImpl);
+  std::string oldValue(GetAdvancedOption());
+  this->GetImpl()->SetAdvancedOption(theOptions);
+  if (theOptions != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetAdvancedOption( '" << theOptions << "' )";
 }
 
 HexoticPlugin::HexoticPluginSizeMapsList* HexoticPlugin_Hypothesis_i::GetSizeMaps ()
@@ -454,11 +464,17 @@ CORBA::Long HexoticPlugin_Hypothesis_i::GetHexoticMaxMemory()
   return this->GetImpl()->GetHexoticMaxMemory();
 }
 
+char* HexoticPlugin_Hypothesis_i::GetAdvancedOption()
+{
+  // MESSAGE("HexoticPlugin_Hypothesis_i::GetAdvancedOption");
+  ASSERT(myBaseImpl);
+  return CORBA::string_dup( this->GetImpl()->GetAdvancedOption().c_str() );
+}
 char* HexoticPlugin_Hypothesis_i::GetTextOptions()
 {
   // MESSAGE("HexoticPlugin_Hypothesis_i::GetTextOptions");
   ASSERT(myBaseImpl);
-  return CORBA::string_dup( this->GetImpl()->GetTextOptions().c_str() );
+  return CORBA::string_dup( this->GetImpl()->GetAdvancedOption().c_str() );
 }
 
 CORBA::Long HexoticPlugin_Hypothesis_i::GetNbLayers()

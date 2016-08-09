@@ -91,7 +91,9 @@ public:
   void SetHexoticMaxMemory(int theVal);
   int GetHexoticMaxMemory() const { return _hexoticMaxMemory; }
   
-  void SetTextOptions(const std::string& theOptions);
+  void SetAdvancedOption(const std::string& theOptions);
+  std::string GetAdvancedOption() const { return _textOptions; }
+  void SetTextOptions(const std::string& theOptions); // obsolete
   std::string GetTextOptions() const { return _textOptions; }
 
   // Size Maps

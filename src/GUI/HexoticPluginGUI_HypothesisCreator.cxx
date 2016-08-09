@@ -27,7 +27,8 @@
 
 #include <SMESHGUI_Utils.h>
 #include <SMESHGUI_HypothesesUtils.h>
-#include "SMESH_NumberFilter.hxx"
+#include <SMESH_NumberFilter.hxx>
+#include <SMESH_AdvOptionsWdg.h>
 
 #include "utilities.h"
 
@@ -58,6 +59,7 @@
 // Main widget tabs identification
 enum {
   STD_TAB = 0,
+  ADV_TAB,
   SMP_TAB,
   VL_TAB
 };
@@ -202,6 +204,7 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   l->addWidget( myStdWidget, row++, 0, 1, 3 );
   myStdWidget->onSdModeSelected(SD_MODE_4);
 
+  myAdvWidget = new SMESH_AdvOptionsWdg( aTabWidget );
   
   // SIZE MAPS TAB
   QWidget* aSmpGroup = new QWidget();
@@ -277,9 +280,10 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
 
 //  resizeEvent();
   
-  aTabWidget->insertTab( STD_TAB, aStdGroup, tr( "SMESH_ARGUMENTS" ) );
-  aTabWidget->insertTab( SMP_TAB, aSmpGroup, tr( "LOCAL_SIZE" ) );
-  aTabWidget->insertTab( VL_TAB, aVLGroup, tr( "Hexotic_VISCOUS_LAYERS") );
+  aTabWidget->insertTab( STD_TAB, aStdGroup, tr( "SMESH_ARGUMENTS" ));
+  aTabWidget->insertTab( ADV_TAB, myAdvWidget, tr( "SMESH_ADVANCED" ));
+  aTabWidget->insertTab( SMP_TAB, aSmpGroup, tr( "LOCAL_SIZE" ));
+  aTabWidget->insertTab( VL_TAB, aVLGroup, tr( "Hexotic_VISCOUS_LAYERS"));
   
   myIs3D = true;
   
@@ -452,7 +456,7 @@ void HexoticPluginGUI_HypothesisCreator::retrieveParams() const
 
   myStdWidget->myHexoticSdMode->setCurrentIndex(data.myHexoticSdMode);
   
-  myStdWidget->myTextOptions->setText(data.myTextOptions);
+  myAdvWidget->SetCustomOptions(data.myTextOptions);
 
   HexoticPlugin_Hypothesis::THexoticSizeMaps::const_iterator it = data.mySizeMaps.begin();
   for ( int row = 0; it != data.mySizeMaps.end(); it++, row++ )
@@ -577,7 +581,7 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromHypo( HexoticHypothesisDa
   h_data.myHexoticVerbosity = h->GetHexoticVerbosity();
   h_data.myHexoticMaxMemory = h->GetHexoticMaxMemory();
   h_data.myHexoticSdMode = h->GetHexoticSdMode()-1;
-  h_data.myTextOptions = h->GetTextOptions();
+  h_data.myTextOptions = h->GetAdvancedOption();
   
   // Size maps
   HexoticPlugin::HexoticPluginSizeMapsList_var sizeMaps = h->GetSizeMaps();
@@ -629,7 +633,7 @@ bool HexoticPluginGUI_HypothesisCreator::storeParamsToHypo( const HexoticHypothe
     h->SetHexoticVerbosity( h_data.myHexoticVerbosity );
     h->SetHexoticMaxMemory( h_data.myHexoticMaxMemory );
     h->SetHexoticSdMode( h_data.myHexoticSdMode+1 );
-    h->SetTextOptions( h_data.myTextOptions.toLatin1().constData() );
+    h->SetAdvancedOption( h_data.myTextOptions.toLatin1().constData() );
     
     HexoticPlugin_Hypothesis::THexoticSizeMaps::const_iterator it;
     
@@ -685,7 +689,7 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromWidgets( HexoticHypothesi
   h_data.myHexoticVerbosity = myStdWidget->myHexoticVerbosity->value();
   h_data.myHexoticMaxMemory = myStdWidget->myHexoticMaxMemory->value();
   h_data.myHexoticSdMode = myStdWidget->myHexoticSdMode->currentIndex();
-  h_data.myTextOptions = myStdWidget->myTextOptions->text();
+  h_data.myTextOptions = myAdvWidget->GetCustomOptions();
 
   h_data.myMinSize = myStdWidget->myMinSize->text().isEmpty() ? 0.0 : myStdWidget->myMinSize->value();
   h_data.myMaxSize = myStdWidget->myMaxSize->text().isEmpty() ? 0.0 : myStdWidget->myMaxSize->value();

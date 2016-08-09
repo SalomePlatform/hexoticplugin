@@ -51,6 +51,7 @@ ADD_DEFINITIONS(
 SET(_link_LIBRARIES
   ${SMESH_SMESH}
   ${SMESH_StdMeshersGUI}
+  ${SMESH_PluginUtils}
   ${CAS_KERNEL}
   ${GUI_suit}
   ${GUI_qtx}

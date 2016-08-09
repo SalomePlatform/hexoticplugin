@@ -84,7 +84,9 @@ class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
   void SetHexoticMaxMemory(CORBA::Long theVal);
   CORBA::Long GetHexoticMaxMemory();
   
-  void SetTextOptions(const char* theOptions);
+  void SetAdvancedOption(const char* theOptions);
+  char* GetAdvancedOption();
+  void SetTextOptions(const char* theOptions); // obsolete
   char* GetTextOptions();
 
   void SetSizeMapEntry(const char* theEntry, CORBA::Double theSize);

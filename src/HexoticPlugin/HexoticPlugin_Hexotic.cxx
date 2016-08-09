@@ -513,9 +513,9 @@ static bool readResult(std::string         theFile,
             case 4: { // "Edges"
               nodeDim = 2;
               aHexoticElement = theMesh->AddEdge( node[0], node[1] );
-              int iNode = 1;
-              if ( nodeAssigne[ nodeID[0] ] == 0 || nodeAssigne[ nodeID[0] ] == 2 )
-                iNode = 0;
+              // int iNode = 1;
+              // if ( nodeAssigne[ nodeID[0] ] == 0 || nodeAssigne[ nodeID[0] ] == 2 )
+              //   iNode = 0;
               shapeID = dummy;
               break;
             }
@@ -795,7 +795,7 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _hexoticVerbosity = hyp->GetHexoticVerbosity();
     _hexoticMaxMemory = hyp->GetHexoticMaxMemory();
     _hexoticSdMode = hyp->GetHexoticSdMode();
-    _textOptions = hyp->GetTextOptions();
+    _textOptions = hyp->GetAdvancedOption();
     _sizeMaps = hyp->GetSizeMaps();
     _nbLayers = hyp->GetNbLayers();
     _firstLayerSize = hyp->GetFirstLayerSize();
