@@ -45,10 +45,10 @@
 #include CORBA_CLIENT_HEADER(GEOM_Gen)
 #include <SMESH_Gen_i.hxx>
 
-class SMESH_Mesh;
 class HexoticPlugin_Hypothesis;
 class TCollection_AsciiString;
 class gp_Pnt;
+class MG_Hexotic_API;
 
 class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hexotic: public SMESH_3D_Algo
 {
@@ -71,8 +71,8 @@ public:
 
   virtual bool Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHelper);
 
-    virtual void CancelCompute();
-    bool computeCanceled() { return _compute_canceled;};
+  virtual void CancelCompute();
+  bool computeCanceled() { return _computeCanceled; }
 
   virtual bool Evaluate(SMESH_Mesh& aMesh, const TopoDS_Shape& aShape,
                         MapShapeNbElems& aResMap);
@@ -84,12 +84,14 @@ private:
 
   std::string getHexoticCommand(const TCollection_AsciiString& Hexotic_In,
                                 const TCollection_AsciiString& Hexotic_Out,
-                                const TCollection_AsciiString& Hexotic_Sol) const;
+                                const TCollection_AsciiString& Hexotic_Sol,
+                                const bool                     forExecutable) const;
   
   GEOM::GEOM_Object_var entryToGeomObj(std::string entry);
   TopoDS_Shape     entryToShape(std::string entry);
 
-  std::vector<std::string> writeSizeMapFile(std::string fileName);
+  std::vector<std::string> writeSizeMapFile(MG_Hexotic_API* mgOutput,
+                                            std::string     fileName);
   
   // Functions to get sample point from shapes
   void createControlPoints( const TopoDS_Shape& theShape, 
@@ -150,8 +152,6 @@ private:
 #endif
 
 
-  volatile bool _compute_canceled;
-  
   SALOMEDS::Study_var myStudy;
   SMESH_Gen_i*        smeshGen_i;
 

@@ -25,6 +25,7 @@ INCLUDE_DIRECTORIES(
   ${Boost_INCLUDE_DIRS}
   ${CAS_INCLUDE_DIRS}
   ${VTK_INCLUDE_DIRS}
+  ${MESHGEMS_INCLUDE_DIRS}
   ${KERNEL_INCLUDE_DIRS}
   ${GUI_INCLUDE_DIRS}
   ${GEOM_INCLUDE_DIRS}
@@ -47,6 +48,7 @@ SET(_link_LIBRARIES
   ${CAS_TKTopAlgo}
   ${CAS_TKBRep}
   ${CAS_SALOMELocalTrace}
+  ${MESHGEMS_HEXA_LIBRARY}
   ${SMESH_SMESHimpl}
   ${SMESH_SMESHEngine}
   ${SMESH_StdMeshersEngine}
@@ -69,6 +71,7 @@ SET(HexoticEngine_HEADERS
   HexoticPlugin_Hexotic_i.hxx
   HexoticPlugin_Hypothesis.hxx
   HexoticPlugin_Hypothesis_i.hxx
+  MG_Hexotic_API.hxx
 )
 
 # --- sources ---
@@ -85,6 +88,7 @@ SET(HexoticEngine_SOURCES
   HexoticPlugin_Hypothesis_i.cxx
   HexoticPlugin_i.cxx
   HexoticPlugin_Defs.hxx
+  MG_Hexotic_API.cxx
 )
 
 # --- scripts ---

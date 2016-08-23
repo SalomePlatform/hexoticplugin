@@ -84,7 +84,7 @@ void HexoticPluginGUI_StdWidget::onDirBtnClicked()
 {
   QString dir = SUIT_FileDlg::getExistingDirectory( this, myHexoticWorkingDir->text(), QString() );
   if ( !dir.isEmpty() )
-	  myHexoticWorkingDir->setText( dir );
+          myHexoticWorkingDir->setText( dir );
 }
 
 void HexoticPluginGUI_StdWidget::onSdModeSelected(int sdMode) {
