@@ -43,28 +43,22 @@
 #include <SMESH_HypoFilter.hxx>
 #include <SMESH_MesherHelper.hxx>
 #include <SMESH_subMesh.hxx>
+#include <SMESH_ControlPnt.hxx>
 
 #include <list>
 #include <cstdlib>
-#include <iostream>
 
 #include <Standard_ProgramError.hxx>
 
 #include <BRepBndLib.hxx>
 #include <BRepClass3d_SolidClassifier.hxx>
-#include <BRepMesh_IncrementalMesh.hxx>
 #include <BRep_Tool.hxx>
-#include <GCPnts_UniformAbscissa.hxx>
-#include <GeomAdaptor_Curve.hxx>
-#include <IntCurvesFace_Intersector.hxx>
+#include <Bnd_Box.hxx>
 #include <OSD_File.hxx>
-#include <Poly_Triangulation.hxx>
 #include <Precision.hxx>
 #include <TopExp_Explorer.hxx>
 #include <TopTools_MapOfShape.hxx>
 #include <TopoDS.hxx>
-#include <gp_Ax3.hxx>
-#include <gp_Lin.hxx>
 #include <gp_Pnt.hxx>
 
 #include <Basics_Utils.hxx>
@@ -73,6 +67,8 @@
 
 #define GMFVERSION GmfDouble
 #define GMFDIMENSION 3
+
+using SMESHUtils::ControlPnt;
 
 static void removeFile( const TCollection_AsciiString& fileName )
 {
@@ -437,7 +433,7 @@ static bool readResult(MG_Hexotic_API*       theHexaOutput,
   std::string token;
   int shapeID, hexoticShapeID;
   const int IdShapeRef = 2;
-  int *tabID;
+  int *tabID = 0;
   double epsilon = Precision::Confusion();
   std::map <std::string,int> mapField;
   SMDS_MeshNode** HexoticNode;
@@ -448,12 +444,17 @@ static bool readResult(MG_Hexotic_API*       theHexaOutput,
 
   if ( nbDomains > 0 )
   {
-    tabID    = new int[nbDomains];
+    tabID = new int[nbDomains];
 
     for (int i=0; i<nbDomains; i++)
       tabID[i] = 0;
     if ( nbDomains == 1 )
       tabID[0] = theMeshDS->ShapeToIndex( tabShape[0] );
+  }
+  else
+  {
+    tabID = new int[1];
+    tabID[0] = 1;
   }
 
   SMDS_ElemIteratorPtr eIt = theMeshDS->elementsIterator();
@@ -462,6 +463,8 @@ static bool readResult(MG_Hexotic_API*       theHexaOutput,
   SMDS_NodeIteratorPtr nIt = theMeshDS->nodesIterator();
   while ( nIt->more() )
     theMeshDS->RemoveFreeNode( nIt->next(), /*sm=*/0 );
+
+  theHelper->SetElementsOnShape( false );
 
   int ver, dim;
   int meshID = theHexaOutput->GmfOpenMesh( theFile, GmfRead, &ver, &dim );
@@ -474,7 +477,8 @@ static bool readResult(MG_Hexotic_API*       theHexaOutput,
   tabCorner   = new TopoDS_Shape[ nbCorners ];
   HexoticNode = new SMDS_MeshNode*[ nbVertices + 1 ];
 
-  getShape(theMeshDS, TopAbs_VERTEX, tabCorner);
+  if ( nbCorners > 0 )
+    getShape(theMeshDS, TopAbs_VERTEX, tabCorner);
 
   int nbNodes = theHexaOutput->GmfStatKwd( meshID, GmfVertices );
   if ( nbNodes > 0 )
@@ -530,11 +534,11 @@ static bool readResult(MG_Hexotic_API*       theHexaOutput,
       for ( int i = 0; i < 2; ++i )
       {
         node[i] = HexoticNode[ nodeID[i]];
-        if ( node[i]->getshapeId() < 1 )
+        if ( shapeID > 0 && node[i]->getshapeId() < 1 )
           theMeshDS->SetNodeOnEdge( node[i], shapeID );
       }
       aHexoticElement = theHelper->AddEdge( node[0], node[1] );
-      if ( aHexoticElement->getshapeId() < 1 )
+      if ( shapeID > 0 && aHexoticElement->getshapeId() < 1 )
         theMeshDS->SetMeshElementOnShape( aHexoticElement, shapeID );
     }
   }
@@ -605,7 +609,7 @@ static bool readResult(MG_Hexotic_API*       theHexaOutput,
       {
         for ( int i = 0; i < 8; ++i )
         {
-          if ( node[i]->getshapeId() < 1 )
+          if ( node[i]->NbInverseElements( SMDSAbs_Face ) == 0 )
             theMeshDS->SetNodeInVolume( node[i], shapeID );
         }
         aHexoticElement = theHelper->AddVolume( node[0], node[3], node[2], node[1],
@@ -913,12 +917,12 @@ TopoDS_Shape HexoticPlugin_Hexotic::entryToShape(std::string entry)
  * \brief Produces a .mesh file with the size maps informations to give to Hexotic
  */
 //================================================================================
-std::vector<std::string> HexoticPlugin_Hexotic::writeSizeMapFile( MG_Hexotic_API* mgOutput,
+std::vector<std::string> HexoticPlugin_Hexotic::writeSizeMapFile( MG_Hexotic_API* mgInput,
                                                                   std::string     sizeMapPrefix )
 {
   HexoticPlugin_Hypothesis::THexoticSizeMaps::iterator it;
   
-  std::vector<Control_Pnt> points;
+  std::vector<ControlPnt> points;
   // Iterate on the size maps
   for (it=_sizeMaps.begin(); it!=_sizeMaps.end(); it++)
   {
@@ -939,376 +943,37 @@ std::vector<std::string> HexoticPlugin_Hexotic::writeSizeMapFile( MG_Hexotic_API
   
   // Open files
   int verticesFileID =
-    mgOutput->GmfOpenMesh( myVerticesFile.c_str(), GmfWrite, GMFVERSION, GMFDIMENSION );  
+    mgInput->GmfOpenMesh( myVerticesFile.c_str(), GmfWrite, GMFVERSION, GMFDIMENSION );  
   int solFileID =
-    mgOutput->GmfOpenMesh( mySolFile.c_str(), GmfWrite, GMFVERSION, GMFDIMENSION );
+    mgInput->GmfOpenMesh( mySolFile.c_str(), GmfWrite, GMFVERSION, GMFDIMENSION );
   
   int pointsNumber = points.size();
   
   // Vertices Keyword
-  mgOutput->GmfSetKwd( verticesFileID, GmfVertices, pointsNumber );
+  mgInput->GmfSetKwd( verticesFileID, GmfVertices, pointsNumber );
   // SolAtVertices Keyword
   int TypTab[] = {GmfSca};
-  mgOutput->GmfSetKwd(solFileID, GmfSolAtVertices, pointsNumber, 1, TypTab);
+  mgInput->GmfSetKwd(solFileID, GmfSolAtVertices, pointsNumber, 1, TypTab);
   
   // Read the control points information from the vector and write it into the files
   double ValTab[1];
-  std::vector<Control_Pnt>::const_iterator points_it;
+  std::vector<ControlPnt>::const_iterator points_it;
   for (points_it = points.begin(); points_it != points.end(); points_it++ )
   {
-    mgOutput->GmfSetLin( verticesFileID, GmfVertices, points_it->X(), points_it->Y(), points_it->Z(), 0 );
+    mgInput->GmfSetLin( verticesFileID, GmfVertices, points_it->X(), points_it->Y(), points_it->Z(), 0 );
     ValTab[0] = points_it->Size();
-    mgOutput->GmfSetLin( solFileID, GmfSolAtVertices, ValTab);
+    mgInput->GmfSetLin( solFileID, GmfSolAtVertices, ValTab);
   }
 
   // Close Files
-  mgOutput->GmfCloseMesh( verticesFileID );
-  mgOutput->GmfCloseMesh( solFileID );
+  mgInput->GmfCloseMesh( verticesFileID );
+  mgInput->GmfCloseMesh( solFileID );
 
   std::vector<std::string> fileNames(2);
   fileNames[0] = myVerticesFile;
   fileNames[1] = mySolFile;
 
   return fileNames;
-}
-
-//================================================================================
-/*!
- * \brief Fills a vector of points from which a size map input file can be written
- */
-//================================================================================
-void HexoticPlugin_Hexotic::createControlPoints( const TopoDS_Shape& aShape, 
-                                                 const double& theSize, 
-                                                 std::vector<Control_Pnt>& thePoints )
-{ 
-  if ( aShape.ShapeType() == TopAbs_VERTEX )
-  {
-    gp_Pnt aPnt = BRep_Tool::Pnt( TopoDS::Vertex(aShape) );
-    Control_Pnt aControl_Pnt( aPnt, theSize );
-    thePoints.push_back( aControl_Pnt );
-  }
-  if ( aShape.ShapeType() == TopAbs_EDGE )
-  {
-    createPointsSampleFromEdge( aShape, theSize, thePoints );  
-  }
-  else if ( aShape.ShapeType() == TopAbs_WIRE )
-  {
-    TopExp_Explorer Ex;
-    for (Ex.Init(aShape,TopAbs_EDGE); Ex.More(); Ex.Next()) 
-    {
-      createPointsSampleFromEdge( Ex.Current(), theSize, thePoints );
-    } 
-  }
-  else if ( aShape.ShapeType() ==  TopAbs_FACE )
-  {
-    createPointsSampleFromFace( aShape, theSize, thePoints ); 
-  }
-  else if ( aShape.ShapeType() ==  TopAbs_SOLID )
-  {
-    createPointsSampleFromSolid( aShape, theSize, thePoints ); 
-  }
-  else if ( aShape.ShapeType() == TopAbs_COMPOUND )
-  {
-    TopoDS_Iterator it( aShape );
-    for(; it.More(); it.Next())
-    {
-      createControlPoints( it.Value(), theSize, thePoints );
-    }
-  }
-}
-
-//================================================================================
-/*!
- * \brief Fills a vector of points with point samples approximately 
- * \brief spaced with a given size
- */
-//================================================================================
-void HexoticPlugin_Hexotic::createPointsSampleFromEdge( const TopoDS_Shape& aShape, 
-                                                        const double& theSize, 
-                                                        std::vector<Control_Pnt>& thePoints )
-{
-  double step = theSize;
-  double first, last;  
-  Handle( Geom_Curve ) aCurve = BRep_Tool::Curve( TopoDS::Edge( aShape ), first, last );
-  GeomAdaptor_Curve C ( aCurve );
-  GCPnts_UniformAbscissa DiscretisationAlgo(C, step , first, last, Precision::Confusion());
-  int nbPoints = DiscretisationAlgo.NbPoints();
-  
-  for ( int i = 1; i <= nbPoints; i++ )
-  {
-    double param = DiscretisationAlgo.Parameter( i );
-    Control_Pnt aPnt;
-    aCurve->D0( param, aPnt );
-    aPnt.SetSize(theSize);
-    thePoints.push_back( aPnt );
-  }  
-}
-
-//================================================================================
-/*!
- * \brief Fills a vector of points with point samples approximately 
- * \brief spaced with a given size
- */
-//================================================================================
-void HexoticPlugin_Hexotic::createPointsSampleFromFace( const TopoDS_Shape& aShape, 
-                                                        const double& theSize, 
-                                                        std::vector<Control_Pnt>& thePoints )
-{
-  BRepMesh_IncrementalMesh M(aShape, 0.01, Standard_True);
-  TopLoc_Location aLocation;
-  TopoDS_Face aFace = TopoDS::Face(aShape);
-
-  // Triangulate the face
-  Handle(Poly_Triangulation) aTri = BRep_Tool::Triangulation (aFace, aLocation);
-  
-  // Get the transformation associated to the face location
-  gp_Trsf aTrsf = aLocation.Transformation();
-  
-  // Get triangles
-  int nbTriangles = aTri->NbTriangles();
-  Poly_Array1OfTriangle triangles(1,nbTriangles);
-  triangles=aTri->Triangles();
-  
-  // GetNodes
-  int nbNodes = aTri->NbNodes();
-  TColgp_Array1OfPnt nodes(1,nbNodes);
-  nodes = aTri->Nodes();
-
-  // Iterate on triangles and subdivide them
-  for(int i=1; i<=nbTriangles; i++)
-  {
-     Poly_Triangle aTriangle = triangles.Value(i);
-     gp_Pnt p1 = nodes.Value(aTriangle.Value(1));
-     gp_Pnt p2 = nodes.Value(aTriangle.Value(2));
-     gp_Pnt p3 = nodes.Value(aTriangle.Value(3));
-     
-     p1.Transform(aTrsf);
-     p2.Transform(aTrsf);
-     p3.Transform(aTrsf);
-     
-     subdivideTriangle(p1, p2, p3, theSize, thePoints);  
-  }
-}
-
-//================================================================================
-/*!
- * \brief Fills a vector of points with point samples approximately 
- * \brief spaced with a given size
- */
-//================================================================================
-void HexoticPlugin_Hexotic::createPointsSampleFromSolid( const TopoDS_Shape& aShape, 
-                                                         const double& theSize, 
-                                                         std::vector<Control_Pnt>& thePoints )
-{
-  // Compute the bounding box
-  double Xmin, Ymin, Zmin, Xmax, Ymax, Zmax;
-  Bnd_Box B;               
-  BRepBndLib::Add(aShape, B);
-  B.Get(Xmin, Ymin, Zmin, Xmax, Ymax, Zmax);
-  
-  // Create the points
-  double step = theSize;
-  
-  for ( double x=Xmin; x-Xmax<Precision::Confusion(); x=x+step )
-  {
-    for ( double y=Ymin; y-Ymax<Precision::Confusion(); y=y+step )
-    {
-      // Step1 : generate the Zmin -> Zmax line
-      gp_Pnt startPnt(x, y, Zmin);
-      gp_Pnt endPnt(x, y, Zmax);
-      gp_Vec aVec(startPnt, endPnt);
-      gp_Lin aLine(startPnt, aVec);
-      double endParam = Zmax - Zmin;
-      
-      // Step2 : for each face of aShape:
-      std::set<double> intersections;
-      std::set<double>::iterator it = intersections.begin();
-      
-      TopExp_Explorer Ex;
-      for (Ex.Init(aShape,TopAbs_FACE); Ex.More(); Ex.Next()) 
-      { 
-        // check if there is an intersection
-        IntCurvesFace_Intersector anIntersector(TopoDS::Face(Ex.Current()), Precision::Confusion());
-        anIntersector.Perform(aLine, 0, endParam);
-        
-        // get the intersection's parameter and store it
-        int nbPoints = anIntersector.NbPnt();
-        for(int i = 0 ; i < nbPoints ; i++ )
-        {
-          it = intersections.insert( it, anIntersector.WParameter(i+1) );
-        }
-      }
-      // Step3 : go through the line chunk by chunk 
-      if ( intersections.begin() != intersections.end() )
-      {
-        std::set<double>::iterator intersectionsIterator=intersections.begin();
-        double first = *intersectionsIterator;
-        intersectionsIterator++;
-        bool innerPoints = true; 
-        for ( ; intersectionsIterator!=intersections.end() ; intersectionsIterator++ )
-        {
-          double second = *intersectionsIterator;
-          if ( innerPoints )
-          {
-            // If the last chunk was outside of the shape or this is the first chunk
-            // add the points in the range [first, second] to the points vector
-            double localStep = (second -first) / ceil( (second - first) / step );
-            for ( double z = Zmin + first; z < Zmin + second; z = z + localStep )
-            {
-              thePoints.push_back(Control_Pnt( x, y, z, theSize ));
-            }
-            thePoints.push_back(Control_Pnt( x, y, Zmin + second, theSize ));
-          }
-          first = second;
-          innerPoints = !innerPoints;
-        }
-      }
-    }
-  }
-}
-
-//================================================================================
-/*!
- * \brief Subdivides a triangle until it reaches a certain size (recursive function)
- */
-//================================================================================
-void HexoticPlugin_Hexotic::subdivideTriangle( const gp_Pnt& p1, 
-                                               const gp_Pnt& p2, 
-                                               const gp_Pnt& p3, 
-                                               const double& theSize, 
-                                               std::vector<Control_Pnt>& thePoints)
-{
-  // Size threshold to stop subdividing
-  // This value ensures that two control points are distant no more than 2*theSize
-  // as shown below
-  //
-  // The greater distance D of the mass center M to each Edge is 1/3 * Median 
-  // and Median < sqrt(3/4) * a  where a is the greater side (by using Apollonius' thorem). 
-  // So D < 1/3 * sqrt(3/4) * a and if a < sqrt(3) * S then D < S/2
-  // and the distance between two mass centers of two neighbouring triangles 
-  // sharing an edge is < 2 * 1/2 * S = S
-  // If the traingles share a Vertex and no Edge the distance of the mass centers 
-  // to the Vertices is 2*D < S so the mass centers are distant of less than 2*S 
-  
-  double threshold = sqrt( 3. ) * theSize;
-  
-  if ( (p1.Distance(p2) > threshold ||
-        p2.Distance(p3) > threshold ||
-        p3.Distance(p1) > threshold))
-  { 
-    std::vector<gp_Pnt> midPoints = computePointsForSplitting(p1, p2, p3);
- 
-    subdivideTriangle( midPoints[0], midPoints[1], midPoints[2], theSize, thePoints );
-    subdivideTriangle( midPoints[0], p2, midPoints[1], theSize, thePoints );
-    subdivideTriangle( midPoints[2], midPoints[1], p3, theSize, thePoints );
-    subdivideTriangle( p1, midPoints[0], midPoints[2], theSize, thePoints );
-  }
-  else
-  {
-    double x = (p1.X() + p2.X() + p3.X()) / 3 ;
-    double y = (p1.Y() + p2.Y() + p3.Y()) / 3 ;
-    double z = (p1.Z() + p2.Z() + p3.Z()) / 3 ;
-    
-    Control_Pnt massCenter( x ,y ,z, theSize );
-    thePoints.push_back( massCenter );
-  }
-}
-
-//================================================================================
-/*!
- * \brief Returns the appropriate points for splitting a triangle
- * \brief the tangency points of the incircle are used in order to have mostly
- * \brief well-shaped sub-triangles
- */
-//================================================================================
-std::vector<gp_Pnt> HexoticPlugin_Hexotic::computePointsForSplitting( const gp_Pnt& p1, 
-                                                                      const gp_Pnt& p2, 
-                                                                      const gp_Pnt& p3 )
-{
-  std::vector<gp_Pnt> midPoints;
-  //Change coordinates
-  gp_Trsf Trsf_1;            // Identity transformation
-  gp_Ax3 reference_system(gp::Origin(), gp::DZ(), gp::DX());   // OXY
- 
-  gp_Vec Vx(p1, p3);
-  gp_Vec Vaux(p1, p2);
-  gp_Dir Dx(Vx);
-  gp_Dir Daux(Vaux);
-  gp_Dir Dz = Dx.Crossed(Daux);
-  gp_Ax3 current_system(p1, Dz, Dx);
-  
-  Trsf_1.SetTransformation( reference_system, current_system );
-  
-  gp_Pnt A = p1.Transformed(Trsf_1);
-  gp_Pnt B = p2.Transformed(Trsf_1);
-  gp_Pnt C = p3.Transformed(Trsf_1);
-  
-  double a =  B.Distance(C) ;
-  double b =  A.Distance(C) ;
-  double c =  B.Distance(A) ;
-  
-  // Incenter coordinates
-  // see http://mathworld.wolfram.com/Incenter.html
-  double Xi = ( b*B.X() + c*C.X() ) / ( a + b + c );
-  double Yi = ( b*B.Y() ) / ( a + b + c );
-  gp_Pnt Center(Xi, Yi, 0);
-  
-  // Calculate the tangency points of the incircle
-  gp_Pnt T1 = tangencyPoint( A, B, Center);
-  gp_Pnt T2 = tangencyPoint( B, C, Center);
-  gp_Pnt T3 = tangencyPoint( C, A, Center);
-  
-  gp_Pnt p1_2 = T1.Transformed(Trsf_1.Inverted());
-  gp_Pnt p2_3 = T2.Transformed(Trsf_1.Inverted());
-  gp_Pnt p3_1 = T3.Transformed(Trsf_1.Inverted());
-
-  midPoints.push_back(p1_2);
-  midPoints.push_back(p2_3);
-  midPoints.push_back(p3_1);
-  
-  return midPoints;
-}
-
-//================================================================================
-/*!
- * \brief Computes the tangency points of the circle of center Center with
- * \brief the straight line (p1 p2)
- */
-//================================================================================
-gp_Pnt HexoticPlugin_Hexotic::tangencyPoint(const gp_Pnt& p1,
-                                            const gp_Pnt& p2,
-                                            const gp_Pnt& Center)
-{
-  double Xt = 0;
-  double Yt = 0;
-  
-  // The tangency point is the intersection of the straight line (p1 p2)
-  // and the straight line (Center T) which is orthogonal to (p1 p2)
-  if ( fabs(p1.X() - p2.X()) <= Precision::Confusion() )
-  {
-    Xt=p1.X();     // T is on (p1 p2)
-    Yt=Center.Y(); // (Center T) is orthogonal to (p1 p2)
-  }
-  else if ( fabs(p1.Y() - p2.Y()) <= Precision::Confusion() )
-  {
-    Yt=p1.Y();     // T is on (p1 p2) 
-    Xt=Center.X(); // (Center T) is orthogonal to (p1 p2)
-  }
-  else
-  {
-    // First straight line coefficients (equation y=a*x+b)
-    double a = (p2.Y() - p1.Y()) / (p2.X() - p1.X())  ;
-    double b = p1.Y() - a*p1.X();         // p1 is on this straight line
-    
-    // Second straight line coefficients (equation y=c*x+d)
-    double c = -1 / a;                    // The 2 lines are orthogonal
-    double d = Center.Y() - c*Center.X(); // Center is on this straight line
-    
-    Xt = (d - b) / (a - c);
-    Yt = a*Xt + b;
-  }
-  
-  return gp_Pnt( Xt, Yt, 0 );
 }
 
 //=============================================================================
@@ -1575,9 +1240,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
     system( modeFile_Out.ToCString() );
   }
 
-  Ok = readResult( &mgHexa, Hexotic_Out.ToCString(),
-                   this,
-                   aHelper );
+  Ok = Ok && readResult( &mgHexa, Hexotic_Out.ToCString(), this, aHelper );
 
   std::string log = mgHexa.GetLog();
   if ( Ok )
@@ -1589,14 +1252,11 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
     hexahedraMessage = "failed";
     if ( mgHexa.IsExecutable() )
       cout << "Problem with MG-Hexa output file " << Hexotic_Out << std::endl;
-    // analyse log file
-    if ( !log.empty() )
-    {
-      char msgLic[] = " Dlim ";
-      const char* fileBeg = &log[0], *fileEnd = fileBeg + log.size();
-      if ( std::search( fileBeg, fileEnd, msgLic, msgLic+strlen(msgLic)) != fileEnd )
-        error("Licence problems.");
-    }
+
+    if ( log.find( " license " ) != std::string::npos ||
+         log.find( " Dlim "    ) != std::string::npos )
+      error("License problems.");
+
     if ( !errStr.empty() )
       error(errStr);
   }
@@ -1607,7 +1267,8 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
     return error(SMESH_Comment("interruption initiated by user"));
   removeFile(Hexotic_Out);
   removeFile(Hexotic_In);
-  removeFile(aLogFileName);
+  if ( Ok )
+    removeFile(aLogFileName);
   for( size_t i=0; i<sizeMapFiles.size(); i++)
   {
     removeFile( TCollection_AsciiString(sizeMapFiles[i].c_str()) );

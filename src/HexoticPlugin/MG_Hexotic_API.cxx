@@ -73,12 +73,12 @@ struct MG_Hexotic_API::LibData
   {
     if ( _hexa_mesh )
       hexa_regain_mesh( _session, _hexa_mesh );
-    if ( _session )
-      hexa_session_delete( _session );
     if ( _tria_mesh )
       mesh_delete( _tria_mesh );
     if ( _sizemap )
       sizemap_delete( _sizemap );
+    if ( _session )
+      hexa_session_delete( _session );
     if ( _context )
       context_delete( _context );
 
@@ -438,12 +438,12 @@ struct MG_Hexotic_API::LibData
 
   int IsVertexRequired( int iNode )
   {
-    return ! ( iNode < int( _xyz.size() - _nodeSize.size() ));
+    return ! ( iNode < int( NbNodes() - _nodeSize.size() ));
   }
 
   double GetSizeAtVertex( int iNode )
   {
-    return IsVertexRequired( iNode ) ? _nodeSize[ iNode - _xyz.size() + _nodeSize.size() ] : 0.;
+    return IsVertexRequired( iNode ) ? _nodeSize[ iNode - NbNodes() + _nodeSize.size() ] : 0.;
   }
 };
 
@@ -582,6 +582,10 @@ namespace // functions called by MG library to exchange with the application
 
     MG_Hexotic_API::LibData* data = (MG_Hexotic_API::LibData *) user_data;
     data->AddError( desc );
+
+#ifdef _DEBUG_
+    //std::cout << desc << std::endl;
+#endif
 
     // Compute progress
     // corresponding messages are:
@@ -794,7 +798,12 @@ bool MG_Hexotic_API::Compute( const std::string& cmdLine, std::string& errStr )
     }
 
     // compute
-    return _libData->Compute();
+    bool ok =  _libData->Compute();
+
+    GetLog(); // write a log file
+    _logFile = ""; // not to write it again
+
+    return ok;
 #endif
   }
 
@@ -803,9 +812,6 @@ bool MG_Hexotic_API::Compute( const std::string& cmdLine, std::string& errStr )
   if ( err )
     errStr = SMESH_Comment("system(mg-hexa.exe ...) command failed with error: ")
       << strerror( errno );
-
-  GetLog(); // write a log file
-  _logFile = ""; // not to write it again
 
   return !err;
 

@@ -93,59 +93,30 @@ private:
   std::vector<std::string> writeSizeMapFile(MG_Hexotic_API* mgOutput,
                                             std::string     fileName);
   
-  // Functions to get sample point from shapes
-  void createControlPoints( const TopoDS_Shape& theShape, 
-                            const double& theSize, 
-                            std::vector< Control_Pnt >& thePoints );
-  void createPointsSampleFromEdge( const TopoDS_Shape& aShape, 
-                                   const double& theSize, 
-                                   std::vector<Control_Pnt>& thePoints );
-  void createPointsSampleFromFace( const TopoDS_Shape& aShape, 
-                                   const double& theSize, 
-                                   std::vector<Control_Pnt>& thePoints );
-  void createPointsSampleFromSolid( const TopoDS_Shape& aShape, 
-                                    const double& theSize, 
-                                    std::vector<Control_Pnt>& thePoints );
-  
-  // Some functions for surface sampling
-  void subdivideTriangle( const gp_Pnt& p1, 
-                          const gp_Pnt& p2, 
-                          const gp_Pnt& p3, 
-                          const double& theSize, 
-                          std::vector<Control_Pnt>& thePoints );
-  
-  std::vector<gp_Pnt> computePointsForSplitting( const gp_Pnt& p1, 
-                                                 const gp_Pnt& p2, 
-                                                 const gp_Pnt& p3 );
-  gp_Pnt tangencyPoint(const gp_Pnt& p1, 
-                       const gp_Pnt& p2, 
-                       const gp_Pnt& Center);
-  
-
-  int  _iShape;
-  int  _nbShape;
-  int  _hexesMinLevel;
-  int  _hexesMaxLevel;
-  double _hexesMinSize;
-  double _hexesMaxSize;
-  bool _hexoticIgnoreRidges;
-  bool _hexoticInvalidElements;
-  bool _hexoticFilesKept;
-  int  _hexoticSharpAngleThreshold;
-  int  _hexoticNbProc;
-  std::string  _hexoticWorkingDirectory;
-  int _hexoticVerbosity;
-  int _hexoticMaxMemory;
-  int _hexoticSdMode;
-  std::string _textOptions;
+  int              _iShape;
+  int              _nbShape;
+  int              _hexesMinLevel;
+  int              _hexesMaxLevel;
+  double           _hexesMinSize;
+  double           _hexesMaxSize;
+  bool             _hexoticIgnoreRidges;
+  bool             _hexoticInvalidElements;
+  bool             _hexoticFilesKept;
+  int              _hexoticSharpAngleThreshold;
+  int              _hexoticNbProc;
+  std::string      _hexoticWorkingDirectory;
+  int              _hexoticVerbosity;
+  int              _hexoticMaxMemory;
+  int              _hexoticSdMode;
+  std::string      _textOptions;
   HexoticPlugin_Hypothesis::THexoticSizeMaps _sizeMaps;
-  int    _nbLayers;
-  double _firstLayerSize;
-  bool   _direction;
-  double _growth;
+  int              _nbLayers;
+  double           _firstLayerSize;
+  bool             _direction;
+  double           _growth;
   std::vector<int> _facesWithLayers;
   std::vector<int> _imprintedFaces;
-  SMDS_MeshNode** _tabNode;
+  SMDS_MeshNode**  _tabNode;
   
 #ifdef WITH_BLSURFPLUGIN
   const BLSURFPlugin_Hypothesis* _blsurfHypo;
