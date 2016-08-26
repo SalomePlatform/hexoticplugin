@@ -59,6 +59,7 @@
 #include <TopExp_Explorer.hxx>
 #include <TopTools_MapOfShape.hxx>
 #include <TopoDS.hxx>
+#include <TopoDS_Vertex.hxx>
 #include <gp_Pnt.hxx>
 
 #include <Basics_Utils.hxx>
