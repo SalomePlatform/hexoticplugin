@@ -790,6 +790,8 @@ bool MG_Hexotic_API::Compute( const std::string& cmdLine, std::string& errStr )
       value = "";
       while ( i+1 < args.size() && args[i+1][0] != '-' )
       {
+        if ( strncmp( "1>", args[i+1].c_str(), 2 ) == 0 )
+          break;
         if ( !value.empty() ) value += " ";
         value += args[++i];
       }
