@@ -19,6 +19,10 @@
 
 #include "MG_Hexotic_API.hxx"
 
+#ifdef WIN32
+#define NOMINMAX
+#endif
+
 #include <SMESH_Comment.hxx>
 #include <SMESH_File.hxx>
 #include <Utils_SALOME_Exception.hxx>

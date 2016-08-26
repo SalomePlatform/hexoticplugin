@@ -28,6 +28,10 @@
 
 #include "utilities.h"
 
+#ifdef WIN32
+#include <process.h>
+#endif
+
 #ifdef _DEBUG_
 #define DUMP(txt) \
 //  cout << txt
