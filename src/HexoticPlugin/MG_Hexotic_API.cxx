@@ -713,13 +713,14 @@ bool MG_Hexotic_API::LibData::Compute()
 
 MG_Hexotic_API::MG_Hexotic_API(volatile bool& cancelled_flag, double& progress)
 {
+  _useLib = false;
 #ifdef USE_MG_LIBS
   _useLib = true;
   _libData = new LibData( cancelled_flag, progress );
   _libData->Init();
-#endif
   if ( getenv("MG_HEXA_USE_EXE"))
     _useLib = false;
+#endif
 }
 
 //================================================================================
