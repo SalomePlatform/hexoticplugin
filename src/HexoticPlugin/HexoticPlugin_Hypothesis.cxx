@@ -32,9 +32,8 @@
  *  
  */
 //=============================================================================
-HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, int studyId,
-                                                    SMESH_Gen* gen)
-  : SMESH_Hypothesis(hypId, studyId, gen),
+HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, SMESH_Gen* gen)
+  : SMESH_Hypothesis(hypId, gen),
     _hexesMinLevel( GetDefaultHexesMinLevel() ),
     _hexesMaxLevel( GetDefaultHexesMaxLevel() ),
     _minSize( GetDefaultMinSize() ),

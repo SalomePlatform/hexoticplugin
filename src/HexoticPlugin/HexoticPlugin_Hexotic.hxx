@@ -53,7 +53,7 @@ class MG_Hexotic_API;
 class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hexotic: public SMESH_3D_Algo
 {
 public:
-  HexoticPlugin_Hexotic(int hypId, int studyId, SMESH_Gen* gen);
+  HexoticPlugin_Hexotic(int hypId, SMESH_Gen* gen);
   virtual ~HexoticPlugin_Hexotic();
 
 #ifdef WITH_BLSURFPLUGIN

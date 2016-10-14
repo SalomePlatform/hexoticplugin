@@ -91,8 +91,8 @@ static void removeFile( const TCollection_AsciiString& fileName )
  */
 //=============================================================================
 
-HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, int studyId, SMESH_Gen* gen)
-  : SMESH_3D_Algo(hypId, studyId, gen)
+HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, SMESH_Gen* gen)
+  : SMESH_3D_Algo(hypId, gen)
 {
   MESSAGE("HexoticPlugin_Hexotic::HexoticPlugin_Hexotic");
   _name = "MG-Hexa";
@@ -110,13 +110,11 @@ HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, int studyId, SMESH_Gen* 
   
   // Copy of what is done in BLSURFPLugin TODO : share the code
   smeshGen_i = SMESH_Gen_i::GetSMESHGen();
-  CORBA::Object_var anObject = smeshGen_i->GetNS()->Resolve("/myStudyManager");
-  SALOMEDS::StudyManager_var aStudyMgr = SALOMEDS::StudyManager::_narrow(anObject);
+  CORBA::Object_var anObject = smeshGen_i->GetNS()->Resolve("/Study");
   
-  myStudy = NULL;
-  myStudy = aStudyMgr->GetStudyByID(_studyId);
+  myStudy = SALOMEDS::Study::_narrow(anObject);;
   if ( !myStudy->_is_nil() )
-    MESSAGE("myStudy->StudyId() = " << myStudy->StudyId());
+    MESSAGE("myStudy not empty");
 }
 
 //=============================================================================

@@ -51,7 +51,7 @@ class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis: public SMESH_Hypothesis
 {
 public:
 
-  HexoticPlugin_Hypothesis(int hypId, int studyId, SMESH_Gen* gen);
+  HexoticPlugin_Hypothesis(int hypId, SMESH_Gen* gen);
 
   static const char* GetHypType() { return "MG-Hexa Parameters"; }
 
