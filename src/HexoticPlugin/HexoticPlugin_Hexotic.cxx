@@ -108,13 +108,6 @@ HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, SMESH_Gen* gen)
 #endif
   _computeCanceled = false;
   
-  // Copy of what is done in BLSURFPLugin TODO : share the code
-  smeshGen_i = SMESH_Gen_i::GetSMESHGen();
-  CORBA::Object_var anObject = smeshGen_i->GetNS()->Resolve("/Study");
-  
-  myStudy = SALOMEDS::Study::_narrow(anObject);;
-  if ( !myStudy->_is_nil() )
-    MESSAGE("myStudy not empty");
 }
 
 //=============================================================================
@@ -900,18 +893,17 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
 TopoDS_Shape HexoticPlugin_Hexotic::entryToShape(std::string entry)
 {
   MESSAGE("HexoticPlugin_Hexotic::entryToShape "<<entry );
-  if ( myStudy->_is_nil() )
-    throw SALOME_Exception("MG-Hexa plugin can't work w/o publishing in the study");
+
   GEOM::GEOM_Object_var aGeomObj;
   TopoDS_Shape S = TopoDS_Shape();
-  SALOMEDS::SObject_var aSObj = myStudy->FindObjectID( entry.c_str() );
+  SALOMEDS::SObject_var aSObj = SMESH_Gen_i::getStudyServant()->FindObjectID( entry.c_str() );
   if (!aSObj->_is_nil()) {
     CORBA::Object_var obj = aSObj->GetObject();
     aGeomObj = GEOM::GEOM_Object::_narrow(obj);
     aSObj->UnRegister();
   }
   if ( !aGeomObj->_is_nil() )
-    S = smeshGen_i->GeomObjectToShape( aGeomObj.in() );
+    S = SMESH_Gen_i::GetSMESHGen()->GeomObjectToShape( aGeomObj.in() );
   return S;
 }
 

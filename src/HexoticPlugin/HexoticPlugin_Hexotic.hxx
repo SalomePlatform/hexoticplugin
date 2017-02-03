@@ -122,10 +122,6 @@ private:
   const BLSURFPlugin_Hypothesis* _blsurfHypo;
 #endif
 
-
-  SALOMEDS::Study_var myStudy;
-  SMESH_Gen_i*        smeshGen_i;
-
 };
 
 #endif

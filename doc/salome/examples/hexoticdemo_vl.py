@@ -19,14 +19,13 @@
 
 import salome
 salome.salome_init()
-theStudy = salome.myStudy
 
 from salome.geom import geomBuilder
-geompy = geomBuilder.New(salome.myStudy)
+geompy = geomBuilder.New()
 
 import SMESH, SALOMEDS
 from salome.smesh import smeshBuilder
-smesh =  smeshBuilder.New(salome.myStudy)
+smesh =  smeshBuilder.New()
 
 # Create geometry
 Box_1 = geompy.MakeBoxDXDYDZ(50, 50, 50)
