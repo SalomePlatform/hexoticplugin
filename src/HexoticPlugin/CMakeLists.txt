@@ -23,7 +23,7 @@ INCLUDE_DIRECTORIES(
   ${SMESH_INCLUDE_DIRS}
   ${OMNIORB_INCLUDE_DIR}
   ${Boost_INCLUDE_DIRS}
-  ${CAS_INCLUDE_DIRS}
+  ${OpenCASCADE_INCLUDE_DIR}
   ${VTK_INCLUDE_DIRS}
   ${MESHGEMS_INCLUDE_DIRS}
   ${KERNEL_INCLUDE_DIRS}
@@ -36,17 +36,17 @@ INCLUDE_DIRECTORIES(
 # additional preprocessor / compiler flags
 ADD_DEFINITIONS(  
   ${OMNIORB_DEFINITIONS}
-  ${CAS_DEFINITIONS}
+  ${OpenCASCADE_DEFINITIONS}
   ${BOOST_DEFINITIONS}
 )
 
 # libraries to link to
 SET(_link_LIBRARIES
-  ${CAS_TKernel}
-  ${CAS_TKMath}
-  ${CAS_TKG3d}
-  ${CAS_TKTopAlgo}
-  ${CAS_TKBRep}
+  TKernel
+  TKMath
+  TKG3d
+  TKTopAlgo
+  TKBRep
   ${CAS_SALOMELocalTrace}
   ${MESHGEMS_HEXA_LIBRARY}
   ${SMESH_SMESHimpl}
