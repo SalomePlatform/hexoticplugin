@@ -50,7 +50,7 @@ aFilter2 = smesh.GetFilterFromCriteria([smesh.GetCriterion(SMESH.VOLUME,SMESH.FT
 aFilter3 = smesh.GetFilter(SMESH.VOLUME,SMESH.FT_BelongToGeom,'=',Sphere_1, SMESH.FT_LogicalNOT)
 
 # Create mesh of Cut_2 with sd mode 2
-print "Create mesh of Cut_2 with sd mode 2"
+print("Create mesh of Cut_2 with sd mode 2")
 Mesh_mghexa_sd2 = smesh.Mesh(Cut_2, "Mesh_mghexa_sd2")
 
 # Create the 2D algo: MG-CADSurf with geometrical mesh
