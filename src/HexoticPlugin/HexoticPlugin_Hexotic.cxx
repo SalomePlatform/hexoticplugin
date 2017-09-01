@@ -135,7 +135,7 @@ HexoticPlugin_Hexotic::~HexoticPlugin_Hexotic()
 bool HexoticPlugin_Hexotic::CheckBLSURFHypothesis( SMESH_Mesh&         aMesh,
                                                    const TopoDS_Shape& aShape )
 {
-  // MESSAGE("HexoticPlugin_Hexotic::CheckBLSURFHypothesis");
+  MESSAGE("HexoticPlugin_Hexotic::CheckBLSURFHypothesis");
   _blsurfHypo = NULL;
 
   std::list<const SMESHDS_Hypothesis*>::const_iterator itl;
@@ -174,7 +174,7 @@ bool HexoticPlugin_Hexotic::CheckHypothesis( SMESH_Mesh&                        
                                              const TopoDS_Shape&                  aShape,
                                              SMESH_Hypothesis::Hypothesis_Status& aStatus )
 {
-  // MESSAGE("HexoticPlugin_Hexotic::CheckHypothesis");
+  MESSAGE("HexoticPlugin_Hexotic::CheckHypothesis");
   _hypothesis = NULL;
 
   std::list<const SMESHDS_Hypothesis*>::const_iterator itl;
@@ -183,6 +183,10 @@ bool HexoticPlugin_Hexotic::CheckHypothesis( SMESH_Mesh&                        
   const std::list<const SMESHDS_Hypothesis*>& hyps = GetUsedHypothesis(aMesh, aShape, false);
   int nbHyp = hyps.size();
   if (!nbHyp) {
+    // retrieve BLSURF hypothesis if no hexotic hypothesis has been set
+#ifdef WITH_BLSURFPLUGIN
+    CheckBLSURFHypothesis(aMesh, aShape);
+#endif
     aStatus = SMESH_Hypothesis::HYP_OK;
     return true;  // can work with no hypothesis
   }
@@ -1047,11 +1051,12 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     Hexotic_Out = aTmpDir + "Hexotic"+getSuffix()+"_Out.mesh";
 #ifdef WITH_BLSURFPLUGIN
     bool defaultInputFile = true;
-    if (_blsurfHypo && !_blsurfHypo->GetQuadAllowed()) {
+    if (_blsurfHypo && _blsurfHypo->GetElementType() == BLSURFPlugin_Hypothesis::Triangles ) {
       Hexotic_In = _blsurfHypo->GetGMFFile().c_str();
       if ( !Hexotic_In.IsEmpty() &&
            SMESH_File( _blsurfHypo->GetGMFFile() ).exists() )
       {
+        MESSAGE("Use output file from blsurf as input file from hexotic: " << Hexotic_In);
         mgHexa.SetUseExecutable();
         defaultInputFile = false;
       }
