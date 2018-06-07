@@ -70,7 +70,7 @@ class Hexotic_Algorithm(Mesh_Algorithm):
     #              if it is @c 0 (default), the algorithm is assigned to the main shape
     def __init__(self, mesh, geom=0):
         Mesh_Algorithm.__init__(self)
-        if noHexoticPlugin: print "Warning: HexoticPlugin module unavailable"
+        if noHexoticPlugin: print("Warning: HexoticPlugin module unavailable")
         self.Create(mesh, geom, MG_Hexa, "libHexoticEngine.so")
         self.params = None
         pass
@@ -100,7 +100,7 @@ class Hexotic_Algorithm(Mesh_Algorithm):
     def SetSizeMap(self, theObject, theSize):
         AssureGeomPublished( self.mesh, theObject )
         if theSize <= 0:
-          raise ValueError, "The size must be > 0"
+          raise ValueError("The size must be > 0")
         self.Parameters().SetSizeMap(theObject, theSize)
         return self.Parameters()
       
@@ -125,7 +125,7 @@ class Hexotic_Algorithm(Mesh_Algorithm):
     #  @param quad not documented
     #  @return hypothesis object
     def MinMaxQuad(self, min=3, max=8, quad=True):
-        print "WARNING: Function MinMaxQuad is deprecated, use SetMinMaxHexes instead"
+        print("WARNING: Function MinMaxQuad is deprecated, use SetMinMaxHexes instead")
         return self.SetMinMaxHexes(min, max)
       
     ## Defines "ViscousLayers" hypothesis to give MG-Hexa parameters

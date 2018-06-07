@@ -21,10 +21,10 @@ import salome
 salome.salome_init()
 
 from salome.geom import geomBuilder
-geompy = geomBuilder.New(salome.myStudy)
+geompy = geomBuilder.New()
 
 from salome.smesh import smeshBuilder
-smesh =  smeshBuilder.New(salome.myStudy)
+smesh =  smeshBuilder.New()
 
 # Create geometry: a box cut by a plane
 Box_1 = geompy.MakeBoxDXDYDZ(200, 200, 200)

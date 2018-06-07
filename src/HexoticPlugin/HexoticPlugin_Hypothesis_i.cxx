@@ -39,15 +39,13 @@
 //=============================================================================
 HexoticPlugin_Hypothesis_i::
 HexoticPlugin_Hypothesis_i (PortableServer::POA_ptr thePOA,
-                           int                     theStudyId,
-                           ::SMESH_Gen*            theGenImpl)
+                            ::SMESH_Gen*            theGenImpl)
   : SALOME::GenericObj_i( thePOA ), 
     SMESH_Hypothesis_i( thePOA )
 {
   MESSAGE( "HexoticPlugin_Hypothesis_i::HexoticPlugin_Hypothesis_i" );
   myBaseImpl = new ::HexoticPlugin_Hypothesis (theGenImpl->GetANewId(),
-                                              theStudyId,
-                                              theGenImpl);
+                                               theGenImpl);
 }
 
 //=============================================================================

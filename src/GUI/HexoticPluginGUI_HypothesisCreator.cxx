@@ -741,10 +741,8 @@ bool HexoticPluginGUI_HypothesisCreator::readSizeMapsFromWidgets( HexoticHypothe
 
 GEOM::GEOM_Object_var HexoticPluginGUI_HypothesisCreator::entryToObject( std::string entry) const
 {
-  SMESH_Gen_i* smeshGen_i = SMESH_Gen_i::GetSMESHGen();
-  SALOMEDS::Study_var myStudy = smeshGen_i->GetCurrentStudy();
   GEOM::GEOM_Object_var aGeomObj;
-  SALOMEDS::SObject_var aSObj = myStudy->FindObjectID( entry.c_str() );
+   SALOMEDS::SObject_var aSObj = SMESH_Gen_i::getStudyServant()->FindObjectID( entry.c_str() );
   if (!aSObj->_is_nil()) {
     CORBA::Object_var obj = aSObj->GetObject();
     aGeomObj = GEOM::GEOM_Object::_narrow(obj);

@@ -91,8 +91,8 @@ static void removeFile( const TCollection_AsciiString& fileName )
  */
 //=============================================================================
 
-HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, int studyId, SMESH_Gen* gen)
-  : SMESH_3D_Algo(hypId, studyId, gen)
+HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, SMESH_Gen* gen)
+  : SMESH_3D_Algo(hypId, gen)
 {
   MESSAGE("HexoticPlugin_Hexotic::HexoticPlugin_Hexotic");
   _name = "MG-Hexa";
@@ -108,15 +108,6 @@ HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, int studyId, SMESH_Gen* 
 #endif
   _computeCanceled = false;
   
-  // Copy of what is done in BLSURFPLugin TODO : share the code
-  smeshGen_i = SMESH_Gen_i::GetSMESHGen();
-  CORBA::Object_var anObject = smeshGen_i->GetNS()->Resolve("/myStudyManager");
-  SALOMEDS::StudyManager_var aStudyMgr = SALOMEDS::StudyManager::_narrow(anObject);
-  
-  myStudy = NULL;
-  myStudy = aStudyMgr->GetStudyByID(_studyId);
-  if ( !myStudy->_is_nil() )
-    MESSAGE("myStudy->StudyId() = " << myStudy->StudyId());
 }
 
 //=============================================================================
@@ -909,18 +900,17 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
 TopoDS_Shape HexoticPlugin_Hexotic::entryToShape(std::string entry)
 {
   MESSAGE("HexoticPlugin_Hexotic::entryToShape "<<entry );
-  if ( myStudy->_is_nil() )
-    throw SALOME_Exception("MG-Hexa plugin can't work w/o publishing in the study");
+
   GEOM::GEOM_Object_var aGeomObj;
   TopoDS_Shape S = TopoDS_Shape();
-  SALOMEDS::SObject_var aSObj = myStudy->FindObjectID( entry.c_str() );
+  SALOMEDS::SObject_var aSObj = SMESH_Gen_i::getStudyServant()->FindObjectID( entry.c_str() );
   if (!aSObj->_is_nil()) {
     CORBA::Object_var obj = aSObj->GetObject();
     aGeomObj = GEOM::GEOM_Object::_narrow(obj);
     aSObj->UnRegister();
   }
   if ( !aGeomObj->_is_nil() )
-    S = smeshGen_i->GeomObjectToShape( aGeomObj.in() );
+    S = SMESH_Gen_i::GetSMESHGen()->GeomObjectToShape( aGeomObj.in() );
   return S;
 }
 

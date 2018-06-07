@@ -21,11 +21,11 @@ import salome
 salome.salome_init()
 
 from salome.geom import geomBuilder
-geompy = geomBuilder.New(salome.myStudy)
+geompy = geomBuilder.New()
 
 import SMESH, SALOMEDS
 from salome.smesh import smeshBuilder
-smesh =  smeshBuilder.New(salome.myStudy)
+smesh =  smeshBuilder.New()
 
 
 # Create geometry: a box cut by a holed sphere
@@ -51,7 +51,7 @@ aFilter2 = smesh.GetFilterFromCriteria([smesh.GetCriterion(SMESH.VOLUME,SMESH.FT
 aFilter3 = smesh.GetFilter(SMESH.VOLUME,SMESH.FT_BelongToGeom,'=',Sphere_1, SMESH.FT_LogicalNOT)
 
 # Create mesh of Cut_2 with sd mode 1
-print "Create mesh of Cut_2 with sd mode 1"
+print("Create mesh of Cut_2 with sd mode 1")
 Mesh_mghexa_sd1 = smesh.Mesh(Cut_2, "Mesh_mghexa_sd1")
 
 # Create the 2D algo: MG-CADSurf with geometrical mesh

@@ -42,8 +42,7 @@ class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
  public:
   // Constructor
   HexoticPlugin_Hypothesis_i (PortableServer::POA_ptr thePOA,
-                             int                     theStudyId,
-                             ::SMESH_Gen*            theGenImpl);
+                              ::SMESH_Gen*            theGenImpl);
   // Destructor
   virtual ~HexoticPlugin_Hypothesis_i();
 
