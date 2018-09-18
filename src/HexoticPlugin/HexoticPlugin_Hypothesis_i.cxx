@@ -541,14 +541,83 @@ SMESH::long_array* HexoticPlugin_Hypothesis_i::GetImprintedFaces()
 
 //================================================================================
 /*!
- * \brief Verify whether hypothesis supports given entity type 
-  * \param type - dimension (see SMESH::Dimension enumeration)
-  * \retval CORBA::Boolean - TRUE if dimension is supported, FALSE otherwise
- * 
+ * \brief Verify whether hypothesis supports given entity type
+ * \param type - dimension (see SMESH::Dimension enumeration)
+ * \retval CORBA::Boolean - TRUE if dimension is supported, FALSE otherwise
+ *
  * Verify whether hypothesis supports given entity type (see SMESH::Dimension enumeration)
  */
-//================================================================================  
+//================================================================================
 CORBA::Boolean HexoticPlugin_Hypothesis_i::IsDimSupported( SMESH::Dimension type )
 {
   return type == SMESH::DIM_3D;
+}
+
+//================================================================================
+/*!
+ * \brief Return geometry this hypothesis depends on. Return false if there is no geometry parameter
+ */
+//================================================================================
+
+bool
+HexoticPlugin_Hypothesis_i::getObjectsDependOn( std::vector< std::string > & entryArray,
+                                                std::vector< int >         & subIDArray ) const
+{
+  typedef ::HexoticPlugin_Hypothesis THyp;
+  const THyp* h = static_cast< const THyp*> ( myBaseImpl );
+
+  const THyp::THexoticSizeMaps& sizeMaps = h->GetSizeMaps();
+  THyp::THexoticSizeMaps::const_iterator entry2size = sizeMaps.cbegin();
+  for ( ; entry2size != sizeMaps.cend(); ++entry2size )
+    entryArray.push_back( entry2size->first );
+
+  subIDArray = h->GetFacesWithLayers();
+  subIDArray.insert( subIDArray.end(),
+                     h->GetImprintedFaces().begin(),
+                     h->GetImprintedFaces().end());
+
+  return true;
+}
+
+//================================================================================
+/*!
+ * \brief Set new geometry instead of that returned by getObjectsDependOn()
+ */
+//================================================================================
+
+bool
+HexoticPlugin_Hypothesis_i::setObjectsDependOn( std::vector< std::string > & entryArray,
+                                                std::vector< int >         & subIDArray )
+{
+  typedef ::HexoticPlugin_Hypothesis THyp;
+  THyp* h = static_cast< THyp*> ( myBaseImpl );
+
+  size_t iEnt = 0;
+
+  THyp::THexoticSizeMaps& sizeMapsNew = const_cast< THyp::THexoticSizeMaps& > ( h->GetSizeMaps() );
+  THyp::THexoticSizeMaps sizeMaps;
+  sizeMaps.swap( sizeMapsNew );
+  THyp::THexoticSizeMaps::const_iterator entry2size = sizeMaps.cbegin();
+  for ( ; entry2size != sizeMaps.cend(); ++entry2size )
+  {
+    const std::string& entry = entryArray[ iEnt++ ];
+    if ( entry.empty() == entry2size->first.empty() )
+      sizeMapsNew[ entry ] = entry2size->second;
+  }
+
+  size_t nbFacesWL = h->GetFacesWithLayers().size();
+  std::vector<int> facesWithLayers;
+  size_t iID = 0;
+  for ( ; iID < nbFacesWL; ++iID )
+    if ( subIDArray[ iID ] > 0 )
+      facesWithLayers.push_back( subIDArray[ iID ]);
+  h->SetFacesWithLayers( facesWithLayers );
+
+  std::vector<int> imprintedFaces;
+  for ( ; iID < subIDArray.size(); ++iID )
+    if ( subIDArray[ iID ] > 0 )
+      imprintedFaces.push_back( subIDArray[ iID ]);
+  h->SetImprintedFaces( imprintedFaces );
+
+  return iID == subIDArray.size() && iEnt == entryArray.size();
 }

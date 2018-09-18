@@ -100,8 +100,8 @@ public:
   typedef std::map<std::string,double> THexoticSizeMaps;
   
   // For the GUI HexoticPluginGUI_HypothesisCreator::storeParamToHypo
-  THexoticSizeMaps GetSizeMaps() const { return _sizeMaps; }; 
-  
+  const THexoticSizeMaps& GetSizeMaps() const { return _sizeMaps; }
+
   // Add one size map to the collection of size maps (user interface)
   bool AddSizeMap(std::string theEntry, double theSize);
   bool UnsetSizeMap(std::string theEntry);
@@ -119,10 +119,10 @@ public:
   double GetGrowth() const { return _growth; }
 
   bool SetFacesWithLayers(const std::vector<int>& theVal);
-  std::vector<int> GetFacesWithLayers() const { return _facesWithLayers; }
+  const std::vector<int>& GetFacesWithLayers() const { return _facesWithLayers; }
 
   bool SetImprintedFaces(const std::vector<int>& theVal);
-  std::vector<int> GetImprintedFaces() const { return _imprintedFaces; }
+  const std::vector<int>& GetImprintedFaces() const { return _imprintedFaces; }
 
   // the parameters default values 
   static int GetDefaultHexesMinLevel();
