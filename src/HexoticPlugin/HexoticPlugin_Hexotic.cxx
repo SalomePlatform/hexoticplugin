@@ -47,6 +47,7 @@
 #include <SMESH_HypoFilter.hxx>
 #include <SMESH_MesherHelper.hxx>
 #include <SMESH_subMesh.hxx>
+#include <SMESH_MeshEditor.hxx>
 #include <SMESH_ControlPnt.hxx>
 
 #include <list>
