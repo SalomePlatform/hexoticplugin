@@ -26,10 +26,11 @@ SET(DOC_SMESH_MeshersList HexoticPLUGIN)
 SET(smesh_file "$(SMESH_ROOT_DIR)/bin/salome/collect_mesh_methods.py")
 SET(kernel_file "${KERNEL_ROOT_DIR}/bin/salome/prepare_generating_doc.py")
 
-SALOME_ACCUMULATE_ENVIRONMENT(SMESH_MeshersList NOCHECK ${DOC_SMESH_MeshersList})
+SET(ADD_VAR)
+LIST(APPEND ADD_VAR SMESH_MeshersList=HexoticPLUGIN)
 
 SET(_cmd_options ${smesh_file} -d -o tmp/smeshBuilder.py HexoticPLUGIN)
-SALOME_GENERATE_ENVIRONMENT_SCRIPT(_cmd env_script "${PYTHON_EXECUTABLE}" "${_cmd_options}")            
+SALOME_GENERATE_ENVIRONMENT_SCRIPT(_cmd env_script "${PYTHON_EXECUTABLE}" "${_cmd_options}" CONTEXT "HexoticPLUGIN_DOC" ADDITIONAL_VARIABLES ${ADD_VAR})
 
 ADD_CUSTOM_TARGET(usr_docs ${CMAKE_COMMAND} -E make_directory tmp
   COMMAND ${PYTHON_EXECUTABLE} ${kernel_file} -o tmp/HexoticPLUGINBuilder.py ${CMAKE_SOURCE_DIR}/src/HexoticPlugin/HexoticPLUGINBuilder.py
