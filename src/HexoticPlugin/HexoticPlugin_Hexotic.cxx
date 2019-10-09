@@ -1110,7 +1110,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     // read a result
     // --------------
 
-    if ( mgHexa.IsExecutable() )
+    if ( mgHexa.IsExecutable() && SMESH_File( Hexotic_Out.ToCString() ).exists() )
     {
 #ifndef WIN32
       modeFile_Out += Hexotic_Out;
@@ -1193,13 +1193,13 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
 {
   _computeCanceled = false;
   /*
-  SMESH_ComputeErrorPtr myError = SMESH_ComputeError::New();
-*/
+    SMESH_ComputeErrorPtr myError = SMESH_ComputeError::New();
+  */
   bool Ok = true;
   TCollection_AsciiString hexahedraMessage;
   TCollection_AsciiString aQuote("");
 #ifdef WIN32
-    aQuote = "\"";
+  aQuote = "\"";
 #endif
   SetParameters(_hypothesis);
 
@@ -1214,7 +1214,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   Hexotic_In  = aTmpDir + "Hexotic"+getSuffix()+"_In.mesh";
   Hexotic_Out = aTmpDir + "Hexotic"+getSuffix()+"_Out.mesh";
   Hexotic_SizeMap_Prefix = aTmpDir + "Hexotic_SizeMap";
- 
+
   MG_Hexotic_API mgHexa( _computeCanceled, _progress );
 
   std::vector<std::string> sizeMapFiles = writeSizeMapFile( &mgHexa, Hexotic_SizeMap_Prefix.ToCString() );
@@ -1253,7 +1253,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   // read a result
   // --------------
 
-  if ( mgHexa.IsExecutable() )
+  if ( mgHexa.IsExecutable() && SMESH_File( Hexotic_Out.ToCString() ).exists() )
   {
     modeFile_Out += Hexotic_Out;
     system( modeFile_Out.ToCString() );
