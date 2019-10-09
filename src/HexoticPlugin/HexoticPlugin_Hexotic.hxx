@@ -99,6 +99,7 @@ private:
   int              _hexesMaxLevel;
   double           _hexesMinSize;
   double           _hexesMaxSize;
+  double           _approxAngle;
   bool             _hexoticIgnoreRidges;
   bool             _hexoticInvalidElements;
   bool             _hexoticFilesKept;
@@ -117,6 +118,9 @@ private:
   std::vector<int> _facesWithLayers;
   std::vector<int> _imprintedFaces;
   SMDS_MeshNode**  _tabNode;
+  bool             _keepFiles;
+  bool             _removeLogOnSuccess;
+  bool             _logInStandardOutput;
   
 #ifdef WITH_BLSURFPLUGIN
   const BLSURFPlugin_Hypothesis* _blsurfHypo;

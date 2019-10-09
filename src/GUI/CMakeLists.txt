@@ -37,6 +37,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${PROJECT_BINARY_DIR}/idl
   ${PROJECT_SOURCE_DIR}/src/HexoticPlugin
+  ${PROJECT_SOURCE_DIR}/src/GUI
 )
 
 # additional preprocessor / compiler flags
@@ -67,6 +68,7 @@ SET(_link_LIBRARIES
 SET(_moc_HEADERS
   HexoticPluginGUI_HypothesisCreator.h
   HexoticPluginGUI_Dlg.h
+  HexoticPluginGUI_TreeWidget.h
 )
 
 # header files / no moc processed
@@ -85,9 +87,11 @@ QT_WRAP_MOC(_moc_SOURCES ${_moc_HEADERS})
 SET(_other_SOURCES
   HexoticPluginGUI.cxx
   HexoticPluginGUI_StdWidget.cxx
+  HexoticPluginGUI_AdvWidget.cxx
   HexoticPluginGUI_SizeMapsWidget.cxx
   HexoticPluginGUI_ViscousLayersWidget.cxx
   HexoticPluginGUI_HypothesisCreator.cxx
+  HexoticPluginGUI_TreeWidget.cxx
 )
 
 # --- resources ---
@@ -103,6 +107,7 @@ SET(_ts_RESOURCES
 # resource files / to be processed by uic
 SET(_uic_files
   HexoticPluginGUI_StdWidget_QTD.ui
+  HexoticPluginGUI_AdvWidget_QTD.ui
   HexoticPluginGUI_SizeMapsWidget_QTD.ui
   HexoticPluginGUI_ViscousLayersWidget_QTD.ui
 )

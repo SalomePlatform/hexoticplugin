@@ -34,15 +34,17 @@
  */
 module HexoticPlugin
 {
+  typedef sequence<string> string_array;
+
   /*!
    * Type definitions for the size maps
    */
   struct HexoticPluginSizeMap {
-  string entry;
-  double size;
+    string entry;
+    double size;
   };
-  
-  typedef sequence<HexoticPluginSizeMap> HexoticPluginSizeMapsList;  
+
+  typedef sequence<HexoticPluginSizeMap> HexoticPluginSizeMapsList;
 
   /*!
    * HexoticPlugin_Hexotic: interface of Hexotic algorithm
@@ -68,45 +70,84 @@ module HexoticPlugin
     void SetMaxSize(in double value);
     double GetMaxSize();
 
+    void SetGeomApproxAngle(in double angle);
+    double GetGeomApproxAngle();
+
     void SetHexoticIgnoreRidges(in boolean value);
     boolean GetHexoticIgnoreRidges();
 
     void SetHexoticInvalidElements(in boolean value);
     boolean GetHexoticInvalidElements();
-   
+
     void SetHexoticSharpAngleThreshold(in double value);
     double GetHexoticSharpAngleThreshold();
-   
+
     void SetHexoticNbProc(in long value);
     long GetHexoticNbProc();
 
     void SetHexoticWorkingDirectory(in string path) raises (SALOME::SALOME_Exception);
     string GetHexoticWorkingDirectory();
-   
+
     void SetHexoticSdMode(in long value);
     long GetHexoticSdMode();
-   
+
     void SetHexoticVerbosity(in long value);
     long GetHexoticVerbosity();
 
     void SetHexoticMaxMemory(in long value);
     long GetHexoticMaxMemory();
-    
-    void SetAdvancedOption(in string option);
-    string GetAdvancedOption();
-    void SetTextOptions(in string option);// obsolete
-    string GetTextOptions();
 
-    void SetSizeMapEntry(in string entry, 
-                         in double size);
+    void SetKeepFiles(in boolean toKeep);
+    boolean GetKeepFiles();
+
+    void SetStandardOutputLog(in boolean logInStandardOutput);
+    boolean GetStandardOutputLog();
+
+    void SetRemoveLogOnSuccess(in boolean removeLogOnSuccess);
+    boolean GetRemoveLogOnSuccess();
+
+    /*!
+     * Set advanced option value
+     */
+    void SetOptionValue(in string optionName,
+                        in string optionValue) raises (SALOME::SALOME_Exception);
+    string GetOptionValue(in string optionName) raises (SALOME::SALOME_Exception);
+    void UnsetOption(in string optionName);
+    /*!
+     * Adds custom advanced option and its value
+     */
+    void SetAdvancedOption(in string optionsAndValues) // in a form "option_1 v1 option_2 v2'"
+      raises (SALOME::SALOME_Exception);
+    string GetAdvancedOption();
+    void AddOption(in string optionName, in string optionValue);
+    string GetOption(in string optionName);
+    void SetTextOptions(in string option);// obsolete
+    string GetTextOptions(); // obsolete
+    /*!
+     * Return array of strings each of which is option name concatenated
+     * with option value devided by semicolon - "option_name:option_value:option_type".
+     * Option value is empty if an option is not set.
+     * option_type: 1 if user-define, 0 if default
+     * Note: the method is mostly for interaction with GUI.
+     */
+    string_array GetOptionValues();
+    string_array GetAdvancedOptionValues();
+    /*!
+     * Set option values each in the form "option_name[:option_value][:option_type]".
+     * Note: the method is mostly for interaction with GUI.
+     */
+    void SetOptionValues(in string_array options) raises (SALOME::SALOME_Exception);
+    void SetAdvancedOptionValues(in string_array options);
+
+
+    void SetSizeMapEntry(in string entry, in double size);
     void UnsetSizeMapEntry(in string entry);
 
-    void SetSizeMap(in GEOM::GEOM_Object GeomObj, 
-                    in double size);
+    void SetSizeMap(in GEOM::GEOM_Object GeomObj, in double size);
     void UnsetSizeMap(in GEOM::GEOM_Object GeomObj);
 
     HexoticPluginSizeMapsList GetSizeMaps();
-    
+
     void SetNbLayers(in long theVal);
     long GetNbLayers();
 

@@ -32,11 +32,20 @@ enum {
   SD_MODE_4
 };
 
+enum {
+  OPTION_ID_COLUMN = 0,
+  OPTION_TYPE_COLUMN,
+  OPTION_NAME_COLUMN = 0,
+  OPTION_VALUE_COLUMN,
+  NB_COLUMNS,
+};
+
 //////////////////////////////////////////
 // HexoticPluginGUI_StdWidget
 //////////////////////////////////////////
 
 #include "ui_HexoticPluginGUI_StdWidget_QTD.h"
+#include "ui_HexoticPluginGUI_AdvWidget_QTD.h"
 #include "ui_HexoticPluginGUI_SizeMapsWidget_QTD.h"
 #include "ui_HexoticPluginGUI_ViscousLayersWidget_QTD.h"
 #include "HexoticPluginGUI.h"
@@ -53,11 +62,30 @@ public:
   ~HexoticPluginGUI_StdWidget();
 
 public slots:
-  void onDirBtnClicked();
   void onSdModeSelected(int sdMode);
+  void onSizeTypeChange(int);
 
 public:
   QPixmap imageSdMode;
+};
+
+class HEXOTICPLUGIN_GUI_EXPORT HexoticPluginGUI_AdvWidget : public QWidget,
+                                            public Ui::HexoticPluginGUI_AdvWidget_QTD
+{
+  Q_OBJECT
+
+public:
+  HexoticPluginGUI_AdvWidget( QWidget* = 0, Qt::WindowFlags = 0 );
+  ~HexoticPluginGUI_AdvWidget();
+
+  void AddOption( const char* name_value_type, bool isCustom = false );
+  void GetOptionAndValue( QTreeWidgetItem * tblRow, QString& option, QString& value, bool& dflt );
+
+public slots:
+
+  void onDirBtnClicked();
+  void itemChanged(QTreeWidgetItem * tblRow, int column);
+
 };
 
 class HEXOTICPLUGIN_GUI_EXPORT HexoticPluginGUI_SizeMapsWidget : public QWidget,

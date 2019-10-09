@@ -128,6 +128,13 @@ class Hexotic_Algorithm(Mesh_Algorithm):
         print("WARNING: Function MinMaxQuad is deprecated, use SetMinMaxHexes instead")
         return self.SetMinMaxHexes(min, max)
       
+    ## Set advanced option value
+    #  @param optionName option name
+    #  @param optionValue option value
+    def SetOptionValue(self, optionName, optionValue):
+        self.Parameters().SetOptionValue( optionName, optionValue )
+        pass
+
     ## Defines "ViscousLayers" hypothesis to give MG-Hexa parameters
     #  @param numberOfLayers number of boundary layers
     #  @param firstLayerSize height of the first layer
@@ -170,6 +177,28 @@ class Hexotic_Algorithm(Mesh_Algorithm):
         self.Parameters().SetImprintedFaces(imprintedFaces)
         
         return self.Parameters()
+
+    ## To keep working files or remove them.
+    #  @param toKeep "keep working files" flag value
+    def SetKeepFiles(self, toKeep):
+        self.Parameters().SetKeepFiles(toKeep)
+        pass
+    
+    ## Remove or not the log file (if any) in case of successful computation.
+    #  The log file remains in case of errors anyway. If 
+    #  the "keep working files" flag is set to true, this option
+    #  has no effect.
+    #  @param toRemove "remove log on success" flag value
+    def SetRemoveLogOnSuccess(self, toRemove):
+        self.Parameters().SetRemoveLogOnSuccess(toRemove)
+        pass
+    
+    ## Print the the log in a file. If set to false, the
+    # log is printed on the standard output
+    #  @param toPrintLogInFile "print log in a file" flag value
+    def SetPrintLogInFile(self, toPrintLogInFile):
+        self.Parameters().SetStandardOutputLog(not toPrintLogInFile)
+        pass
 
     ## Defines hypothesis having several parameters
     #  @return hypothesis object

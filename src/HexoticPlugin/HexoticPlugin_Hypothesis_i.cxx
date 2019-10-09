@@ -43,7 +43,6 @@ HexoticPlugin_Hypothesis_i (PortableServer::POA_ptr thePOA,
   : SALOME::GenericObj_i( thePOA ), 
     SMESH_Hypothesis_i( thePOA )
 {
-  MESSAGE( "HexoticPlugin_Hypothesis_i::HexoticPlugin_Hypothesis_i" );
   myBaseImpl = new ::HexoticPlugin_Hypothesis (theGenImpl->GetANewId(),
                                                theGenImpl);
 }
@@ -57,7 +56,6 @@ HexoticPlugin_Hypothesis_i (PortableServer::POA_ptr thePOA,
 //=============================================================================
 HexoticPlugin_Hypothesis_i::~HexoticPlugin_Hypothesis_i()
 {
-  MESSAGE( "HexoticPlugin_Hypothesis_i::~HexoticPlugin_Hypothesis_i" );
 }
 
 //=============================================================================
@@ -86,7 +84,6 @@ HexoticPlugin_Hypothesis_i::~HexoticPlugin_Hypothesis_i()
 
 void HexoticPlugin_Hypothesis_i::SetHexesMinLevel (CORBA::Long theValue)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexesMinLevel");
   ASSERT(myBaseImpl);
   CORBA::Long oldValue = GetHexesMinLevel();
   this->GetImpl()->SetHexesMinLevel(theValue);
@@ -96,7 +93,6 @@ void HexoticPlugin_Hypothesis_i::SetHexesMinLevel (CORBA::Long theValue)
 
 void HexoticPlugin_Hypothesis_i::SetHexesMaxLevel (CORBA::Long theValue)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexesMaxLevel");
   ASSERT(myBaseImpl);
   CORBA::Long oldValue = GetHexesMaxLevel();
   this->GetImpl()->SetHexesMaxLevel(theValue);
@@ -106,7 +102,6 @@ void HexoticPlugin_Hypothesis_i::SetHexesMaxLevel (CORBA::Long theValue)
 
 void HexoticPlugin_Hypothesis_i::SetMinSize (CORBA::Double theValue)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexesMaxLevel");
   ASSERT(myBaseImpl);
   CORBA::Double oldValue = GetMinSize();
   this->GetImpl()->SetMinSize(theValue);
@@ -116,7 +111,6 @@ void HexoticPlugin_Hypothesis_i::SetMinSize (CORBA::Double theValue)
 
 void HexoticPlugin_Hypothesis_i::SetMaxSize (CORBA::Double theValue)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexesMaxLevel");
   ASSERT(myBaseImpl);
   CORBA::Double oldValue = GetMaxSize();
   this->GetImpl()->SetMaxSize(theValue);
@@ -124,9 +118,21 @@ void HexoticPlugin_Hypothesis_i::SetMaxSize (CORBA::Double theValue)
     SMESH::TPythonDump() << _this() << ".SetMaxSize( " << theValue << " )";
 }
 
+void HexoticPlugin_Hypothesis_i::SetGeomApproxAngle(CORBA::Double angle)
+{
+  CORBA::Double oldValue = GetGeomApproxAngle();
+  this->GetImpl()->SetGeomApproxAngle( angle );
+  if (angle != oldValue)
+    SMESH::TPythonDump() << _this() << ".SetGeomApproxAngle( " << angle << " )";
+}
+
+CORBA::Double HexoticPlugin_Hypothesis_i::GetGeomApproxAngle()
+{
+  return this->GetImpl()->GetGeomApproxAngle();
+}
+
 void HexoticPlugin_Hypothesis_i::SetHexoticIgnoreRidges (CORBA::Boolean theValue)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexoticIgnoreRidges");
   ASSERT(myBaseImpl);
   CORBA::Boolean oldValue = GetHexoticIgnoreRidges();
   this->GetImpl()->SetHexoticIgnoreRidges(theValue);
@@ -136,7 +142,6 @@ void HexoticPlugin_Hypothesis_i::SetHexoticIgnoreRidges (CORBA::Boolean theValue
 
 void HexoticPlugin_Hypothesis_i::SetHexoticInvalidElements (CORBA::Boolean theValue)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexoticInvalidElements");
   ASSERT(myBaseImpl);
   CORBA::Boolean oldValue = GetHexoticInvalidElements();
   this->GetImpl()->SetHexoticInvalidElements(theValue);
@@ -146,7 +151,6 @@ void HexoticPlugin_Hypothesis_i::SetHexoticInvalidElements (CORBA::Boolean theVa
 
 void HexoticPlugin_Hypothesis_i::SetHexoticSharpAngleThreshold (CORBA::Double theValue)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexoticSharpAngleThreshold");
   ASSERT(myBaseImpl);
   CORBA::Double oldValue = GetHexoticSharpAngleThreshold();
   this->GetImpl()->SetHexoticSharpAngleThreshold(theValue);
@@ -156,7 +160,6 @@ void HexoticPlugin_Hypothesis_i::SetHexoticSharpAngleThreshold (CORBA::Double th
 
 void HexoticPlugin_Hypothesis_i::SetHexoticNbProc (CORBA::Long theValue)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexoticNbProc");
   ASSERT(myBaseImpl);
   CORBA::Long oldValue = GetHexoticNbProc();
   this->GetImpl()->SetHexoticNbProc(theValue);
@@ -190,9 +193,50 @@ void HexoticPlugin_Hypothesis_i::SetHexoticWorkingDirectory(const char* path) th
     SMESH::TPythonDump() << _this() << ".SetHexoticWorkingDirectory( '" << path << "' )";
 }
 
+void HexoticPlugin_Hypothesis_i::SetKeepFiles(::CORBA::Boolean toKeep)
+{
+  if ( GetKeepFiles() != toKeep )
+  {
+    this->GetImpl()->SetKeepFiles(toKeep);
+    SMESH::TPythonDump() << _this() << ".SetKeepFiles( " << toKeep << " )";
+  }
+}
+
+::CORBA::Boolean HexoticPlugin_Hypothesis_i::GetKeepFiles()
+{
+  return this->GetImpl()->GetKeepFiles();
+}
+
+void HexoticPlugin_Hypothesis_i::SetStandardOutputLog(::CORBA::Boolean logInStandardOutput)
+{
+  if ( GetStandardOutputLog() != logInStandardOutput )
+  {
+    this->GetImpl()->SetStandardOutputLog(logInStandardOutput);
+    SMESH::TPythonDump() << _this() << ".SetStandardOutputLog( " << logInStandardOutput << " )";
+  }
+}
+
+::CORBA::Boolean HexoticPlugin_Hypothesis_i::GetStandardOutputLog()
+{
+  return this->GetImpl()->GetStandardOutputLog();
+}
+
+void HexoticPlugin_Hypothesis_i::SetRemoveLogOnSuccess(::CORBA::Boolean removeLogOnSuccess)
+{
+  if ( GetRemoveLogOnSuccess() != removeLogOnSuccess )
+  {
+    this->GetImpl()->SetRemoveLogOnSuccess(removeLogOnSuccess);
+    SMESH::TPythonDump() << _this() << ".SetRemoveLogOnSuccess( " << removeLogOnSuccess << " )";
+  }
+}
+
+::CORBA::Boolean HexoticPlugin_Hypothesis_i::GetRemoveLogOnSuccess()
+{
+  return this->GetImpl()->GetRemoveLogOnSuccess();
+}
+
 void HexoticPlugin_Hypothesis_i::SetHexoticSdMode (CORBA::Long theValue)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexoticSdMode");
   ASSERT(myBaseImpl);
   CORBA::Long oldValue = GetHexoticSdMode();
   this->GetImpl()->SetHexoticSdMode(theValue);
@@ -202,7 +246,6 @@ void HexoticPlugin_Hypothesis_i::SetHexoticSdMode (CORBA::Long theValue)
 
 void HexoticPlugin_Hypothesis_i::SetHexoticVerbosity (CORBA::Long theValue)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetVerbosity");
   ASSERT(myBaseImpl);
   CORBA::Long oldValue = GetHexoticVerbosity();
   this->GetImpl()->SetHexoticVerbosity(theValue);
@@ -212,7 +255,6 @@ void HexoticPlugin_Hypothesis_i::SetHexoticVerbosity (CORBA::Long theValue)
 
 void HexoticPlugin_Hypothesis_i::SetHexoticMaxMemory (CORBA::Long theValue)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetHexoticMaxMemory");
   ASSERT(myBaseImpl);
   CORBA::Long oldValue = GetHexoticMaxMemory();
   this->GetImpl()->SetHexoticMaxMemory(theValue);
@@ -220,19 +262,264 @@ void HexoticPlugin_Hypothesis_i::SetHexoticMaxMemory (CORBA::Long theValue)
     SMESH::TPythonDump() << _this() << ".SetHexoticMaxMemory( " << theValue << " )";
 }
 
-void HexoticPlugin_Hypothesis_i::SetTextOptions(const char* theOptions)
+void HexoticPlugin_Hypothesis_i::SetOptionValue(const char* optionName, const char* optionValue)
+  throw (SALOME::SALOME_Exception)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetTextOptions");
   ASSERT(myBaseImpl);
-  std::string oldValue(GetAdvancedOption());
-  this->GetImpl()->SetAdvancedOption(theOptions);
-  if (theOptions != oldValue)
-    SMESH::TPythonDump() << _this() << ".SetAdvancedOption( '" << theOptions << "' )";
+  try {
+    std::string name( optionName );
+    if ( !optionValue || !optionValue[0] )
+      UnsetOption( optionName );
+
+    // options having corresponding methods
+
+    else if ( name == "max_memory" )
+      SetHexoticMaxMemory( GetImpl()->ToInt( optionValue ));
+
+    else if ( name == "min_level" )
+      SetHexesMinLevel( GetImpl()->ToInt( optionValue ));
+
+    else if ( name == "max_level" )
+      SetHexesMaxLevel( GetImpl()->ToInt( optionValue ));
+
+    else if ( name == "min_size" )
+      SetMinSize( GetImpl()->ToDbl( optionValue ));
+
+    else if ( name == "max_size" )
+      SetMaxSize( GetImpl()->ToDbl( optionValue ));
+
+    else if ( name == "ridge_angle" )
+      SetHexoticSharpAngleThreshold( GetImpl()->ToDbl( optionValue ));
+
+    else if ( name == "compute_ridges" )
+      SetHexoticIgnoreRidges( ! GetImpl()->ToBool( optionValue ));
+
+    else if ( name == "allow_invalid_elements" )
+      SetHexoticInvalidElements( GetImpl()->ToBool( optionValue ));
+
+    else if ( name == "max_number_of_threads" )
+      SetHexoticNbProc( GetImpl()->ToInt( optionValue ));
+
+    else if ( name == "verbose" )
+      SetHexoticVerbosity( GetImpl()->ToInt( optionValue ));
+
+    // advanced options (for backward compatibility)
+    // else if ( name == "create_tag_on_collision" ||
+    //           name == "tiny_edge_respect_geometry" )
+    //   AddOption( optionName, optionValue );
+
+    else {
+      bool valueChanged = true, isDefault;
+      try {
+        valueChanged = ( this->GetImpl()->GetOptionValue( name, &isDefault ) != optionValue );
+      }
+      catch ( std::invalid_argument ) {
+      }
+      if ( valueChanged )
+      {
+        this->GetImpl()->SetOptionValue(optionName, optionValue);
+        SMESH::TPythonDump() << _this() << ".SetOptionValue( '" << optionName << "', '" << optionValue << "' )";
+      }
+    }
+  } catch (const std::invalid_argument& ex) {
+    THROW_SALOME_CORBA_EXCEPTION( ex.what() ,SALOME::BAD_PARAM );
+  } catch (SALOME_Exception& ex) {
+    THROW_SALOME_CORBA_EXCEPTION( ex.what() ,SALOME::BAD_PARAM );
+  }
 }
 
-void HexoticPlugin_Hypothesis_i::SetAdvancedOption(const char* theOptions)
+//=============================================================================
+
+char* HexoticPlugin_Hypothesis_i::GetOptionValue(const char* optionName)
+  throw (SALOME::SALOME_Exception)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetAdvancedOption");
+  ASSERT(myBaseImpl);
+  try {
+    bool isDefault;
+    return CORBA::string_dup(this->GetImpl()->GetOptionValue(optionName,&isDefault).c_str());
+  } catch (const std::invalid_argument& ex) {
+    THROW_SALOME_CORBA_EXCEPTION( ex.what() ,SALOME::BAD_PARAM );
+  } catch (SALOME_Exception& ex) {
+    THROW_SALOME_CORBA_EXCEPTION( ex.what() ,SALOME::BAD_PARAM );
+  }
+  return 0;
+}
+
+//=============================================================================
+
+void HexoticPlugin_Hypothesis_i::UnsetOption(const char* optionName) {
+  ASSERT(myBaseImpl);
+  if ( !GetImpl()->GetOptionValue( optionName ).empty() )
+  {
+    this->GetImpl()->ClearOption(optionName);
+    SMESH::TPythonDump() << _this() << ".UnsetOption( '" << optionName << "' )";
+  }
+}
+
+//=============================================================================
+
+HexoticPlugin::string_array* HexoticPlugin_Hypothesis_i::GetOptionValues()
+{
+  HexoticPlugin::string_array_var result = new HexoticPlugin::string_array();
+
+  const ::HexoticPlugin_Hypothesis::TOptionValues & opts = this->GetImpl()->GetOptionValues();
+  result->length(opts.size());
+  int i=0;
+
+  bool isDefault;
+  ::HexoticPlugin_Hypothesis::TOptionValues::const_iterator opIt = opts.begin();
+  for (; opIt != opts.end(); ++opIt, ++i)
+  {
+    std::string name_value_type = opIt->first;
+    //if (!opIt->second.empty())
+    {
+      name_value_type += ":";
+      name_value_type += GetImpl()->GetOptionValue( opIt->first, &isDefault );
+      name_value_type += isDefault ? ":0" : ":1";
+    }
+    result[i] = CORBA::string_dup(name_value_type.c_str());
+  }
+
+  return result._retn();
+}
+
+//=============================================================================
+
+HexoticPlugin::string_array* HexoticPlugin_Hypothesis_i::GetAdvancedOptionValues()
+{
+  HexoticPlugin::string_array_var result = new HexoticPlugin::string_array();
+
+  const ::HexoticPlugin_Hypothesis::TOptionValues & custom_opts = this->GetImpl()->GetCustomOptionValues();
+  result->length(custom_opts.size());
+  int i=0;
+
+  ::HexoticPlugin_Hypothesis::TOptionValues::const_iterator opIt = custom_opts.begin();
+  for (; opIt != custom_opts.end(); ++opIt, ++i) {
+    std::string name_value_type = opIt->first;
+    if (!opIt->second.empty()) {
+      name_value_type += ":";
+      name_value_type += opIt->second;
+      name_value_type += ":1"; // user defined
+    }
+    result[i] = CORBA::string_dup(name_value_type.c_str());
+  }
+  return result._retn();
+}
+
+//=============================================================================
+
+void HexoticPlugin_Hypothesis_i::SetOptionValues(const HexoticPlugin::string_array& options)
+  throw (SALOME::SALOME_Exception)
+{
+  for (CORBA::ULong i = 0; i < options.length(); ++i)
+  {
+    std::string name_value_type = options[i].in();
+    if(name_value_type.empty())
+      continue;
+    size_t colonPos = name_value_type.find(':');
+    std::string name, value;
+    if (colonPos == std::string::npos) // ':' not found
+      name = name_value_type;
+    else {
+      name = name_value_type.substr(0, colonPos);
+      if (colonPos < name_value_type.size() - 1 && name_value_type[colonPos] != ' ') {
+        std::string value_type = name_value_type.substr(colonPos + 1);
+        colonPos = value_type.find(':');
+        value = value_type.substr(0, colonPos);
+        if (colonPos < value_type.size() - 1 && value_type[colonPos] != ' ')
+          if ( value_type.substr(colonPos + 1) == "0" ) // is default
+            value.clear();
+      }
+    }
+    SetOptionValue(name.c_str(), value.c_str());
+  }
+}
+
+//=============================================================================
+
+void HexoticPlugin_Hypothesis_i::SetAdvancedOptionValues(const HexoticPlugin::string_array& options)
+{
+  SMESH::TPythonDump dump;
+
+  std::string optionsAndValues;
+  for ( CORBA::ULong i = 0; i < options.length(); ++i) {
+    std::string name_value_type = options[i].in();
+    if(name_value_type.empty())
+      continue;
+    size_t colonPos = name_value_type.find(':');
+    std::string name, value;
+    if (colonPos == std::string::npos) // ':' not found
+      name = name_value_type;
+    else {
+      name = name_value_type.substr(0, colonPos);
+      if (colonPos < name_value_type.size() - 1 && name_value_type[colonPos] != ' ') {
+        std::string value_type = name_value_type.substr(colonPos + 1);
+        colonPos = value_type.find(':');
+        value = value_type.substr(0, colonPos);
+      }
+    }
+    AddOption(name.c_str(), value.c_str());
+
+    optionsAndValues += name + " " + value + " ";
+  }
+
+  if ( !optionsAndValues.empty() )
+    dump << _this() << ".SetAdvancedOptions( '" << optionsAndValues.c_str() << "' )";
+}
+
+//=============================================================================
+
+void HexoticPlugin_Hypothesis_i::SetAdvancedOption(const char* optionsAndValues)
+  throw (SALOME::SALOME_Exception)
+{
+  if ( !optionsAndValues ) return;
+
+  SMESH::TPythonDump dump;
+
+  std::istringstream strm( optionsAndValues );
+  std::istream_iterator<std::string> sIt( strm ), sEnd;
+  for ( int nbPairs = 0; sIt != sEnd; ++nbPairs )
+  {
+    std::string option = *sIt;
+    if ( ++sIt != sEnd )
+    {
+      std::string value = *sIt;
+      ++sIt;
+      AddOption( option.c_str(), value.c_str() );
+    }
+    else
+    {
+      if ( nbPairs > 0 )
+        THROW_SALOME_CORBA_EXCEPTION( "Uneven number of options and values" ,SALOME::BAD_PARAM );
+      AddOption( option.c_str(), "" );
+    }
+  }
+  dump << _this() << ".SetAdvancedOption( '" << optionsAndValues << "' )";
+}
+
+//=============================================================================
+
+void HexoticPlugin_Hypothesis_i::AddOption(const char* optionName, const char* optionValue)
+{
+  ASSERT(myBaseImpl);
+  bool valueChanged = ( !this->GetImpl()->HasOptionDefined(optionName) ||
+                        this->GetImpl()->GetOptionValue(optionName) != optionValue );
+  if (valueChanged) {
+    this->GetImpl()->SetOptionValue(optionName, optionValue);
+    SMESH::TPythonDump() << _this() << ".SetOptionValue( '" << optionName << "', '" << optionValue << "' )";
+  }
+}
+
+//=============================================================================
+
+char* HexoticPlugin_Hypothesis_i::GetOption(const char* optionName)
+{
+  ASSERT(myBaseImpl);
+  return CORBA::string_dup(this->GetImpl()->GetOptionValue(optionName).c_str());
+}
+
+void HexoticPlugin_Hypothesis_i::SetTextOptions(const char* theOptions)
+{
   ASSERT(myBaseImpl);
   std::string oldValue(GetAdvancedOption());
   this->GetImpl()->SetAdvancedOption(theOptions);
@@ -261,7 +548,6 @@ HexoticPlugin::HexoticPluginSizeMapsList* HexoticPlugin_Hypothesis_i::GetSizeMap
 
 void HexoticPlugin_Hypothesis_i::SetSizeMapEntry ( const char* theEntry, CORBA::Double theSize )
 {
-//   MESSAGE("HexoticPlugin_Hypothesis_i::SetSizeMapEntry");
   bool valueChanged = this->GetImpl()->AddSizeMap(theEntry, theSize);
   if (valueChanged)
     SMESH::TPythonDump() << _this() << ".SetSizeMap( "<< theEntry << ", " << theSize << " )";
@@ -269,7 +555,6 @@ void HexoticPlugin_Hypothesis_i::SetSizeMapEntry ( const char* theEntry, CORBA::
 
 void HexoticPlugin_Hypothesis_i::UnsetSizeMapEntry ( const char* theEntry )
 {
-//   MESSAGE("HexoticPlugin_Hypothesis_i::UnsetSizeMapEntry");
   bool entryRemoved = this->GetImpl()->UnsetSizeMap(theEntry);
   if (entryRemoved)
     SMESH::TPythonDump() << _this() << ".UnsetSizeMap( "<< theEntry << " )";
@@ -277,7 +562,6 @@ void HexoticPlugin_Hypothesis_i::UnsetSizeMapEntry ( const char* theEntry )
 
 void HexoticPlugin_Hypothesis_i::SetSizeMap (const GEOM::GEOM_Object_ptr theGeomObj, const double theSize)
 {
-//   MESSAGE("HexoticPlugin_Hypothesis_i::SetSizeMap");
   ASSERT(myBaseImpl);
   std::string entry = theGeomObj->GetStudyEntry();
   SetSizeMapEntry( entry.c_str(), theSize);
@@ -285,7 +569,6 @@ void HexoticPlugin_Hypothesis_i::SetSizeMap (const GEOM::GEOM_Object_ptr theGeom
 
 void HexoticPlugin_Hypothesis_i::UnsetSizeMap (const GEOM::GEOM_Object_ptr theGeomObj)
 {
-//   MESSAGE("HexoticPlugin_Hypothesis_i::UnsetSizeMap");
   ASSERT(myBaseImpl);
   std::string entry = theGeomObj->GetStudyEntry();
   UnsetSizeMapEntry( entry.c_str());
@@ -293,7 +576,6 @@ void HexoticPlugin_Hypothesis_i::UnsetSizeMap (const GEOM::GEOM_Object_ptr theGe
 
 void HexoticPlugin_Hypothesis_i::SetNbLayers(CORBA::Long theVal)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetNbLayers");
   ASSERT(myBaseImpl);
   CORBA::Long oldValue = GetNbLayers();
   this->GetImpl()->SetNbLayers(theVal);
@@ -303,7 +585,6 @@ void HexoticPlugin_Hypothesis_i::SetNbLayers(CORBA::Long theVal)
 
 void HexoticPlugin_Hypothesis_i::SetFirstLayerSize(CORBA::Double theVal)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetFirstLayerSize");
   ASSERT(myBaseImpl);
   CORBA::Double oldValue = GetFirstLayerSize();
   this->GetImpl()->SetFirstLayerSize(theVal);
@@ -313,7 +594,6 @@ void HexoticPlugin_Hypothesis_i::SetFirstLayerSize(CORBA::Double theVal)
 
 void HexoticPlugin_Hypothesis_i::SetDirection(CORBA::Boolean theVal)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetDirection");
   ASSERT(myBaseImpl);
   CORBA::Boolean oldValue = GetDirection();
   this->GetImpl()->SetDirection(theVal);
@@ -323,7 +603,6 @@ void HexoticPlugin_Hypothesis_i::SetDirection(CORBA::Boolean theVal)
 
 void HexoticPlugin_Hypothesis_i::SetGrowth(CORBA::Double theVal)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetGrowth");
   ASSERT(myBaseImpl);
   CORBA::Double oldValue = GetGrowth();
   this->GetImpl()->SetGrowth(theVal);
@@ -333,7 +612,6 @@ void HexoticPlugin_Hypothesis_i::SetGrowth(CORBA::Double theVal)
 
 void HexoticPlugin_Hypothesis_i::SetFacesWithLayers(const ::SMESH::long_array& theVal)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetFacesWithLayers");
   std::vector<int> ids( theVal.length() );
   for ( unsigned i = 0; i < ids.size(); ++i )
    ids[i] = theVal[i];
@@ -345,7 +623,6 @@ void HexoticPlugin_Hypothesis_i::SetFacesWithLayers(const ::SMESH::long_array& t
 
 void HexoticPlugin_Hypothesis_i::SetImprintedFaces(const ::SMESH::long_array& theVal)
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::SetImprintedFaces");
   std::vector<int> ids( theVal.length() );
   for ( unsigned i = 0; i < ids.size(); ++i )
    ids[i] = theVal[i];
@@ -381,56 +658,48 @@ void HexoticPlugin_Hypothesis_i::SetImprintedFaces(const ::SMESH::long_array& th
 
 CORBA::Long HexoticPlugin_Hypothesis_i::GetHexesMinLevel()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexesMinLevel");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetHexesMinLevel();
 }
 
 CORBA::Long HexoticPlugin_Hypothesis_i::GetHexesMaxLevel()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexesMaxLevel");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetHexesMaxLevel();
 }
 
 CORBA::Double HexoticPlugin_Hypothesis_i::GetMinSize()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetMinSize");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetMinSize();
 }
 
 CORBA::Double HexoticPlugin_Hypothesis_i::GetMaxSize()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetMaxSize");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetMaxSize();
 }
 
 CORBA::Boolean HexoticPlugin_Hypothesis_i::GetHexoticIgnoreRidges()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexoticIgnoreRidges");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetHexoticIgnoreRidges();
 }
 
 CORBA::Boolean HexoticPlugin_Hypothesis_i::GetHexoticInvalidElements()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexoticInvalidElements");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetHexoticInvalidElements();
 }
 
 CORBA::Double HexoticPlugin_Hypothesis_i::GetHexoticSharpAngleThreshold()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexoticSharpAngleThreshold");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetHexoticSharpAngleThreshold();
 }
 
 CORBA::Long HexoticPlugin_Hypothesis_i::GetHexoticNbProc()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexoticNbProc");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetHexoticNbProc();
 }
@@ -443,69 +712,59 @@ char* HexoticPlugin_Hypothesis_i::GetHexoticWorkingDirectory()
 
 CORBA::Long HexoticPlugin_Hypothesis_i::GetHexoticSdMode ()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexoticSdMode");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetHexoticSdMode();
 }
 
 CORBA::Long HexoticPlugin_Hypothesis_i::GetHexoticVerbosity()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetVerbosity");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetHexoticVerbosity();
 }
 
 CORBA::Long HexoticPlugin_Hypothesis_i::GetHexoticMaxMemory()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetHexoticMaxMemory");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetHexoticMaxMemory();
 }
 
 char* HexoticPlugin_Hypothesis_i::GetAdvancedOption()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetAdvancedOption");
   ASSERT(myBaseImpl);
-  return CORBA::string_dup( this->GetImpl()->GetAdvancedOption().c_str() );
+  return CORBA::string_dup( this->GetImpl()->GetAdvancedOption( /*customOnly=*/true ).c_str() );
 }
 char* HexoticPlugin_Hypothesis_i::GetTextOptions()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetTextOptions");
   ASSERT(myBaseImpl);
   return CORBA::string_dup( this->GetImpl()->GetAdvancedOption().c_str() );
 }
 
 CORBA::Long HexoticPlugin_Hypothesis_i::GetNbLayers()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetNbLayers");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetNbLayers();
 }
 
 CORBA::Double HexoticPlugin_Hypothesis_i::GetFirstLayerSize()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetFirstLayerSize");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetFirstLayerSize();
 }
 
 CORBA::Boolean HexoticPlugin_Hypothesis_i::GetDirection()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetDirection");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetDirection();
 }
 
 CORBA::Double HexoticPlugin_Hypothesis_i::GetGrowth()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetGrowth");
   ASSERT(myBaseImpl);
   return this->GetImpl()->GetGrowth();
 }
 
 SMESH::long_array* HexoticPlugin_Hypothesis_i::GetFacesWithLayers()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetFacesWithLayers");
   ASSERT(myBaseImpl);
   std::vector<int> idsVec = this->GetImpl()->GetFacesWithLayers();
   SMESH::long_array_var ids = new SMESH::long_array;
@@ -517,7 +776,6 @@ SMESH::long_array* HexoticPlugin_Hypothesis_i::GetFacesWithLayers()
 
 SMESH::long_array* HexoticPlugin_Hypothesis_i::GetImprintedFaces()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetImprintedFaces");
   ASSERT(myBaseImpl);
   std::vector<int> idsVec = this->GetImpl()->GetImprintedFaces();
   SMESH::long_array_var ids = new SMESH::long_array;
@@ -535,7 +793,6 @@ SMESH::long_array* HexoticPlugin_Hypothesis_i::GetImprintedFaces()
 //=============================================================================
 ::HexoticPlugin_Hypothesis* HexoticPlugin_Hypothesis_i::GetImpl()
 {
-  // MESSAGE("HexoticPlugin_Hypothesis_i::GetImpl");
   return (::HexoticPlugin_Hypothesis*)myBaseImpl;
 }
 

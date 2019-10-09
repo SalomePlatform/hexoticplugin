@@ -54,42 +54,36 @@ HexoticPluginGUI_StdWidget::HexoticPluginGUI_StdWidget( QWidget* parent, Qt::Win
   myMaxSize->setPrecision(precision);
 //  myMaxSize->setSpecialValueText(" ");
 
-  myHexesMinLevel->setMinimum(0);
-  myHexesMinLevel->setMaximum(10);
-//  myHexesMinLevel->setSpecialValueText(" ");
-
-  myHexesMaxLevel->setMinimum(0);
-  myHexesMaxLevel->setMaximum(10);
-//  myHexesMaxLevel->setSpecialValueText(" ");
-
-  myHexoticSharpAngleThreshold->setMinimum(0);
-  myHexoticSharpAngleThreshold->setMaximum(90);
-  myHexoticSharpAngleThreshold->setPrecision(precision);
-//  myHexoticSharpAngleThreshold->setSpecialValueText(" ");
-
-  myHexoticNbProc->setMinimum( 1 );
-  myHexoticNbProc->setMaximum( 256 );
-//  myHexoticNbProc->setSingleStep( 1 );
+  myGeomApproxAngle->RangeStepAndValidator( 0, 180, 1, "angle_precision" );
 
   myHexoticSdMode->setCurrentIndex(SD_MODE_4);
 
   imageSdMode = SUIT_Session::session()->resourceMgr()->loadPixmap("HexoticPLUGIN", tr("Hexotic_SD_MODE_4_PIXMAP"));
+
+  connect( myPhySizeType,  SIGNAL( currentIndexChanged(int)), SLOT( onSizeTypeChange(int) ));
+  connect( myGeomSizeType, SIGNAL( currentIndexChanged(int)), SLOT( onSizeTypeChange(int) ));
 }
 
 HexoticPluginGUI_StdWidget::~HexoticPluginGUI_StdWidget()
 {
 }
-
-void HexoticPluginGUI_StdWidget::onDirBtnClicked()
-{
-  QString dir = SUIT_FileDlg::getExistingDirectory( this, myHexoticWorkingDir->text(), QString() );
-  if ( !dir.isEmpty() )
-          myHexoticWorkingDir->setText( dir );
-}
-
 void HexoticPluginGUI_StdWidget::onSdModeSelected(int sdMode) {
   imageSdMode = SUIT_Session::session()->resourceMgr()->loadPixmap("HexoticPLUGIN", tr(QString("Hexotic_SD_MODE_%1_PIXMAP").arg(sdMode+1).toStdString().c_str()));
   sdModeLabel->setPixmap(imageSdMode.scaled(sdModeLabel->size(),
       Qt::KeepAspectRatio,
       Qt::SmoothTransformation));
 }
+
+void HexoticPluginGUI_StdWidget::onSizeTypeChange(int index)
+{
+  if ( sender() == myPhySizeType )
+  {
+    myMinSize->setEnabled( index );
+    myMaxSize->setEnabled( index );
+  }
+  else
+  {
+    myGeomApproxAngle->setEnabled( index );
+  }
+}
+

@@ -26,12 +26,13 @@
 #define HexoticPLUGINGUI_HypothesisCreator_H
 
 #include "HexoticPluginGUI.h"
-
-#include <SMESHGUI_Hypotheses.h>
-#include "StdMeshersGUI_ObjectReferenceParamWdg.h"
 #include "HexoticPlugin_Hypothesis.hxx"
 
+#include <SMESHGUI_Hypotheses.h>
+#include <StdMeshersGUI_ObjectReferenceParamWdg.h>
 #include <QItemDelegate>
+
+#include CORBA_SERVER_HEADER(HexoticPlugin_Algorithm)
 
 class QtxIntSpinBox;
 class QCheckBox;
@@ -39,6 +40,7 @@ class QLineEdit;
 class QTableWidgetItem;
 
 class HexoticPluginGUI_StdWidget;
+class HexoticPluginGUI_AdvWidget;
 class HexoticPluginGUI_SizeMapsWidget;
 class HexoticPluginGUI_ViscousLayersWidget;
 class SMESH_AdvOptionsWdg;
@@ -47,7 +49,7 @@ typedef struct
 {
   QString  myName;
   int      myHexesMinLevel, myHexesMaxLevel;
-  double   myMinSize, myMaxSize;
+  double   myMinSize, myMaxSize, myApproxAngle;
   bool     myHexoticInvalidElements;
   bool     myHexoticIgnoreRidges;
   double   myHexoticSharpAngleThreshold;
@@ -57,6 +59,7 @@ typedef struct
   int      myHexoticMaxMemory;
   int      myHexoticSdMode;
   QString  myTextOptions;
+  bool     myKeepFiles,myLogInStandardOutput, myRemoveLogOnSuccess;
   HexoticPlugin_Hypothesis::THexoticSizeMaps mySizeMaps;
   int      myNbLayers;
   double   myFirstLayerSize;
@@ -103,12 +106,13 @@ private:
 private:
 
 //  QWidget*            myStdGroup;
-  QLineEdit*    myName;
-  HexoticPluginGUI_StdWidget*            myStdWidget;
-  SMESH_AdvOptionsWdg*                   myAdvWidget;
-  HexoticPluginGUI_SizeMapsWidget*       mySmpWidget;
-  HexoticPluginGUI_ViscousLayersWidget*  myVLWidget;
-  StdMeshersGUI_ObjectReferenceParamWdg* myGeomSelWdg;
+  QLineEdit*                              myName;
+  HexoticPluginGUI_StdWidget*             myStdWidget;
+  HexoticPluginGUI_AdvWidget*             myAdvWidget;
+  mutable HexoticPlugin::string_array_var myOptions, myCustomOptions;
+  HexoticPluginGUI_SizeMapsWidget*        mySmpWidget;
+  HexoticPluginGUI_ViscousLayersWidget*   myVLWidget;
+  StdMeshersGUI_ObjectReferenceParamWdg*  myGeomSelWdg;
 
   bool                           myIs3D;
   std::vector< std::string >     mySizeMapsToRemove;

@@ -655,6 +655,7 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _hexesMaxLevel = hyp->GetHexesMaxLevel();
     _hexesMinSize = hyp->GetMinSize();
     _hexesMaxSize = hyp->GetMaxSize();
+    _approxAngle = hyp->GetGeomApproxAngle();
     _hexoticIgnoreRidges = hyp->GetHexoticIgnoreRidges();
     _hexoticInvalidElements = hyp->GetHexoticInvalidElements();
     _hexoticSharpAngleThreshold = hyp->GetHexoticSharpAngleThreshold();
@@ -671,6 +672,9 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _growth = hyp->GetGrowth();
     _facesWithLayers = hyp->GetFacesWithLayers();
     _imprintedFaces = hyp->GetImprintedFaces();
+    _keepFiles = hyp->GetKeepFiles();
+    _removeLogOnSuccess = hyp->GetRemoveLogOnSuccess();
+    _logInStandardOutput = hyp->GetStandardOutputLog();
   }
   else {
     cout << std::endl;
@@ -680,6 +684,7 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _hexesMaxLevel = hyp->GetDefaultHexesMaxLevel();
     _hexesMinSize = hyp->GetDefaultMinSize();
     _hexesMaxSize = hyp->GetDefaultMaxSize();
+    _approxAngle = hyp->GetDefaultGeomApproxAngle();
     _hexoticIgnoreRidges = hyp->GetDefaultHexoticIgnoreRidges();
     _hexoticInvalidElements = hyp->GetDefaultHexoticInvalidElements();
     _hexoticSharpAngleThreshold = hyp->GetDefaultHexoticSharpAngleThreshold();
@@ -696,6 +701,9 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _growth = hyp->GetDefaultGrowth();
     _facesWithLayers = hyp->GetDefaultFacesWithLayers();
     _imprintedFaces = hyp->GetDefaultImprintedFaces();
+    _keepFiles = hyp->GetDefaultKeepFiles();
+    _removeLogOnSuccess = hyp->GetDefaultRemoveLogOnSuccess();
+    _logInStandardOutput = hyp->GetDefaultStandardOutputLog();
   }
 }
 
@@ -1116,35 +1124,45 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
                      &aHelper, _nbShape, tabShape, tabBox );
 
     std::string log = mgHexa.GetLog();
+    hexahedraMessage = "failed";
     if ( Ok )
     {
       hexahedraMessage = "success";
-#ifndef _DEBUG_
-      removeFile(Hexotic_Out);
-      removeFile(Hexotic_In);
-      //removeFile(aLogFileName);
-      for( size_t i=0; i<sizeMapFiles.size(); i++)
-      {
-        removeFile( TCollection_AsciiString( sizeMapFiles[i].c_str() ) );
-      }
-#endif
+      if ( _removeLogOnSuccess )
+        removeFile( aLogFileName );
     }
-    else
+    else if ( !log.empty() )
     {
-      hexahedraMessage = "failed";
-      if ( mgHexa.IsExecutable() )
-        cout << "Problem with MG-Hexa output file " << Hexotic_Out.ToCString() << std::endl;
-      // analyse log file
-      if ( !log.empty() )
+      if( _computeCanceled )
+        error( "interruption initiated by user" );
+      else
       {
+        // get problem description from the log file
         char msgLic[] = " Dlim ";
-        std::string log = mgHexa.GetLog();
         const char* fileBeg = &log[0], *fileEnd = fileBeg + log.size();
         if ( std::search( fileBeg, fileEnd, msgLic, msgLic+strlen(msgLic)) != fileEnd )
           error("Licence problems.");
       }
-      if ( !errStr.empty() )
-        error(errStr);
+    }
+    else if ( !errStr.empty() )
+    {
+      // the log file is empty
+      removeFile( aLogFileName );
+      INFOS( "MG-Hexa Error, " << errStr);
+      error(COMPERR_ALGO_FAILED, errStr);
+    }
+
+    if ( !Ok && mgHexa.IsExecutable() )
+      cout << "Problem with MG-Hexa output file " << Hexotic_Out.ToCString() << std::endl;
+
+    if ( !_keepFiles )
+    {
+      if (! Ok && _computeCanceled )
+        removeFile( aLogFileName );
+      removeFile(Hexotic_Out);
+      removeFile(Hexotic_In);
+      for ( size_t i = 0; i < sizeMapFiles.size(); i++ )
+        removeFile( sizeMapFiles[i].c_str() );
     }
     cout << "Hexahedra meshing " << hexahedraMessage << std::endl;
     cout << std::endl;
@@ -1156,9 +1174,6 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     _nbShape = 0;
     _iShape  = 0;
   }
-
-  if(_computeCanceled)
-    return error(SMESH_Comment("interruption initiated by user"));
 
   return Ok;
 }
@@ -1177,7 +1192,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
 bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHelper)
 {
   _computeCanceled = false;
-/*
+  /*
   SMESH_ComputeErrorPtr myError = SMESH_ComputeError::New();
 */
   bool Ok = true;

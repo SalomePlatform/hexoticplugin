@@ -59,20 +59,32 @@ class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
   void SetMaxSize(CORBA::Double theVal);
   CORBA::Double GetMaxSize();
 
+  void SetGeomApproxAngle(CORBA::Double angle);
+  CORBA::Double GetGeomApproxAngle();
+
   void SetHexoticIgnoreRidges(CORBA::Boolean theVal);
   CORBA::Boolean GetHexoticIgnoreRidges();
-  
+
   void SetHexoticInvalidElements(CORBA::Boolean theVal);
   CORBA::Boolean GetHexoticInvalidElements();
-  
+
   void SetHexoticSharpAngleThreshold(CORBA::Double theVal);
   CORBA::Double GetHexoticSharpAngleThreshold();
-  
+
   void SetHexoticNbProc(CORBA::Long theVal);
   CORBA::Long GetHexoticNbProc();
-  
+
   void SetHexoticWorkingDirectory(const char* path) throw ( SALOME::SALOME_Exception );
   char* GetHexoticWorkingDirectory();
+
+  void SetKeepFiles(::CORBA::Boolean toKeep);
+  ::CORBA::Boolean GetKeepFiles();
+
+  void SetStandardOutputLog(::CORBA::Boolean logInStandardOutput);
+  ::CORBA::Boolean GetStandardOutputLog();
+
+  void SetRemoveLogOnSuccess(::CORBA::Boolean removeLogOnSuccess);
+  ::CORBA::Boolean GetRemoveLogOnSuccess();
 
   void SetHexoticSdMode(CORBA::Long value);
   CORBA::Long GetHexoticSdMode();
@@ -82,15 +94,27 @@ class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
 
   void SetHexoticMaxMemory(CORBA::Long theVal);
   CORBA::Long GetHexoticMaxMemory();
-  
-  void SetAdvancedOption(const char* theOptions);
+
+  void SetAdvancedOption(const char* theOptions) throw (SALOME::SALOME_Exception);
   char* GetAdvancedOption();
   void SetTextOptions(const char* theOptions); // obsolete
   char* GetTextOptions();
 
+  void SetOptionValue(const char* optionName, const char* optionValue) throw (SALOME::SALOME_Exception);
+  char* GetOptionValue(const char* optionName) throw (SALOME::SALOME_Exception);
+  void UnsetOption(const char* optionName);
+
+  HexoticPlugin::string_array* GetOptionValues();
+  HexoticPlugin::string_array* GetAdvancedOptionValues();
+
+  void SetOptionValues(const HexoticPlugin::string_array& options) throw (SALOME::SALOME_Exception);
+  void SetAdvancedOptionValues(const HexoticPlugin::string_array& options);
+
+  void AddOption(const char* optionName, const char* optionValue);
+  char* GetOption(const char* optionName);
   void SetSizeMapEntry(const char* theEntry, CORBA::Double theSize);
   void UnsetSizeMapEntry(const char* theEntry);
-  
+
   void SetSizeMap(GEOM::GEOM_Object_ptr theGeomObj, double theSize);
   void UnsetSizeMap(GEOM::GEOM_Object_ptr theGeomObj);
   HexoticPlugin::HexoticPluginSizeMapsList* GetSizeMaps ();

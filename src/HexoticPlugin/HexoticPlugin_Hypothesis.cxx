@@ -26,10 +26,20 @@
 #include <utilities.h>
 
 #include <TCollection_AsciiString.hxx>
+#include <SMESH_Comment.hxx>
+
+namespace
+{
+  struct GET_DEFAULT // struct used to get default value from GetOptionValue()
+  {
+    bool isDefault;
+    operator bool* () { return &isDefault; }
+  };
+}
 
 //=============================================================================
 /*!
- *  
+ *
  */
 //=============================================================================
 HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, SMESH_Gen* gen)
@@ -38,16 +48,18 @@ HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, SMESH_Gen* gen)
     _hexesMaxLevel( GetDefaultHexesMaxLevel() ),
     _minSize( GetDefaultMinSize() ),
     _maxSize( GetDefaultMaxSize() ),
+    _approxAngle( GetDefaultGeomApproxAngle() ),
     _hexoticIgnoreRidges( GetDefaultHexoticIgnoreRidges() ),
-    _hexoticInvalidElements( GetDefaultHexoticInvalidElements() ), 
+    _hexoticInvalidElements( GetDefaultHexoticInvalidElements() ),
     _hexoticSharpAngleThreshold( GetDefaultHexoticSharpAngleThreshold() ),
     _hexoticNbProc( GetDefaultHexoticNbProc() ),
     _hexoticSdMode(GetDefaultHexoticSdMode()),
     _hexoticVerbosity(GetDefaultHexoticVerbosity()),
     _hexoticMaxMemory(GetDefaultHexoticMaxMemory()),
-    _textOptions(GetDefaultTextOptions()),
-    _sizeMaps(GetDefaultHexoticSizeMaps()),
     _hexoticWorkingDirectory( GetDefaultHexoticWorkingDirectory() ),
+    _logInStandardOutput( GetDefaultStandardOutputLog() ),
+    _removeLogOnSuccess( GetDefaultRemoveLogOnSuccess() ),
+    _keepFiles( GetDefaultKeepFiles() ),
     _nbLayers(GetDefaultNbLayers()),
     _firstLayerSize(GetDefaultFirstLayerSize()),
     _direction(GetDefaultDirection()),
@@ -58,68 +70,135 @@ HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis (int hypId, SMESH_Gen* gen)
   MESSAGE("HexoticPlugin_Hypothesis::HexoticPlugin_Hypothesis");
   _name = GetHypType();
   _param_algo_dim = 3;
+
+  const char* boolOptionNames[] = { "allow_invalid_elements",
+                                    "enforce_constant_layer_size",
+                                    "compute_ridges",
+                                    "flatten_hexa_sides",
+                                    "recover_sharp_angles",
+                                    "" // mark of end
+  };
+  const char* intOptionNames[] = { "max_memory",            // 2048
+                                   "max_number_of_threads", // 4
+                                   "min_level",             // 6
+                                   "max_level",             // 10
+                                   "sizemap_level",         // 10
+                                   "" // mark of end
+  };
+  const char* doubleOptionNames[] = { "ridge_angle",  // 60
+                                      "" // mark of end
+  };
+  const char* charOptionNames[] = { "element_order",   // linear
+                                    "tags",            // respect
+                                    "" // mark of end
+  };
+
+  int i = 0;
+  while (boolOptionNames[i][0])
+  {
+    _boolOptions.insert( boolOptionNames[i] );
+    _option2value[boolOptionNames[i++]].clear();
+  }
+  i = 0;
+  while (intOptionNames[i][0])
+    _option2value[intOptionNames[i++]].clear();
+
+  i = 0;
+  while (doubleOptionNames[i][0]) {
+    _doubleOptions.insert(doubleOptionNames[i]);
+    _option2value[doubleOptionNames[i++]].clear();
+  }
+  i = 0;
+  while (charOptionNames[i][0]) {
+    _charOptions.insert(charOptionNames[i]);
+    _option2value[charOptionNames[i++]].clear();
+  }
+
+  // default values to be used while MG meshing
+
+  _defaultOptionValues["allow_invalid_elements"     ] = "no";
+  _defaultOptionValues["enforce_constant_layer_size"] = "no";
+  _defaultOptionValues["compute_ridges"             ] = "yes";
+  _defaultOptionValues["flatten_hexa_sides"         ] = "no";
+  _defaultOptionValues["recover_sharp_angles"       ] = "yes";
+  _defaultOptionValues["max_memory"                 ] = "2048";
+  _defaultOptionValues["max_number_of_threads"      ] = "4";
+  _defaultOptionValues["min_level"                  ] = "6";
+  _defaultOptionValues["max_level"                  ] = "10";
+  _defaultOptionValues["sizemap_level"              ] = "10";
+  _defaultOptionValues["ridge_angle"                ] = "60";
+  _defaultOptionValues["element_order"              ] = "linear";
+  _defaultOptionValues["tags"                       ] = "respect";
+
+#ifdef _DEBUG_
+  // check validity of option names of _defaultOptionValues
+  TOptionValues::iterator n2v = _defaultOptionValues.begin();
+  for ( ; n2v != _defaultOptionValues.end(); ++n2v )
+    ASSERT( _option2value.count( n2v->first ));
+  ASSERT( _option2value.size() == _defaultOptionValues.size() );
+#endif
 }
 
 //=============================================================================
 /*!
- *  
+ *
  */
 //=============================================================================
 
-void HexoticPlugin_Hypothesis::SetHexesMinLevel(int theVal) {
-  if (theVal != _hexesMinLevel) {
-    _hexesMinLevel = theVal;
-    NotifySubMeshesHypothesisModification();
-  }
+void HexoticPlugin_Hypothesis::SetHexesMinLevel(int theVal)
+{
+  SetOptionValue( "min_level", SMESH_Comment( theVal ));
+  _hexesMinLevel = theVal;
 }
 
-void HexoticPlugin_Hypothesis::SetHexesMaxLevel(int theVal) {
-  if (theVal != _hexesMaxLevel) {
-    _hexesMaxLevel = theVal;
-    NotifySubMeshesHypothesisModification();
-  }
+void HexoticPlugin_Hypothesis::SetHexesMaxLevel(int theVal)
+{
+  SetOptionValue( "max_level", SMESH_Comment( theVal ));
+  _hexesMaxLevel = theVal;
 }
 
 void HexoticPlugin_Hypothesis::SetMinSize(double theVal) {
   if (theVal != _minSize) {
-          _minSize = theVal;
+    _minSize = theVal;
     NotifySubMeshesHypothesisModification();
   }
 }
 
 void HexoticPlugin_Hypothesis::SetMaxSize(double theVal) {
   if (theVal != _maxSize) {
-          _maxSize = theVal;
+    _maxSize = theVal;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
+void HexoticPlugin_Hypothesis::SetGeomApproxAngle(double theVal) {
+  if (theVal != _approxAngle) {
+    _approxAngle = theVal;
     NotifySubMeshesHypothesisModification();
   }
 }
 
 void HexoticPlugin_Hypothesis::SetHexoticIgnoreRidges(bool theVal) {
-  if (theVal != _hexoticIgnoreRidges) {
-    _hexoticIgnoreRidges = theVal;
-    NotifySubMeshesHypothesisModification();
-  }
+  SetOptionValue( "compute_ridges", theVal ? "no" : "yes" );
+  _hexoticIgnoreRidges = theVal;
 }
 
-void HexoticPlugin_Hypothesis::SetHexoticInvalidElements(bool theVal) {
-  if (theVal != _hexoticInvalidElements) {
-    _hexoticInvalidElements = theVal;
-    NotifySubMeshesHypothesisModification();
-  }
+void HexoticPlugin_Hypothesis::SetHexoticInvalidElements(bool theVal)
+{
+  SetOptionValue( "allow_invalid_elements", theVal ? "yes" : "no" );
+  _hexoticInvalidElements = theVal;
 }
 
-void HexoticPlugin_Hypothesis::SetHexoticSharpAngleThreshold(double theVal) {
-  if (theVal != _hexoticSharpAngleThreshold) {
-    _hexoticSharpAngleThreshold = theVal;
-    NotifySubMeshesHypothesisModification();
-  }
+void HexoticPlugin_Hypothesis::SetHexoticSharpAngleThreshold(double theVal)
+{
+  SetOptionValue( "ridge_angle", SMESH_Comment( theVal ));
+  _hexoticSharpAngleThreshold = theVal;
 }
 
-void HexoticPlugin_Hypothesis::SetHexoticNbProc(int theVal) {
-  if (theVal != _hexoticNbProc) {
-    _hexoticNbProc = theVal;
-    NotifySubMeshesHypothesisModification();
-  }
+void HexoticPlugin_Hypothesis::SetHexoticNbProc(int theVal)
+{
+  SetOptionValue( "max_number_of_threads", SMESH_Comment( theVal ));
+  _hexoticNbProc = theVal;
 }
 
 void HexoticPlugin_Hypothesis::SetHexoticWorkingDirectory(const std::string& path)
@@ -154,35 +233,314 @@ void HexoticPlugin_Hypothesis::SetHexoticVerbosity(int theVal) {
   }
 }
 
-void HexoticPlugin_Hypothesis::SetHexoticMaxMemory(int theVal) {
-  if (theVal != _hexoticMaxMemory) {
-    _hexoticMaxMemory = theVal;
+void HexoticPlugin_Hypothesis::SetHexoticMaxMemory(int theVal)
+{
+  SetOptionValue( "max_memory", SMESH_Comment( theVal ));
+  _hexoticMaxMemory = theVal;
+}
+
+void HexoticPlugin_Hypothesis::SetKeepFiles(bool toKeep)
+{
+  if ( _keepFiles != toKeep ) {
+    _keepFiles = toKeep;
     NotifySubMeshesHypothesisModification();
   }
 }
 
-void HexoticPlugin_Hypothesis::SetAdvancedOption(const std::string& theOptions)
+void HexoticPlugin_Hypothesis::SetStandardOutputLog(bool logInStandardOutput)
 {
-  if (_textOptions != theOptions ) {
-    _textOptions = theOptions;
-    NotifySubMeshesHypothesisModification();
-  }
-}
-void HexoticPlugin_Hypothesis::SetTextOptions(const std::string& theOptions)
-{
-  if (_textOptions != theOptions ) {
-    _textOptions = theOptions;
+  if ( _logInStandardOutput != logInStandardOutput ) {
+    _logInStandardOutput = logInStandardOutput;
     NotifySubMeshesHypothesisModification();
   }
 }
 
-bool HexoticPlugin_Hypothesis::AddSizeMap(std::string theEntry, double theSize) {
+void HexoticPlugin_Hypothesis::SetRemoveLogOnSuccess(bool removeLogOnSuccess)
+{
+  if ( _removeLogOnSuccess != removeLogOnSuccess ) {
+    _removeLogOnSuccess = removeLogOnSuccess;
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
+void HexoticPlugin_Hypothesis::SetOptionValue(const std::string& optionName,
+                                              const std::string& optionValue)
+  throw (std::invalid_argument)
+{
+  TOptionValues::iterator op_val = _option2value.find(optionName);
+  if (op_val == _option2value.end())
+  {
+    op_val = _customOption2value.find( optionName );
+    if ( op_val != _customOption2value.end() && op_val->second != optionValue )
+      NotifySubMeshesHypothesisModification();
+    _customOption2value[ optionName ] = optionValue;
+    return;
+  }
+
+  if (op_val->second != optionValue)
+  {
+    const char* ptr = optionValue.c_str();
+    // strip white spaces
+    while (ptr[0] == ' ')
+      ptr++;
+    int i = strlen(ptr);
+    while (i != 0 && ptr[i - 1] == ' ')
+      i--;
+    // check value type
+    bool typeOk = true;
+    std::string typeName;
+    if (i == 0) {
+      // empty string
+    } else if (_charOptions.count(optionName)) {
+      // do not check strings
+    } else if (_doubleOptions.count(optionName)) {
+      // check if value is double
+      ToDbl(ptr, &typeOk);
+      typeName = "real";
+    } else if (_boolOptions.count(optionName)) {
+      // check if value is bool
+      ToBool(ptr, &typeOk);
+      typeName = "bool";
+    } else {
+      // check if value is int
+      ToInt(ptr, &typeOk);
+      typeName = "integer";
+    }
+    if ( typeOk ) // check some specific values ?
+    {
+    }
+    if ( !typeOk )
+    {
+      std::string msg = "Advanced option '" + optionName + "' = '" + optionValue + "' but must be " + typeName;
+      throw std::invalid_argument(msg);
+    }
+    std::string value( ptr, i );
+    if ( _defaultOptionValues[ optionName ] == value )
+      value.clear();
+
+    op_val->second = value;
+
+    NotifySubMeshesHypothesisModification();
+  }
+}
+
+//=============================================================================
+//! Return option value. If isDefault provided, it can be a default value,
+//  then *isDefault == true. If isDefault is not provided, the value will be
+//  empty if it equals a default one.
+std::string HexoticPlugin_Hypothesis::GetOptionValue(const std::string& optionName,
+                                                     bool*              isDefault) const
+  throw (std::invalid_argument)
+{
+  TOptionValues::const_iterator op_val = _option2value.find(optionName);
+  if (op_val == _option2value.end())
+  {
+    op_val = _customOption2value.find(optionName);
+    if (op_val == _customOption2value.end())
+    {
+      std::string msg = "Unknown MG-Tetra option: <" + optionName + ">";
+      throw std::invalid_argument(msg);
+    }
+  }
+  std::string val = op_val->second;
+  if ( isDefault ) *isDefault = ( val.empty() );
+
+  if ( val.empty() && isDefault )
+  {
+    op_val = _defaultOptionValues.find( optionName );
+    if (op_val != _defaultOptionValues.end())
+      val = op_val->second;
+  }
+  return val;
+}
+
+
+//=============================================================================
+bool HexoticPlugin_Hypothesis::HasOptionDefined( const std::string& optionName ) const
+{
+  bool isDefault = false;
+  try
+  {
+    GetOptionValue( optionName, &isDefault );
+  }
+  catch ( std::invalid_argument )
+  {
+    return false;
+  }
+  return !isDefault;
+}
+
+//=============================================================================
+void HexoticPlugin_Hypothesis::ClearOption(const std::string& optionName)
+{
+  TOptionValues::iterator op_val = _customOption2value.find(optionName);
+  if (op_val != _customOption2value.end())
+    _customOption2value.erase(op_val);
+  else {
+    op_val = _option2value.find(optionName);
+    if (op_val != _option2value.end())
+      op_val->second.clear();
+  }
+}
+
+//=============================================================================
+HexoticPlugin_Hypothesis::TOptionValues HexoticPlugin_Hypothesis::GetOptionValues() const
+{
+  TOptionValues vals;
+  TOptionValues::const_iterator op_val = _option2value.begin();
+  for ( ; op_val != _option2value.end(); ++op_val )
+    vals.insert( make_pair( op_val->first, GetOptionValue( op_val->first, GET_DEFAULT() )));
+
+  return vals;
+}
+
+//================================================================================
+/*!
+ * \brief Converts a string to a bool
+ */
+//================================================================================
+
+bool HexoticPlugin_Hypothesis::ToBool(const std::string& str, bool* isOk )
+  throw (std::invalid_argument)
+{
+  std::string s = str;
+  if ( isOk ) *isOk = true;
+
+  for ( size_t i = 0; i <= s.size(); ++i )
+    s[i] = tolower( s[i] );
+
+  if ( s == "1" || s == "true" || s == "active" || s == "yes" )
+    return true;
+
+  if ( s == "0" || s == "false" || s == "inactive" || s == "no" )
+    return false;
+
+  if ( isOk )
+    *isOk = false;
+  else {
+    std::string msg = "Not a Boolean value:'" + str + "'";
+    throw std::invalid_argument(msg);
+  }
+  return false;
+}
+
+//================================================================================
+/*!
+ * \brief Converts a string to a real value
+ */
+//================================================================================
+
+double HexoticPlugin_Hypothesis::ToDbl(const std::string& str, bool* isOk )
+  throw (std::invalid_argument)
+{
+  if ( str.empty() ) throw std::invalid_argument("Empty value provided");
+
+  char * endPtr;
+  double val = strtod(&str[0], &endPtr);
+  bool ok = (&str[0] != endPtr);
+
+  if ( isOk ) *isOk = ok;
+
+  if ( !ok )
+  {
+    std::string msg = "Not a real value:'" + str + "'";
+    throw std::invalid_argument(msg);
+  }
+  return val;
+}
+
+//================================================================================
+/*!
+ * \brief Converts a string to a integer value
+ */
+//================================================================================
+
+int HexoticPlugin_Hypothesis::ToInt(const std::string& str, bool* isOk )
+  throw (std::invalid_argument)
+{
+  if ( str.empty() ) throw std::invalid_argument("Empty value provided");
+
+  char * endPtr;
+  int val = (int)strtol( &str[0], &endPtr, 10);
+  bool ok = (&str[0] != endPtr);
+
+  if ( isOk ) *isOk = ok;
+
+  if ( !ok )
+  {
+    std::string msg = "Not an integer value:'" + str + "'";
+    throw std::invalid_argument(msg);
+  }
+  return val;
+}
+
+void HexoticPlugin_Hypothesis::SetAdvancedOption(const std::string& option)
+{
+  size_t wsPos = option.find(' ');
+  if ( wsPos == std::string::npos )
+  {
+    SetOptionValue( option, "" );
+  }
+  else
+  {
+    std::string opt( option, 0, wsPos );
+    std::string val( option, wsPos + 1 );
+    SetOptionValue( opt, val );
+  }
+}
+
+//=======================================================================
+//function : GetAdvancedOption
+//purpose  : Return only options having NO corresponding member fields
+//=======================================================================
+
+std::string HexoticPlugin_Hypothesis::GetAdvancedOption( bool customOnly ) const
+{
+  // options having corresponding member fields
+  static std::set< std::string > toSkip = {
+    "min_level",
+    "max_level",
+    "compute_ridges",
+    "allow_invalid_elements",
+    "ridge_angle",
+    "max_number_of_threads",
+    "max_memory"
+  };
+
+  // Return only options having NO corresponding member fields
+
+  SMESH_Comment txt;
+
+  TOptionValues::const_iterator o2v = _option2value.begin();
+  if ( !customOnly )
+  {
+    for ( ; o2v != _option2value.end(); ++o2v )
+      if ( !o2v->second.empty() && !toSkip.count( o2v->first ))
+      {
+        if ( !txt.empty() )
+          txt << " ";
+        txt << "--" << o2v->first << " " << o2v->second;
+      }
+  }
+  for ( o2v = _customOption2value.begin(); o2v != _customOption2value.end(); ++o2v )
+  {
+    if ( !txt.empty() )
+      txt << " ";
+    // if ( o2v->first[0] != '-' )
+    //   txt << "--";
+    txt << o2v->first << " " << o2v->second;
+  }
+  return txt;
+}
+
+bool HexoticPlugin_Hypothesis::AddSizeMap(std::string theEntry, double theSize)
+{
   THexoticSizeMaps::iterator it;
   it=_sizeMaps.find(theEntry);
-  
+
   if(theSize <= 0)
     return false;
-  
+
   if( it == _sizeMaps.end() ) // If no size map is defined on the given object
   {
     _sizeMaps[theEntry] = theSize;
@@ -199,7 +557,7 @@ bool HexoticPlugin_Hypothesis::AddSizeMap(std::string theEntry, double theSize) 
   }
   else
   {
-    MESSAGE("NO size map added")
+    MESSAGE("NO size map added");
     return false; // No size map added
   }
 }
@@ -272,7 +630,7 @@ std::ostream& HexoticPlugin_Hypothesis::SaveTo(std::ostream& save)
   //explicit outputs for future code compatibility of saved .hdf
   //save without any whitespaces!
   //int dummy = -1;
-  save<<"hexesMinLevel="<<_hexesMinLevel<<";"; 
+  save<<"hexesMinLevel="<<_hexesMinLevel<<";";
   save<<"hexesMaxLevel="<<_hexesMaxLevel<<";";
   save<<"hexoticIgnoreRidges="<<(int)_hexoticIgnoreRidges<<";";
   save<<"hexoticInvalidElements="<<(int)_hexoticInvalidElements<<";";
@@ -284,7 +642,7 @@ std::ostream& HexoticPlugin_Hypothesis::SaveTo(std::ostream& save)
   save<<"hexoticSdMode="<<_hexoticSdMode<<";";
   save<<"hexoticVerbosity="<<_hexoticVerbosity<<";";
   save<<"hexoticMaxMemory="<<_hexoticMaxMemory<<";";
-  std::string textOptions = _textOptions; // save _textOptions
+  std::string textOptions;// = _textOptions;
   replace(textOptions.begin(), textOptions.end(), ' ', '*');
   save<<"textOptions="<<textOptions<<";";
   THexoticSizeMaps::iterator it = _sizeMaps.begin();
@@ -319,12 +677,29 @@ std::ostream& HexoticPlugin_Hypothesis::SaveTo(std::ostream& save)
     }
     save<<";";
   }
+
+  // New options in 2.9.6 (issue #17784)
+
+  save << " " << _approxAngle;
+  save << " " << _logInStandardOutput;
+  save << " " << _removeLogOnSuccess;
+  save << " " << _keepFiles;
+
+  save << " " << _option2value.size();
+  TOptionValues::iterator o2v = _option2value.begin();
+  for ( ; o2v != _option2value.end(); ++o2v )
+    save << " -" << o2v->first << " -" << o2v->second;
+
+  save << " " << _customOption2value.size();
+  for ( o2v = _customOption2value.begin(); o2v != _customOption2value.end(); ++o2v )
+    save << " -" << o2v->first << " -" << o2v->second;
+
   return save;
 }
 
 //=============================================================================
 /*!
- *  
+ *
  */
 //=============================================================================
 std::istream& HexoticPlugin_Hypothesis::LoadFrom(std::istream& load)
@@ -350,23 +725,23 @@ std::istream& HexoticPlugin_Hypothesis::LoadFrom(std::istream& load)
       str4 = str2.substr(eqpos+1);
       pos = found + 1;
 
-      if (str3=="hexesMinLevel") _hexesMinLevel = atoi(str4.c_str());
-      if (str3=="hexesMaxLevel") _hexesMaxLevel = atoi(str4.c_str());
+      if (str3=="hexesMinLevel")              _hexesMinLevel              = atoi(str4.c_str());
+      if (str3=="hexesMaxLevel")              _hexesMaxLevel              = atoi(str4.c_str());
       if (str3=="hexoticQuadrangles") {}
-      if (str3=="hexoticIgnoreRidges") _hexoticIgnoreRidges = (bool) atoi(str4.c_str());
-      if (str3=="hexoticInvalidElements") _hexoticInvalidElements = (bool) atoi(str4.c_str());
+      if (str3=="hexoticIgnoreRidges")        _hexoticIgnoreRidges    = (bool) atoi(str4.c_str());
+      if (str3=="hexoticInvalidElements")     _hexoticInvalidElements = (bool) atoi(str4.c_str());
       if (str3=="hexoticSharpAngleThreshold") _hexoticSharpAngleThreshold = atof(str4.c_str());
-      if (str3=="hexoticNbProc") _hexoticNbProc = atoi(str4.c_str());
-      if (str3=="hexoticWorkingDirectory") _hexoticWorkingDirectory = str4;
-      if (str3=="minSize") _minSize = atof(str4.c_str());
-      if (str3=="maxSize") _maxSize = atof(str4.c_str());
-      if (str3=="hexoticSdMode") _hexoticSdMode = atoi(str4.c_str());
-      if (str3=="hexoticVerbosity") _hexoticVerbosity = atoi(str4.c_str());
-      if (str3=="hexoticMaxMemory") _hexoticMaxMemory = atoi(str4.c_str());
+      if (str3=="hexoticNbProc")              _hexoticNbProc              = atoi(str4.c_str());
+      if (str3=="hexoticWorkingDirectory")    _hexoticWorkingDirectory    = str4;
+      if (str3=="minSize")                    _minSize                    = atof(str4.c_str());
+      if (str3=="maxSize")                    _maxSize                    = atof(str4.c_str());
+      if (str3=="hexoticSdMode")              _hexoticSdMode              = atoi(str4.c_str());
+      if (str3=="hexoticVerbosity")           _hexoticVerbosity           = atoi(str4.c_str());
+      if (str3=="hexoticMaxMemory")           _hexoticMaxMemory           = atoi(str4.c_str());
       if (str3=="textOptions")
       {
         replace(str4.begin(), str4.end(), '*', ' ');
-        _textOptions = str4;
+        //_textOptions = str4;
       }
       if (str3=="sizeMaps")
       {
@@ -384,10 +759,10 @@ std::istream& HexoticPlugin_Hypothesis::LoadFrom(std::istream& load)
           sm_pos = sm_found + 1;
         }
       }
-      if (str3 == "nbLayers") _nbLayers = atoi(str4.c_str());
+      if (str3 == "nbLayers")       _nbLayers       = atoi(str4.c_str());
       if (str3 == "firstLayerSize") _firstLayerSize = atof(str4.c_str());
-      if (str3 == "direction") _direction = atoi(str4.c_str());
-      if (str3 == "growth") _growth = atof(str4.c_str());
+      if (str3 == "direction")      _direction      = atoi(str4.c_str());
+      if (str3 == "growth")         _growth         = atof(str4.c_str());
       if (str3 == "facesWithLayers")
       {
         std::string id;
@@ -413,6 +788,35 @@ std::istream& HexoticPlugin_Hypothesis::LoadFrom(std::istream& load)
         }
       }
    }
+
+   // New options in 2.9.6 (issue #17784)
+
+   if ( static_cast<bool>( load >> _approxAngle ))
+   {
+     int i;
+     load >> i; _logInStandardOutput = (bool)i;
+     load >> i; _removeLogOnSuccess = (bool)i;
+     load >> i; _keepFiles = (bool)i;
+
+     std::string option, value;
+     if ( static_cast<bool>( load >> i ) && i >= 0 )
+     {
+       for ( int nbRead = 0; nbRead < i; ++nbRead )
+       {
+         load >> option >> value;
+         _option2value[ std::string( option, 1 )] = std::string( value, 1 );
+       }
+     }
+     if ( static_cast<bool>( load >> i ) && i >= 0 )
+     {
+       for ( int nbRead = 0; nbRead < i; ++nbRead )
+       {
+         load >> option >> value;
+         _customOption2value[ std::string( option, 1 )] = std::string( value, 1 );
+       }
+     }
+   }
+
    return load;
 }
 

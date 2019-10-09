@@ -31,6 +31,7 @@
 #include "Utils_SALOME_Exception.hxx"
 
 #include <map>
+#include <set>
 #include <vector>
 
 // class HexoticSizeMap
@@ -67,6 +68,9 @@ public:
   void SetMaxSize(double theVal);
   double GetMaxSize() const { return _maxSize; }
 
+  void SetGeomApproxAngle(double angle);
+  double GetGeomApproxAngle() const { return _approxAngle; }
+
   void SetHexoticIgnoreRidges(bool theVal);
   bool GetHexoticIgnoreRidges() const { return _hexoticIgnoreRidges; }
 
@@ -91,14 +95,36 @@ public:
   void SetHexoticMaxMemory(int theVal);
   int GetHexoticMaxMemory() const { return _hexoticMaxMemory; }
   
-  void SetAdvancedOption(const std::string& theOptions);
-  std::string GetAdvancedOption() const { return _textOptions; }
-  void SetTextOptions(const std::string& theOptions); // obsolete
-  std::string GetTextOptions() const { return _textOptions; }
+  void SetKeepFiles(bool toKeep);
+  bool GetKeepFiles() const  { return _keepFiles; }
+  void SetStandardOutputLog(bool logInStandardOutput);
+  bool GetStandardOutputLog() const { return _logInStandardOutput; }
+  void SetRemoveLogOnSuccess(bool removeLogOnSuccess);
+  bool GetRemoveLogOnSuccess() const  { return _removeLogOnSuccess; }
+
+
+  typedef std::map< std::string, std::string > TOptionValues;
+  typedef std::set< std::string >              TOptionNames;
+
+  void SetOptionValue(const std::string& optionName,
+                      const std::string& optionValue) throw (std::invalid_argument);
+  std::string GetOptionValue(const std::string& optionName,
+                             bool*              isDefault=0) const throw (std::invalid_argument);
+  bool HasOptionDefined( const std::string& optionName ) const;
+  void ClearOption(const std::string& optionName);
+  TOptionValues        GetOptionValues()       const;
+  const TOptionValues& GetCustomOptionValues() const { return _customOption2value; }
+  std::string GetAdvancedOption( bool customOnly = false ) const;
+  void SetAdvancedOption(const std::string& theOptions); // obsolete
+
+  static bool  ToBool(const std::string& str, bool* isOk=0) throw (std::invalid_argument);
+  static double ToDbl(const std::string& str, bool* isOk=0) throw (std::invalid_argument);
+  static int    ToInt(const std::string& str, bool* isOk=0) throw (std::invalid_argument);
+
 
   // Size Maps
   typedef std::map<std::string,double> THexoticSizeMaps;
-  
+
   // For the GUI HexoticPluginGUI_HypothesisCreator::storeParamToHypo
   const THexoticSizeMaps& GetSizeMaps() const { return _sizeMaps; }
 
@@ -129,6 +155,7 @@ public:
   static int GetDefaultHexesMaxLevel();
   static double GetDefaultMinSize();
   static double GetDefaultMaxSize();
+  static double GetDefaultGeomApproxAngle() { return 0; }
   static bool GetDefaultHexoticIgnoreRidges();
   static bool GetDefaultHexoticInvalidElements();
   static double GetDefaultHexoticSharpAngleThreshold();
@@ -145,6 +172,9 @@ public:
   static double GetDefaultGrowth();
   static std::vector<int> GetDefaultFacesWithLayers();
   static std::vector<int> GetDefaultImprintedFaces();
+  static bool   GetDefaultStandardOutputLog() { return false; }
+  static bool   GetDefaultRemoveLogOnSuccess() { return false; }
+  static bool   GetDefaultKeepFiles() { return false; }
 
   // Persistence
   virtual std::ostream& SaveTo(std::ostream& save);
@@ -166,11 +196,12 @@ public:
    */
   virtual bool SetParametersByDefaults(const TDefaults& dflts, const SMESH_Mesh* theMesh=0);
 
-private:
+ private:
   int    _hexesMinLevel;
   int    _hexesMaxLevel;
   double _minSize;
   double _maxSize;
+  double _approxAngle;
   bool   _hexoticIgnoreRidges;
   bool   _hexoticInvalidElements;
   double _hexoticSharpAngleThreshold;
@@ -178,9 +209,17 @@ private:
   int    _hexoticSdMode;
   int    _hexoticVerbosity;
   int    _hexoticMaxMemory;
-  std::string _textOptions;
   THexoticSizeMaps _sizeMaps;
+
+  TOptionValues _option2value, _customOption2value;         // user defined values
+  TOptionValues _defaultOptionValues;                       // default values
+  TOptionNames  _doubleOptions, _charOptions, _boolOptions; // to find a type of option
+
   std::string _hexoticWorkingDirectory;
+  bool   _logInStandardOutput;
+  bool   _removeLogOnSuccess;
+  bool   _keepFiles;
+
   int    _nbLayers;
   double _firstLayerSize;
   bool   _direction;

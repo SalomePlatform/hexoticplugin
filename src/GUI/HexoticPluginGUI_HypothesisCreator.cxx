@@ -32,8 +32,6 @@
 
 #include "utilities.h"
 
-#include CORBA_SERVER_HEADER(HexoticPlugin_Algorithm)
-
 #include <SUIT_Session.h>
 #include <SUIT_ResourceMgr.h>
 #include <SUIT_MessageBox.h>
@@ -121,9 +119,9 @@ void SizeMapsTableWidgetDelegate::updateEditorGeometry(QWidget *editor,
 
 
 HexoticPluginGUI_HypothesisCreator::HexoticPluginGUI_HypothesisCreator( const QString& theHypType )
-: SMESHGUI_GenericHypothesisCreator( theHypType ),
-  myIs3D( true ),
-  mySizeMapsToRemove()
+  : SMESHGUI_GenericHypothesisCreator( theHypType ),
+    myIs3D( true ),
+    mySizeMapsToRemove()
 {
 }
 
@@ -135,30 +133,68 @@ bool HexoticPluginGUI_HypothesisCreator::checkParams(QString& msg) const
 {
   msg.clear();
 
+  HexoticPlugin::HexoticPlugin_Hypothesis_var h =
+    HexoticPlugin::HexoticPlugin_Hypothesis::_narrow( hypothesis() );
+
+  myAdvWidget->myOptionTable->setFocus();
+  QApplication::instance()->processEvents();
+
+  QString name, value;
+  bool isDefault, ok = true;
+  int iRow = 0, nbRows = myAdvWidget->myOptionTable->topLevelItemCount();
+  for ( ; iRow < nbRows; ++iRow )
+  {
+    QTreeWidgetItem* row = myAdvWidget->myOptionTable->topLevelItem( iRow );
+    myAdvWidget->GetOptionAndValue( row, name, value, isDefault );
+
+    if ( name.simplified().isEmpty() )
+      continue; // invalid custom option
+
+    if ( isDefault ) // not selected option
+      value.clear();
+
+    try {
+      h->SetOptionValue( name.toLatin1().constData(), value.toLatin1().constData() );
+    }
+    catch ( const SALOME::SALOME_Exception& ex )
+    {
+      msg = ex.details.text.in();
+      ok = false;
+      break;
+    }
+  }
+
+  if ( !ok )
+  {
+    h->SetOptionValues( myOptions ); // restore values
+    return false;
+  }
+
   HexoticHypothesisData data_old, data_new;
-  readParamsFromHypo( data_old );
-  
+  readParamsFromHypo( data_old ); // new values of advanced options ( myOptions ) are read
+
   bool res = readParamsFromWidgets( data_new );
   if ( !res ){
+    return res;
+  }
+
+  
+  res = data_old.myMinSize <= data_old.myMaxSize;
+  if ( !res ) {
+    msg = tr(QString("Min size (%1) is higher than max size (%2)").arg(data_old.myMinSize).arg(data_old.myMaxSize).toStdString().c_str());
+    return res;
+  }
+
+  res = data_old.myHexesMinLevel == 0  || \
+      ( data_old.myHexesMinLevel != 0  && (data_old.myHexesMinLevel < data_old.myHexesMaxLevel) );
+  if ( !res ) {
+    msg = tr(QString("Min hexes level (%1) is higher than max hexes level (%2)").arg(data_old.myHexesMinLevel).arg(data_old.myHexesMaxLevel).toStdString().c_str());
     return res;
   }
 
   res = storeParamsToHypo( data_new );
   if ( !res ) {
     storeParamsToHypo( data_old );
-    return res;
-  }
-
-  res = data_new.myMinSize <= data_new.myMaxSize;
-  if ( !res ) {
-    msg = tr(QString("Min size (%1) is higher than max size (%2)").arg(data_new.myMinSize).arg(data_new.myMaxSize).toStdString().c_str());
-    return res;
-  }
-
-  res = data_new.myHexesMinLevel == 0  || \
-      ( data_new.myHexesMinLevel != 0  && (data_new.myHexesMinLevel < data_new.myHexesMaxLevel) );
-  if ( !res ) {
-    msg = tr(QString("Min hexes level (%1) is higher than max hexes level (%2)").arg(data_new.myHexesMinLevel).arg(data_new.myHexesMaxLevel).toStdString().c_str());
     return res;
   }
 
@@ -171,7 +207,7 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   QVBoxLayout* lay = new QVBoxLayout( fr );
   lay->setMargin( 0 );
   lay->setSpacing( 6 );
-  
+
   // main TabWidget of the dialog
   QTabWidget* aTabWidget = new QTabWidget( fr );
   aTabWidget->setTabShape( QTabWidget::Rounded );
@@ -183,7 +219,7 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   QGridLayout* l = new QGridLayout( aStdGroup );
   l->setSpacing( 6 );
   l->setMargin( 11 );
- 
+
   int row = 0;
   myName = 0;
   if( isCreation() ) {
@@ -193,9 +229,6 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
     myName->setMinimumWidth( 150 );
   }
 
-  HexoticPlugin::HexoticPlugin_Hypothesis_var h =
-  HexoticPlugin::HexoticPlugin_Hypothesis::_narrow( initParamsHypothesis() );
-  
   myStdWidget = new HexoticPluginGUI_StdWidget(aStdGroup);
 #ifdef WIN32
   myStdWidget->label_6->hide();
@@ -203,33 +236,32 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
 #endif
   l->addWidget( myStdWidget, row++, 0, 1, 3 );
   myStdWidget->onSdModeSelected(SD_MODE_4);
+  //myStdWidget->gridLayout->setRowStretch( 1, 2 );
 
-  myAdvWidget = new SMESH_AdvOptionsWdg( aTabWidget );
-  
+  // Advanced TAB
+  myAdvWidget = new HexoticPluginGUI_AdvWidget( aTabWidget );
+  //myAdvWidget->gridLayout->setRowStretch( 0, 2 );
+
   // SIZE MAPS TAB
-  QWidget* aSmpGroup = new QWidget();
-  lay->addWidget( aSmpGroup );
-  
-  // Size map widget creation and initialisation
-  mySmpWidget = new HexoticPluginGUI_SizeMapsWidget(aSmpGroup);
+  mySmpWidget = new HexoticPluginGUI_SizeMapsWidget( aTabWidget );
   mySmpWidget->doubleSpinBox->RangeStepAndValidator(0.0, COORD_MAX, 1.0, "length_precision");
   mySmpWidget->doubleSpinBox->setValue(0.0);
-  
+
   // Filters of selection
-  TColStd_MapOfInteger SM_ShapeTypes; 
+  TColStd_MapOfInteger SM_ShapeTypes;
   SM_ShapeTypes.Add( TopAbs_VERTEX );
   SM_ShapeTypes.Add( TopAbs_EDGE );
   SM_ShapeTypes.Add( TopAbs_WIRE );
   SM_ShapeTypes.Add( TopAbs_FACE );
   SM_ShapeTypes.Add( TopAbs_SOLID );
-  SM_ShapeTypes.Add( TopAbs_COMPOUND );  
+  SM_ShapeTypes.Add( TopAbs_COMPOUND );
   SMESH_NumberFilter* aFilter = new SMESH_NumberFilter("GEOM", TopAbs_SHAPE, 0, SM_ShapeTypes);
-  
+
   // Selection widget
   myGeomSelWdg = new StdMeshersGUI_ObjectReferenceParamWdg( aFilter, mySmpWidget, /*multiSel=*/false);
   myGeomSelWdg->SetDefaultText(tr("Hexotic_SEL_SHAPE"), "QLineEdit { color: grey }");
   mySmpWidget->gridLayout->addWidget(myGeomSelWdg, 0, 1);
-  
+
   // Configuration of the table widget
   QStringList headerLabels;
   headerLabels << tr("Hexotic_ENTRY")<< tr("Hexotic_NAME")<< tr("Hexotic_SIZE");
@@ -239,22 +271,16 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   mySmpWidget->label->setText(tr("LOCAL_SIZE"));
   mySmpWidget->pushButton_1->setText(tr("Hexotic_ADD"));
   mySmpWidget->pushButton_2->setText(tr("Hexotic_REMOVE"));
-  
+
   // Setting a custom delegate for the size column
   SizeMapsTableWidgetDelegate* delegate = new SizeMapsTableWidgetDelegate();
   mySmpWidget->tableWidget->setItemDelegateForColumn(SIZE_COL, delegate);
-  
-  // Add the size maps widget to a layout
-  QHBoxLayout* aSmpLayout = new QHBoxLayout( aSmpGroup );
-  aSmpLayout->setMargin( 0 );
-  aSmpLayout->addWidget( mySmpWidget);
-  
+
+
   // Viscous Layers tab
-  QWidget* aVLGroup = new QWidget();
-  lay->addWidget( aVLGroup );
 
   // Viscous layers widget creation and initialisation
-  myVLWidget = new HexoticPluginGUI_ViscousLayersWidget(aVLGroup);
+  myVLWidget = new HexoticPluginGUI_ViscousLayersWidget( aTabWidget );
 
   QString aMainEntry = SMESHGUI_GenericHypothesisCreator::getMainShapeEntry();
   QString aSubEntry  = SMESHGUI_GenericHypothesisCreator::getShapeEntry();
@@ -266,27 +292,19 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   }
   else
   {
-        myVLWidget->labelFacesWithLayers->setVisible(false);
+    myVLWidget->labelFacesWithLayers->setVisible(false);
     myVLWidget->myFacesWithLayers->setVisible(false);
     myVLWidget->labelImprintedFaces->setVisible(false);
     myVLWidget->myImprintedFaces->setVisible(false);
   }
 
-  // Add the viscous layers widget to a layout
-  QHBoxLayout* aVLLayout = new QHBoxLayout( aVLGroup );
-  aVLLayout->setSpacing( 6 );
-  aVLLayout->setMargin( 11 );
-  aVLLayout->addWidget( myVLWidget );
-
-//  resizeEvent();
-  
-  aTabWidget->insertTab( STD_TAB, aStdGroup, tr( "SMESH_ARGUMENTS" ));
+  aTabWidget->insertTab( STD_TAB, aStdGroup,   tr( "SMESH_ARGUMENTS" ));
   aTabWidget->insertTab( ADV_TAB, myAdvWidget, tr( "SMESH_ADVANCED" ));
-  aTabWidget->insertTab( SMP_TAB, aSmpGroup, tr( "LOCAL_SIZE" ));
-  aTabWidget->insertTab( VL_TAB, aVLGroup, tr( "Hexotic_VISCOUS_LAYERS"));
-  
+  aTabWidget->insertTab( SMP_TAB, mySmpWidget, tr( "LOCAL_SIZE" ));
+  aTabWidget->insertTab( VL_TAB,  myVLWidget,  tr( "Hexotic_VISCOUS_LAYERS"));
+
   myIs3D = true;
-  
+
   // Size Maps
   mySizeMapsToRemove.clear();
   connect( mySmpWidget->pushButton_1, SIGNAL( clicked() ),          this, SLOT( onAddLocalSize() ) );
@@ -299,16 +317,16 @@ void HexoticPluginGUI_HypothesisCreator::onAddLocalSize()
 {
   int rowCount = mySmpWidget->tableWidget->rowCount();
   //int columnCount = mySmpWidget->tableWidget->columnCount();
-  
+
   // Get the selected object properties
   GEOM::GEOM_Object_var sizeMapObject = myGeomSelWdg->GetObject< GEOM::GEOM_Object >(0);
   if (sizeMapObject->_is_nil())
     return;
-  
+
   std::string entry, shapeName;
   entry = (std::string) sizeMapObject->GetStudyEntry();
   shapeName = sizeMapObject->GetName();
-  
+
   // Check if the object is already in the widget
   QList<QTableWidgetItem *> listFound = mySmpWidget->tableWidget
                                         ->findItems( QString(entry.c_str()), Qt::MatchExactly );
@@ -413,6 +431,8 @@ void HexoticPluginGUI_HypothesisCreator::retrieveParams() const
   if( myName )
     myName->setText( data.myName );
 
+  myStdWidget->myPhySizeType->setCurrentIndex( data.myMinSize > 0 || data.myMaxSize > 0 );
+
   myStdWidget->myMinSize->setCleared(data.myMinSize == 0);
   if (data.myMinSize == 0)
     myStdWidget->myMinSize->setText("");
@@ -425,38 +445,35 @@ void HexoticPluginGUI_HypothesisCreator::retrieveParams() const
   else
     myStdWidget->myMaxSize->setValue( data.myMaxSize );
 
-  myStdWidget->myHexesMinLevel->setCleared(data.myHexesMinLevel == 0);
-  if (data.myHexesMinLevel == 0)
-    myStdWidget->myHexesMinLevel->setText("");
+  myStdWidget->myGeomSizeType->setCurrentIndex( data.myApproxAngle > 0 );
+
+  myStdWidget->myGeomApproxAngle->setCleared( data.myApproxAngle == 0 );
+  if (data.myApproxAngle == 0)
+    myStdWidget->myGeomApproxAngle->setText("");
   else
-    myStdWidget->myHexesMinLevel->setValue( data.myHexesMinLevel );
+    myStdWidget->myGeomApproxAngle->setValue( data.myApproxAngle );
 
-  myStdWidget->myHexesMaxLevel->setCleared(data.myHexesMaxLevel == 0);
-  if (data.myHexesMaxLevel == 0)
-    myStdWidget->myHexesMaxLevel->setText("");
-  else
-    myStdWidget->myHexesMaxLevel->setValue( data.myHexesMaxLevel );
+  myAdvWidget->myHexoticWorkingDir->setText( data.myHexoticWorkingDir );
 
-  myStdWidget->myHexoticIgnoreRidges->setChecked( data.myHexoticIgnoreRidges );
-  myStdWidget->myHexoticInvalidElements->setChecked( data.myHexoticInvalidElements );
-  
-  myStdWidget->myHexoticSharpAngleThreshold->setCleared(data.myHexoticSharpAngleThreshold == 0);
-  if (data.myHexoticSharpAngleThreshold == 0)
-    myStdWidget->myHexoticSharpAngleThreshold->setText("");
-  else
-    myStdWidget->myHexoticSharpAngleThreshold->setValue( data.myHexoticSharpAngleThreshold );
-#ifndef WIN32
-  myStdWidget->myHexoticNbProc->setValue( data.myHexoticNbProc );
-#endif
-  myStdWidget->myHexoticWorkingDir->setText( data.myHexoticWorkingDir );
-
-  myStdWidget->myHexoticVerbosity->setValue( data.myHexoticVerbosity );
-
-  myStdWidget->myHexoticMaxMemory->setValue( data.myHexoticMaxMemory );
+  myAdvWidget->myHexoticVerbosity->setValue( data.myHexoticVerbosity );
 
   myStdWidget->myHexoticSdMode->setCurrentIndex(data.myHexoticSdMode);
-  
-  myAdvWidget->SetCustomOptions(data.myTextOptions);
+
+  //myAdvWidget->SetCustomOptions(data.myTextOptions);
+
+  if ( myOptions.operator->() ) {
+    for ( int i = 0, nb = myOptions->length(); i < nb; ++i )
+      myAdvWidget->AddOption( myOptions[i].in() );
+  }
+  if ( myCustomOptions.operator->() ) {
+    for ( int i = 0, nb = myCustomOptions->length(); i < nb; ++i )
+      myAdvWidget->AddOption( myCustomOptions[i].in() );
+  }
+  myAdvWidget->myOptionTable->resizeColumnToContents( OPTION_NAME_COLUMN );
+
+  myAdvWidget->keepWorkingFilesCheck->setChecked( data.myKeepFiles );
+  myAdvWidget->logInFileCheck->setChecked( !data.myLogInStandardOutput );
+  myAdvWidget->removeLogOnSuccessCheck->setChecked( data.myRemoveLogOnSuccess );
 
   HexoticPlugin_Hypothesis::THexoticSizeMaps::const_iterator it = data.mySizeMaps.begin();
   for ( int row = 0; it != data.mySizeMaps.end(); it++, row++ )
@@ -501,13 +518,6 @@ void HexoticPluginGUI_HypothesisCreator::retrieveParams() const
   for (size_t i = 0; i < vector.size(); i++)
     aVec[i]=vector.at(i);
   myVLWidget->myImprintedFaces->SetListOfIDs(aVec);
-
-
-  std::cout << "myStdWidget->myMinSize->value(): " << myStdWidget->myMinSize->value() << std::endl;
-  std::cout << "myStdWidget->myMaxSize->value(): " << myStdWidget->myMaxSize->value() << std::endl;
-  std::cout << "myStdWidget->myHexesMinLevel->value(): " << myStdWidget->myHexesMinLevel->value() << std::endl;
-  std::cout << "myStdWidget->myHexesMaxLevel->value(): " << myStdWidget->myHexesMaxLevel->value() << std::endl;
-  std::cout << "myStdWidget->myHexoticSharpAngleThreshold->value(): " << myStdWidget->myHexoticSharpAngleThreshold->value() << std::endl;
 
 }
 
@@ -571,6 +581,7 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromHypo( HexoticHypothesisDa
   h_data.myName = isCreation() && data ? data->Label : "";
   h_data.myMinSize = h->GetMinSize();
   h_data.myMaxSize = h->GetMaxSize();
+  h_data.myApproxAngle = h->GetGeomApproxAngle();
   h_data.myHexesMinLevel = h->GetHexesMinLevel();
   h_data.myHexesMaxLevel = h->GetHexesMaxLevel();
   h_data.myHexoticIgnoreRidges = h->GetHexoticIgnoreRidges();
@@ -581,11 +592,18 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromHypo( HexoticHypothesisDa
   h_data.myHexoticVerbosity = h->GetHexoticVerbosity();
   h_data.myHexoticMaxMemory = h->GetHexoticMaxMemory();
   h_data.myHexoticSdMode = h->GetHexoticSdMode()-1;
-  h_data.myTextOptions = h->GetAdvancedOption();
-  
+  h_data.myKeepFiles = h->GetKeepFiles();
+  h_data.myLogInStandardOutput = h->GetStandardOutputLog();
+  h_data.myRemoveLogOnSuccess = h->GetRemoveLogOnSuccess();
+  //h_data.myTextOptions = h->GetAdvancedOption();
+
+  HexoticPluginGUI_HypothesisCreator* that = (HexoticPluginGUI_HypothesisCreator*)this;
+  that->myOptions       = h->GetOptionValues();
+  that->myCustomOptions = h->GetAdvancedOptionValues();
+
   // Size maps
   HexoticPlugin::HexoticPluginSizeMapsList_var sizeMaps = h->GetSizeMaps();
-  for ( CORBA::ULong i = 0 ; i < sizeMaps->length() ; i++) 
+  for ( CORBA::ULong i = 0 ; i < sizeMaps->length() ; i++)
   {
     HexoticPlugin::HexoticPluginSizeMap aSizeMap = sizeMaps[i];
     std::string entry = CORBA::string_dup(aSizeMap.entry.in());
@@ -623,17 +641,13 @@ bool HexoticPluginGUI_HypothesisCreator::storeParamsToHypo( const HexoticHypothe
 
     h->SetMinSize( h_data.myMinSize );
     h->SetMaxSize( h_data.myMaxSize );
-    h->SetHexesMinLevel( h_data.myHexesMinLevel );
-    h->SetHexesMaxLevel( h_data.myHexesMaxLevel );
-    h->SetHexoticIgnoreRidges( h_data.myHexoticIgnoreRidges );
-    h->SetHexoticInvalidElements( h_data.myHexoticInvalidElements );
-    h->SetHexoticSharpAngleThreshold( h_data.myHexoticSharpAngleThreshold );
-    h->SetHexoticNbProc( h_data.myHexoticNbProc );
+    h->SetGeomApproxAngle( h_data.myApproxAngle );
     h->SetHexoticWorkingDirectory( h_data.myHexoticWorkingDir.toLatin1().constData() );
     h->SetHexoticVerbosity( h_data.myHexoticVerbosity );
-    h->SetHexoticMaxMemory( h_data.myHexoticMaxMemory );
     h->SetHexoticSdMode( h_data.myHexoticSdMode+1 );
-    h->SetAdvancedOption( h_data.myTextOptions.toLatin1().constData() );
+    h->SetKeepFiles( h_data.myKeepFiles );
+    h->SetStandardOutputLog( h_data.myLogInStandardOutput );
+    h->SetRemoveLogOnSuccess( h_data.myRemoveLogOnSuccess );
     
     HexoticPlugin_Hypothesis::THexoticSizeMaps::const_iterator it;
     
@@ -680,22 +694,16 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromWidgets( HexoticHypothesi
 {
   h_data.myName    = myName ? myName->text() : "";
 
-  h_data.myHexoticIgnoreRidges = myStdWidget->myHexoticIgnoreRidges->isChecked();
-  h_data.myHexoticInvalidElements = myStdWidget->myHexoticInvalidElements->isChecked();
-#ifndef WIN32
-  h_data.myHexoticNbProc = myStdWidget->myHexoticNbProc->value();
-#endif
-  h_data.myHexoticWorkingDir = myStdWidget->myHexoticWorkingDir->text();
-  h_data.myHexoticVerbosity = myStdWidget->myHexoticVerbosity->value();
-  h_data.myHexoticMaxMemory = myStdWidget->myHexoticMaxMemory->value();
-  h_data.myHexoticSdMode = myStdWidget->myHexoticSdMode->currentIndex();
-  h_data.myTextOptions = myAdvWidget->GetCustomOptions();
-
   h_data.myMinSize = myStdWidget->myMinSize->text().isEmpty() ? 0.0 : myStdWidget->myMinSize->value();
   h_data.myMaxSize = myStdWidget->myMaxSize->text().isEmpty() ? 0.0 : myStdWidget->myMaxSize->value();
-  h_data.myHexesMinLevel = myStdWidget->myHexesMinLevel->text().isEmpty() ? 0 : myStdWidget->myHexesMinLevel->value();
-  h_data.myHexesMaxLevel = myStdWidget->myHexesMaxLevel->text().isEmpty() ? 0 : myStdWidget->myHexesMaxLevel->value();
-  h_data.myHexoticSharpAngleThreshold = myStdWidget->myHexoticSharpAngleThreshold->text().isEmpty() ? 0 : myStdWidget->myHexoticSharpAngleThreshold->value();
+  h_data.myApproxAngle = myStdWidget->myGeomApproxAngle->text().isEmpty() ? 0.0 : myStdWidget->myGeomApproxAngle->value();
+  h_data.myHexoticSdMode = myStdWidget->myHexoticSdMode->currentIndex();
+
+  h_data.myHexoticWorkingDir = myAdvWidget->myHexoticWorkingDir->text();
+  h_data.myHexoticVerbosity = myAdvWidget->myHexoticVerbosity->value();
+  h_data.myKeepFiles = myAdvWidget->keepWorkingFilesCheck->isChecked();
+  h_data.myLogInStandardOutput = !myAdvWidget->logInFileCheck->isChecked();
+  h_data.myRemoveLogOnSuccess = myAdvWidget->removeLogOnSuccessCheck->isChecked();
 
   // Size maps reading
   bool ok = readSizeMapsFromWidgets( h_data );

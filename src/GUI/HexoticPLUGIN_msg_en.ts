@@ -17,7 +17,7 @@
     </message>
     <message>
         <source>Hexotic_INPUT_SIZE</source>
-        <translation>Sizes</translation>
+        <translation>Physical size</translation>
     </message>
     <message>
         <source>Hexotic_INPUT_LEVEL</source>
@@ -65,7 +65,7 @@
     </message>
     <message>
         <source>Hexotic_VERBOSITY</source>
-        <translation>Verbosity</translation>
+        <translation>Verbose level</translation>
     </message>
     <message>
         <source>Hexotic_MAX_MEMORY</source>
@@ -150,6 +150,86 @@
     <message>
         <source>Hexotic_IMPRINTED_FACES</source>
         <translation>Imprinted faces</translation>
+    </message>
+    <message>
+        <source>Hexotic_ADD_OPTION</source>
+        <translation>Add option</translation>
+    </message>
+    <message>
+        <source>Hexotic_GEOM_SIZE</source>
+        <translation>Geometric size</translation>
+    </message>
+    <message>
+        <source>Hexotic_PHY_SIZE_TYPE</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <source>Hexotic_GEOM_SIZE_TYPE</source>
+        <translation>Type</translation>
+    </message>
+    <message>
+        <source>Hexotic_NONE</source>
+        <translation>None</translation>
+    </message>
+    <message>
+        <source>Hexotic_GLOBAL</source>
+        <translation>Global</translation>
+    </message>
+    <message>
+        <source>Hexotic_GEOM_APPROX_ANGLE</source>
+        <translation>Mesh Angle</translation>
+    </message>
+    <message>
+        <source>allow_invalid_elements</source>
+        <translation>Allow invalid elements</translation>
+    </message>
+    <message>
+        <source>element_order</source>
+        <translation>Element order</translation>
+    </message>
+    <message>
+        <source>enforce_constant_layer_size</source>
+        <translation>Enforce constant layer size</translation>
+    </message>
+    <message>
+        <source>compute_ridges</source>
+        <translation>Compute ridges</translation>
+    </message>
+    <message>
+        <source>flatten_hexa_sides</source>
+        <translation>Flatten hexa sides</translation>
+    </message>
+    <message>
+        <source>max_memory</source>
+        <translation>Maximal memory</translation>
+    </message>
+    <message>
+        <source>max_number_of_threads</source>
+        <translation>Maximal number of threads</translation>
+    </message>
+    <message>
+        <source>ridge_angle</source>
+        <translation>Ridge angle (degrees)</translation>
+    </message>
+    <message>
+        <source>min_level</source>
+        <translation>Nb. Hexes Min Level</translation>
+    </message>
+    <message>
+        <source>max_level</source>
+        <translation>Nb. Hexes Max Level</translation>
+    </message>
+    <message>
+        <source>recover_sharp_angles</source>
+        <translation>Recover sharp angles</translation>
+    </message>
+    <message>
+        <source>sizemap_level</source>
+        <translation>Size map level</translation>
+    </message>
+    <message>
+        <source>tags</source>
+        <translation>Tags</translation>
     </message>
 </context>
 </TS>
