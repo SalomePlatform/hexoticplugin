@@ -230,10 +230,6 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   }
 
   myStdWidget = new HexoticPluginGUI_StdWidget(aStdGroup);
-#ifdef WIN32
-  myStdWidget->label_6->hide();
-  myStdWidget->myHexoticNbProc->hide();
-#endif
   l->addWidget( myStdWidget, row++, 0, 1, 3 );
   myStdWidget->onSdModeSelected(SD_MODE_4);
   //myStdWidget->gridLayout->setRowStretch( 1, 2 );
