@@ -122,6 +122,7 @@ protected slots:
   void             onAddLocalSize();
   void             onRemoveLocalSize();
   void             onTabChanged(int);
+  void             onAddOption();
   
 };
 

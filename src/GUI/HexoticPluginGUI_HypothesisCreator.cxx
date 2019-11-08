@@ -306,6 +306,7 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   connect( mySmpWidget->pushButton_1, SIGNAL( clicked() ),          this, SLOT( onAddLocalSize() ) );
   connect( mySmpWidget->pushButton_2, SIGNAL( clicked() ),          this, SLOT( onRemoveLocalSize() ) );
   connect( aTabWidget,                SIGNAL( currentChanged(int)), this, SLOT( onTabChanged( int ) ) );
+  connect( myAdvWidget->addBtn,       SIGNAL( clicked() ),          this, SLOT( onAddOption() ) );
   return fr;
 }
 
@@ -780,4 +781,9 @@ void HexoticPluginGUI_HypothesisCreator::onTabChanged(int i)
 {
   myVLWidget->myFacesWithLayers->ShowPreview( i == VL_TAB );
   myVLWidget->myImprintedFaces->ShowPreview( false );
+}
+
+void HexoticPluginGUI_HypothesisCreator::onAddOption()
+{
+  myAdvWidget->AddOption( NULL, true );
 }
