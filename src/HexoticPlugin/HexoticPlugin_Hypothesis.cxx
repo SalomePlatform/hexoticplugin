@@ -816,6 +816,16 @@ std::istream& HexoticPlugin_Hypothesis::LoadFrom(std::istream& load)
        }
      }
    }
+   else // pass old basic parameters to new advanced ones
+   {
+     SetHexesMinLevel             ( _hexesMinLevel );
+     SetHexesMaxLevel             ( _hexesMaxLevel );
+     SetHexoticIgnoreRidges       ( _hexoticIgnoreRidges );
+     SetHexoticInvalidElements    ( _hexoticInvalidElements );
+     SetHexoticSharpAngleThreshold( _hexoticSharpAngleThreshold );
+     SetHexoticNbProc             ( _hexoticNbProc );
+     SetHexoticMaxMemory          ( _hexoticMaxMemory );
+   }
 
    return load;
 }
