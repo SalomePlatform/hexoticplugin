@@ -384,7 +384,7 @@ void HexoticPluginGUI_HypothesisCreator::onRemoveLocalSize()
 {
   // Remove the selected rows in the table
   QList<QTableWidgetSelectionRange> ranges = mySmpWidget->tableWidget->selectedRanges();
-  if ( ranges.isEmpty() ) // If none is selected remove the last one
+  if ( ranges.isEmpty() && mySmpWidget->tableWidget->rowCount() > 0) // If none is selected remove the last one
   {
     int lastRow = mySmpWidget->tableWidget->rowCount() - 1;
     std::string entry = mySmpWidget->tableWidget->item( lastRow, ENTRY_COL )->text().toStdString();
