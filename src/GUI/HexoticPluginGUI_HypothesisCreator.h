@@ -123,6 +123,7 @@ protected slots:
   void             onRemoveLocalSize();
   void             onTabChanged(int);
   void             onAddOption();
+  void             onDirBtnClicked();
   
 };
 

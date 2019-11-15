@@ -307,6 +307,7 @@ QFrame* HexoticPluginGUI_HypothesisCreator::buildFrame()
   connect( mySmpWidget->pushButton_2, SIGNAL( clicked() ),          this, SLOT( onRemoveLocalSize() ) );
   connect( aTabWidget,                SIGNAL( currentChanged(int)), this, SLOT( onTabChanged( int ) ) );
   connect( myAdvWidget->addBtn,       SIGNAL( clicked() ),          this, SLOT( onAddOption() ) );
+  connect( myAdvWidget->dirBtn,       SIGNAL( clicked() ),          this, SLOT( onDirBtnClicked() ) );
   return fr;
 }
 
@@ -786,4 +787,11 @@ void HexoticPluginGUI_HypothesisCreator::onTabChanged(int i)
 void HexoticPluginGUI_HypothesisCreator::onAddOption()
 {
   myAdvWidget->AddOption( NULL, true );
+}
+
+void HexoticPluginGUI_HypothesisCreator::onDirBtnClicked()
+{
+  QString dir = SUIT_FileDlg::getExistingDirectory( dlg(), myAdvWidget->myHexoticWorkingDir->text(), QString() );
+  if ( !dir.isEmpty() )
+    myAdvWidget->myHexoticWorkingDir->setText( dir );
 }
