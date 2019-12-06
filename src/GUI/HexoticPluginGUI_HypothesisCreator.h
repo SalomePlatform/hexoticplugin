@@ -124,7 +124,6 @@ protected slots:
   void             onTabChanged(int);
   void             onAddOption();
   void             onDirBtnClicked();
-  
 };
 
 class SizeMapsTableWidgetDelegate : public QItemDelegate
