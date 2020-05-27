@@ -34,7 +34,7 @@
 
 #ifdef _DEBUG_
 #define DUMP(txt) \
-//  cout << txt
+//  std::cout << txt
 #else
 #define DUMP(txt)
 #endif
@@ -95,7 +95,6 @@ static void removeFile( const TCollection_AsciiString& fileName )
 HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, SMESH_Gen* gen)
   : SMESH_3D_Algo(hypId, gen)
 {
-  MESSAGE("HexoticPlugin_Hexotic::HexoticPlugin_Hexotic");
   _name = "MG-Hexa";
   _shapeType = (1 << TopAbs_SHELL) | (1 << TopAbs_SOLID);// 1 bit /shape type
   _onlyUnaryInput = false;
@@ -119,7 +118,6 @@ HexoticPlugin_Hexotic::HexoticPlugin_Hexotic(int hypId, SMESH_Gen* gen)
 
 HexoticPlugin_Hexotic::~HexoticPlugin_Hexotic()
 {
-  MESSAGE("HexoticPlugin_Hexotic::~HexoticPlugin_Hexotic");
 }
 
 
@@ -127,7 +125,6 @@ HexoticPlugin_Hexotic::~HexoticPlugin_Hexotic()
 bool HexoticPlugin_Hexotic::CheckBLSURFHypothesis( SMESH_Mesh&         aMesh,
                                                    const TopoDS_Shape& aShape )
 {
-  MESSAGE("HexoticPlugin_Hexotic::CheckBLSURFHypothesis");
   _blsurfHypo = NULL;
 
   std::list<const SMESHDS_Hypothesis*>::const_iterator itl;
@@ -166,7 +163,6 @@ bool HexoticPlugin_Hexotic::CheckHypothesis( SMESH_Mesh&                        
                                              const TopoDS_Shape&                  aShape,
                                              SMESH_Hypothesis::Hypothesis_Status& aStatus )
 {
-  MESSAGE("HexoticPlugin_Hexotic::CheckHypothesis");
   _hypothesis = NULL;
 
   std::list<const SMESHDS_Hypothesis*>::const_iterator itl;
@@ -254,23 +250,12 @@ static int getNbShape(MG_Hexotic_API* hexaOutput, int iMesh, GmfKwdCod what, int
   int number = hexaOutput->GmfStatKwd( iMesh, what );
   if ( number > 0 )
   {
-  // std::string aLine;
-  // std::ifstream file(aFile.c_str());
-  // while ( !file.eof() ) {
-  //   getline( file, aLine);
-  //   if ( aLine == aString ) {
-  //     getline( file, aLine);
-  //     std::istringstream stringFlux( aLine );
-  //     stringFlux >> number;
-      number = ( number + defaultValue + std::abs(number - defaultValue) ) / 2;
-    //   break;
-    // }
+    number = ( number + defaultValue + std::abs(number - defaultValue) ) / 2;
   }
   else
   {
     number = defaultValue;
   }
-  //file.close();
   return number;
 }
 
@@ -319,10 +304,10 @@ void getShape(Mesh* mesh, Shape shape, Tab *t_Shape)
 //=======================================================================
 
 static void printWarning(const int nbExpected, std::string aString, const int nbFound) {
-  cout << std::endl;
-  cout << "WARNING : " << nbExpected << " " << aString << " expected, MG-Hexa has found " << nbFound << std::endl;
-  cout << "=======" << std::endl;
-  cout << std::endl;
+  std::cout << std::endl;
+  std::cout << "WARNING : " << nbExpected << " " << aString << " expected, MG-Hexa has found " << nbFound << std::endl;
+  std::cout << "=======" << std::endl;
+  std::cout << std::endl;
   return;
 }
 
@@ -331,7 +316,8 @@ static void printWarning(const int nbExpected, std::string aString, const int nb
 //purpose  :
 //=======================================================================
 
-static void removeHexoticFiles(TCollection_AsciiString file_In, TCollection_AsciiString file_Out) {
+static void removeHexoticFiles(TCollection_AsciiString file_In, TCollection_AsciiString file_Out)
+{
   removeFile( file_In );
   removeFile( file_Out );
 }
@@ -437,28 +423,24 @@ static bool readResult(MG_Hexotic_API*       theHexaOutput,
   std::string token;
   int shapeID, hexoticShapeID;
   const int IdShapeRef = 2;
-  int *tabID = 0;
+  std::vector< int > tabID;
   double epsilon = Precision::Confusion();
   std::map <std::string,int> mapField;
-  SMDS_MeshNode** HexoticNode;
-  TopoDS_Shape *tabCorner;
+  std::vector< SMDS_MeshNode*> HexoticNode;
+  std::vector< TopoDS_Shape > tabCorner;
 
   const int nbDomains = countShape( theMesh, TopAbs_SHELL );
   const int holeID = -1;
 
   if ( nbDomains > 0 )
   {
-    tabID = new int[nbDomains];
-
-    for (int i=0; i<nbDomains; i++)
-      tabID[i] = 0;
+    tabID.resize( nbDomains, 0 );
     if ( nbDomains == 1 )
       tabID[0] = theMeshDS->ShapeToIndex( tabShape[0] );
   }
   else
   {
-    tabID = new int[1];
-    tabID[0] = 1;
+    tabID.resize( 1, 1 );
   }
 
   SMDS_ElemIteratorPtr eIt = theMeshDS->elementsIterator();
@@ -478,11 +460,11 @@ static bool readResult(MG_Hexotic_API*       theHexaOutput,
   if ( nbVertices == 0 )
     return false;
 
-  tabCorner   = new TopoDS_Shape[ nbCorners ];
-  HexoticNode = new SMDS_MeshNode*[ nbVertices + 1 ];
+  tabCorner.resize( nbCorners );
+  HexoticNode.resize( nbVertices + 1 );
 
   if ( nbCorners > 0 )
-    getShape(theMeshDS, TopAbs_VERTEX, tabCorner);
+    getShape( theMeshDS, TopAbs_VERTEX, tabCorner.data() );
 
   int nbNodes = theHexaOutput->GmfStatKwd( meshID, GmfVertices );
   if ( nbNodes > 0 )
@@ -623,7 +605,7 @@ static bool readResult(MG_Hexotic_API*       theHexaOutput,
       }
     }
   }
-  cout << std::endl;
+  std::cout << std::endl;
 
   // remove nodes in holes
   if ( nbDomains > 1 )
@@ -635,9 +617,20 @@ static bool readResult(MG_Hexotic_API*       theHexaOutput,
         theMeshDS->RemoveFreeNode( HexoticNode[i], subMesh, /*fromGroups=*/false );
       }
   }
-  delete [] tabID;
-  delete [] tabCorner;
-  delete [] HexoticNode;
+
+  // avoid "Error: No mesh on sub-shape"
+  if ( theMesh->NbVolumes() > 0 )
+  {
+    SMESH_subMesh*         smMain = theMesh->GetSubMesh( theMesh->GetShapeToMesh() );
+    SMESH_subMeshIteratorPtr smIt = smMain->getDependsOnIterator( /*includeSelf=*/true );
+    while ( smIt->more() )
+    {
+      SMESH_subMesh* sm = smIt->next();
+      if ( !sm->IsMeshComputed() )
+        sm->SetIsAlwaysComputed( true );
+    }
+  }
+
   return true;
 }
 
@@ -647,9 +640,8 @@ static bool readResult(MG_Hexotic_API*       theHexaOutput,
  */
 //=============================================================================
 
-void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
-
-  MESSAGE("HexoticPlugin_Hexotic::SetParameters");
+void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp)
+{
   if (hyp) {
     _hexesMinLevel = hyp->GetHexesMinLevel();
     _hexesMaxLevel = hyp->GetHexesMaxLevel();
@@ -677,9 +669,9 @@ void HexoticPlugin_Hexotic::SetParameters(const HexoticPlugin_Hypothesis* hyp) {
     _logInStandardOutput = hyp->GetStandardOutputLog();
   }
   else {
-    cout << std::endl;
-    cout << "WARNING : The MG-Hexa default parameters are taken into account" << std::endl;
-    cout << "=======" << std::endl;
+    std::cout << std::endl;
+    std::cout << "WARNING : The MG-Hexa default parameters are taken into account" << std::endl;
+    std::cout << "=======" << std::endl;
     _hexesMinLevel = hyp->GetDefaultHexesMinLevel();
     _hexesMaxLevel = hyp->GetDefaultHexesMaxLevel();
     _hexesMinSize = hyp->GetDefaultMinSize();
@@ -741,79 +733,80 @@ static TCollection_AsciiString getSuffix()
  */
 //================================================================================
 
-std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiString& Hexotic_In,
-                                                     const TCollection_AsciiString& Hexotic_Out,
-                                                     const TCollection_AsciiString& Hexotic_SizeMap_Prefix,
-                                                     const bool                     forExecutable) const
+std::string
+HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiString& Hexotic_In,
+                                         const TCollection_AsciiString& Hexotic_Out,
+                                         const TCollection_AsciiString& Hexotic_SizeMap_Prefix,
+                                         const bool                     forExecutable) const
 {
-  cout << std::endl;
-  cout << "MG-Hexa execution..." << std::endl;
-  cout << _name << " parameters :" << std::endl;
-  cout << "    " << _name << " Verbosity = " << _hexoticVerbosity << std::endl;
-  cout << "    " << _name << " Max Memory = " << _hexoticMaxMemory << std::endl;
-  cout << "    " << _name << " Segments Min Level = " << _hexesMinLevel << std::endl;
-  cout << "    " << _name << " Segments Max Level = " << _hexesMaxLevel << std::endl;
-  cout << "    " << _name << " Segments Min Size = " << _hexesMinSize << std::endl;
-  cout << "    " << _name << " Segments Max Size = " << _hexesMaxSize << std::endl;
-  cout << "    " << "MG-Hexa can ignore ridges : " << (_hexoticIgnoreRidges ? "yes":"no") << std::endl;
-  cout << "    " << "MG-Hexa authorize invalide elements : " << ( _hexoticInvalidElements ? "yes":"no") << std::endl;
-  cout << "    " << _name << " Sharp angle threshold = " << _hexoticSharpAngleThreshold << " degrees" << std::endl;
-  cout << "    " << _name << " Number of threads = " << _hexoticNbProc << std::endl;
-  cout << "    " << _name << " Working directory = \"" << _hexoticWorkingDirectory << "\"" << std::endl;
-  cout << "    " << _name << " Sub. Dom mode = " << _hexoticSdMode << std::endl;
-  cout << "    " << _name << " Text options = \"" << _textOptions << "\"" << std::endl;
-  cout << "    " << _name << " Number of layers = " << _nbLayers << std::endl;
-  cout << "    " << _name << " Size of the first layer  = " << _firstLayerSize << std::endl;
-  cout << "    " << _name << " Direction of the layers = " << ( _direction ? "Inward" : "Outward" ) << std::endl;
-  cout << "    " << _name << " Growth = " << _growth << std::endl;
+  std::cout << std::endl;
+  std::cout << "MG-Hexa execution..." << std::endl;
+  std::cout << _name << " parameters :" << std::endl;
+  std::cout << "    " << _name << " Verbosity = " << _hexoticVerbosity << std::endl;
+  std::cout << "    " << _name << " Max Memory = " << _hexoticMaxMemory << std::endl;
+  std::cout << "    " << _name << " Segments Min Level = " << _hexesMinLevel << std::endl;
+  std::cout << "    " << _name << " Segments Max Level = " << _hexesMaxLevel << std::endl;
+  std::cout << "    " << _name << " Segments Min Size = " << _hexesMinSize << std::endl;
+  std::cout << "    " << _name << " Segments Max Size = " << _hexesMaxSize << std::endl;
+  std::cout << "    " << "MG-Hexa can ignore ridges : " << (_hexoticIgnoreRidges ? "yes":"no") << std::endl;
+  std::cout << "    " << "MG-Hexa authorize invalide elements : " << ( _hexoticInvalidElements ? "yes":"no") << std::endl;
+  std::cout << "    " << _name << " Sharp angle threshold = " << _hexoticSharpAngleThreshold << " degrees" << std::endl;
+  std::cout << "    " << _name << " Number of threads = " << _hexoticNbProc << std::endl;
+  std::cout << "    " << _name << " Working directory = \"" << _hexoticWorkingDirectory << "\"" << std::endl;
+  std::cout << "    " << _name << " Sub. Dom mode = " << _hexoticSdMode << std::endl;
+  std::cout << "    " << _name << " Text options = \"" << _textOptions << "\"" << std::endl;
+  std::cout << "    " << _name << " Number of layers = " << _nbLayers << std::endl;
+  std::cout << "    " << _name << " Size of the first layer  = " << _firstLayerSize << std::endl;
+  std::cout << "    " << _name << " Direction of the layers = " << ( _direction ? "Inward" : "Outward" ) << std::endl;
+  std::cout << "    " << _name << " Growth = " << _growth << std::endl;
   if (!_facesWithLayers.empty()) {
-    cout << "    " << _name << " Faces with layers = ";
+    std::cout << "    " << _name << " Faces with layers = ";
     for (size_t i = 0; i < _facesWithLayers.size(); i++)
     {
-      cout << _facesWithLayers.at(i);
+      std::cout << _facesWithLayers.at(i);
       if ((i + 1) != _facesWithLayers.size())
-        cout << ", ";
+        std::cout << ", ";
     }
-    cout << std::endl;
+    std::cout << std::endl;
   }
   if (!_imprintedFaces.empty()) {
-    cout << "    " << _name << " Imprinted faces = ";
+    std::cout << "    " << _name << " Imprinted faces = ";
     for (size_t i = 0; i < _imprintedFaces.size(); i++)
     {
-      cout << _imprintedFaces.at(i);
+      std::cout << _imprintedFaces.at(i);
       if ((i + 1) != _imprintedFaces.size())
-        cout << ", ";
+        std::cout << ", ";
     }
-    cout << std::endl;
+    std::cout << std::endl;
   }
 
   TCollection_AsciiString run_Hexotic("mg-hexa.exe");
 
-  TCollection_AsciiString minl = " --min_level ", maxl = " --max_level ", angle = " --ridge_angle ";
-  TCollection_AsciiString mins = " --min_size ", maxs = " --max_size ";
-  TCollection_AsciiString in   = " --in ",   out  = " --out ";
-  TCollection_AsciiString sizeMap = " --read_sizemap ";
+  TCollection_AsciiString minl         = " --min_level ", maxl = " --max_level ", angle = " --ridge_angle ";
+  TCollection_AsciiString mins         = " --min_size ", maxs = " --max_size ";
+  TCollection_AsciiString in           = " --in ",   out  = " --out ";
+  TCollection_AsciiString sizeMap      = " --read_sizemap ";
   TCollection_AsciiString ignoreRidges = " --compute_ridges no ", invalideElements = " --allow_invalid_elements yes ";
-  TCollection_AsciiString subdom = " --components ";
+  TCollection_AsciiString subdom       = " --components ";
 #ifndef WIN32
-  TCollection_AsciiString proc = " --max_number_of_threads ";
+  TCollection_AsciiString proc         = " --max_number_of_threads ";
 #endif
-  TCollection_AsciiString verb = " --verbose ";
-  TCollection_AsciiString maxmem = " --max_memory ";
+  TCollection_AsciiString verb         = " --verbose ";
+  TCollection_AsciiString maxmem       = " --max_memory ";
 
-  TCollection_AsciiString comNbLayers = " --number_of_boundary_layers ";
-  TCollection_AsciiString comFirstLayerSize = " --height_of_the_first_layer ";
-  TCollection_AsciiString comDirection = " --boundary_layers_subdomain_direction ";
-  TCollection_AsciiString comGrowth = " --boundary_layers_geometric_progression ";
+  TCollection_AsciiString comNbLayers        = " --number_of_boundary_layers ";
+  TCollection_AsciiString comFirstLayerSize  = " --height_of_the_first_layer ";
+  TCollection_AsciiString comDirection       = " --boundary_layers_subdomain_direction ";
+  TCollection_AsciiString comGrowth          = " --boundary_layers_geometric_progression ";
   TCollection_AsciiString comFacesWithLayers = " --boundary_layers_surface_ids ";
-  TCollection_AsciiString comImptintedFaces = " --imprinted_surface_ids ";
+  TCollection_AsciiString comImptintedFaces  = " --imprinted_surface_ids ";
 
   TCollection_AsciiString minLevel, maxLevel, minSize, maxSize, sharpAngle, mode, nbproc, verbosity, maxMemory,
                           textOptions, nbLayers, firstLayerSize, direction, growth, facesWithLayers, imprintedFaces;
-  minLevel = _hexesMinLevel;
-  maxLevel = _hexesMaxLevel;
-  minSize = _hexesMinSize;
-  maxSize = _hexesMaxSize;
+  minLevel   = _hexesMinLevel;
+  maxLevel   = _hexesMaxLevel;
+  minSize    = _hexesMinSize;
+  maxSize    = _hexesMaxSize;
   sharpAngle = _hexoticSharpAngleThreshold;
   // Mode translation for mg-tetra 1.1
   switch ( _hexoticSdMode )
@@ -831,14 +824,14 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
       mode = "all --manifold_geometry no";
       break;
   }
-  nbproc = _hexoticNbProc;
-  verbosity = _hexoticVerbosity;
-  maxMemory = _hexoticMaxMemory;
-  textOptions = (" " + _textOptions + " ").c_str();
-  nbLayers = _nbLayers;
+  nbproc         = _hexoticNbProc;
+  verbosity      = _hexoticVerbosity;
+  maxMemory      = _hexoticMaxMemory;
+  textOptions    = (" " + _textOptions + " ").c_str();
+  nbLayers       = _nbLayers;
   firstLayerSize = _firstLayerSize;
-  direction = _direction ? "1" : "-1";
-  growth = _growth;
+  direction      = _direction ? "1" : "-1";
+  growth         = _growth;
   for (size_t i = 0; i < _facesWithLayers.size(); i++)
   {
     facesWithLayers += _facesWithLayers[i];
@@ -908,8 +901,6 @@ std::string HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiStri
 // way to share it
 TopoDS_Shape HexoticPlugin_Hexotic::entryToShape(std::string entry)
 {
-  MESSAGE("HexoticPlugin_Hexotic::entryToShape "<<entry );
-
   GEOM::GEOM_Object_var aGeomObj;
   TopoDS_Shape S = TopoDS_Shape();
   SALOMEDS::SObject_var aSObj = SMESH_Gen_i::getStudyServant()->FindObjectID( entry.c_str() );
@@ -928,11 +919,12 @@ TopoDS_Shape HexoticPlugin_Hexotic::entryToShape(std::string entry)
  * \brief Produces a .mesh file with the size maps informations to give to Hexotic
  */
 //================================================================================
+
 std::vector<std::string> HexoticPlugin_Hexotic::writeSizeMapFile( MG_Hexotic_API* mgInput,
                                                                   std::string     sizeMapPrefix )
 {
   HexoticPlugin_Hypothesis::THexoticSizeMaps::iterator it;
-  
+
   std::vector<ControlPnt> points;
   // Iterate on the size maps
   for (it=_sizeMaps.begin(); it!=_sizeMaps.end(); it++)
@@ -1067,8 +1059,8 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
       splitQuads(aMesh); // quadrangles are no longer acceptable as input
       if ( mgHexa.IsExecutable() )
       {
-        cout << std::endl;
-        cout << "Creating MG-Hexa input mesh file : " << Hexotic_In << std::endl;
+        std::cout << std::endl;
+        std::cout << "Creating MG-Hexa input mesh file : " << Hexotic_In << std::endl;
       }
       writeInput( &mgHexa, Hexotic_In.ToCString(), meshDS );
 #ifdef WITH_BLSURFPLUGIN
@@ -1084,10 +1076,10 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     std::string run_Hexotic = getHexoticCommand(aQuote + Hexotic_In + aQuote, aQuote + Hexotic_Out + aQuote, Hexotic_SizeMap_Prefix, mgHexa.IsExecutable() );
     run_Hexotic += std::string(" 1> ") + aQuote.ToCString() + aLogFileName.ToCString() + aQuote.ToCString();  // dump into file
     mgHexa.SetLogFile( aLogFileName.ToCString() );
-    cout << "Creating MG-Hexa log file : " << aLogFileName << std::endl;
+    std::cout << "Creating MG-Hexa log file : " << aLogFileName << std::endl;
 
-    cout << std::endl;
-    cout << "MG-Hexa command : " << run_Hexotic << std::endl;
+    std::cout << std::endl;
+    std::cout << "MG-Hexa command : " << run_Hexotic << std::endl;
 
     if ( mgHexa.IsExecutable() )
     {
@@ -1153,7 +1145,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     }
 
     if ( !Ok && mgHexa.IsExecutable() )
-      cout << "Problem with MG-Hexa output file " << Hexotic_Out.ToCString() << std::endl;
+      std::cout << "Problem with MG-Hexa output file " << Hexotic_Out.ToCString() << std::endl;
 
     if ( !_keepFiles )
     {
@@ -1164,8 +1156,8 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
       for ( size_t i = 0; i < sizeMapFiles.size(); i++ )
         removeFile( sizeMapFiles[i].c_str() );
     }
-    cout << "Hexahedra meshing " << hexahedraMessage << std::endl;
-    cout << std::endl;
+    std::cout << "Hexahedra meshing " << hexahedraMessage << std::endl;
+    std::cout << std::endl;
 
     delete [] tabShape;
     for (int i=0; i<_nbShape; i++)
@@ -1192,9 +1184,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
 bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHelper)
 {
   _computeCanceled = false;
-  /*
-    SMESH_ComputeErrorPtr myError = SMESH_ComputeError::New();
-  */
+
   bool Ok = true;
   TCollection_AsciiString hexahedraMessage;
   TCollection_AsciiString aQuote("");
@@ -1222,14 +1212,14 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   std::string run_Hexotic = getHexoticCommand(aQuote + Hexotic_In + aQuote, aQuote + Hexotic_Out + aQuote, Hexotic_SizeMap_Prefix, mgHexa.IsExecutable());
   run_Hexotic += std::string(" 1> ") + aQuote.ToCString() + aLogFileName.ToCString() + aQuote.ToCString();  // dump into file
   mgHexa.SetLogFile( aLogFileName.ToCString() );
-  cout << "Creating MG-Hexa log file : " << aLogFileName << std::endl;
+  std::cout << "Creating MG-Hexa log file : " << aLogFileName << std::endl;
 
   removeHexoticFiles(Hexotic_In, Hexotic_Out);
 
   splitQuads(aMesh); // quadrangles are no longer acceptable as input
 
-  cout << std::endl;
-  cout << "Creating MG-Hexa input mesh file : " << Hexotic_In << std::endl;
+  std::cout << std::endl;
+  std::cout << "Creating MG-Hexa input mesh file : " << Hexotic_In << std::endl;
   writeInput( &mgHexa, Hexotic_In.ToCString(), aHelper->GetMeshDS() );
   if ( mgHexa.IsExecutable() )
   {
@@ -1243,8 +1233,8 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
 
   MESSAGE("HexoticPlugin_Hexotic::Compute");
 
-  cout << std::endl;
-  cout << "MG-Hexa command : " << run_Hexotic << std::endl;
+  std::cout << std::endl;
+  std::cout << "MG-Hexa command : " << run_Hexotic << std::endl;
 
   std::string errStr;
   Ok = mgHexa.Compute( run_Hexotic, errStr ); // run
@@ -1270,7 +1260,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   {
     hexahedraMessage = "failed";
     if ( mgHexa.IsExecutable() )
-      cout << "Problem with MG-Hexa output file " << Hexotic_Out << std::endl;
+      std::cout << "Problem with MG-Hexa output file " << Hexotic_Out << std::endl;
 
     if ( log.find( " license " ) != std::string::npos ||
          log.find( " Dlim "    ) != std::string::npos )
@@ -1279,8 +1269,8 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
     if ( !errStr.empty() )
       error(errStr);
   }
-  cout << "Hexahedra meshing " << hexahedraMessage << std::endl;
-  cout << std::endl;
+  std::cout << "Hexahedra meshing " << hexahedraMessage << std::endl;
+  std::cout << std::endl;
 
   if(_computeCanceled)
     return error(SMESH_Comment("interruption initiated by user"));

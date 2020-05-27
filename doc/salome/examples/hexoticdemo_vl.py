@@ -4,7 +4,6 @@ salome.salome_init()
 from salome.geom import geomBuilder
 geompy = geomBuilder.New()
 
-import SMESH, SALOMEDS
 from salome.smesh import smeshBuilder
 smesh =  smeshBuilder.New()
 
@@ -16,13 +15,13 @@ geompy.addToStudy( Box_1, 'Box_1' )
 Mesh_mghexa_vl = smesh.Mesh(Box_1, "Mesh_mghexa_vl")
 
 Regular_1D = Mesh_mghexa_vl.Segment()
-Local_Length_1 = Regular_1D.LocalLength(8.66025,None,1e-07)
+Local_Length_1 = Regular_1D.LocalLength(8.66025)
 
 MEFISTO_2D = Mesh_mghexa_vl.Triangle(algo=smeshBuilder.MEFISTO)
 
 MG_Hexa = Mesh_mghexa_vl.Hexahedron(algo=smeshBuilder.MG_Hexa)
 MG_Hexa_Parameters = MG_Hexa.Parameters()
-MG_Hexa.SetViscousLayers(5,5,3,smeshBuilder.Inward,[13,23])
+MG_Hexa.SetViscousLayers(5,5,3,[13,23])
 MG_Hexa_Parameters.SetMinSize( 2 )
 MG_Hexa_Parameters.SetMaxSize( 4 )
 MG_Hexa_Parameters.SetHexesMinLevel( 2 )
