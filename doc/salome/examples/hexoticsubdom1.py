@@ -53,6 +53,6 @@ g3 = Mesh_mghexa_sd1.GroupOnFilter(SMESH.VOLUME, 'box - big sphere', aFilter3 )
 g3.SetColor( SALOMEDS.Color( 0, 0, 1 ))
 
 # Compute
-Mesh_mghexa_sd1.Compute()
+assert Mesh_mghexa_sd1.Compute(), "Meshing fails"
 
 # End of script
