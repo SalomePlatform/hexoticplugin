@@ -28,6 +28,6 @@ MG_Hexa_Parameters.SetHexesMinLevel( 2 )
 MG_Hexa_Parameters.SetHexesMaxLevel( 4 )
 
 # Compute
-Mesh_mghexa_vl.Compute()
+assert Mesh_mghexa_vl.Compute(), "Meshing fails"
 
 # End of script

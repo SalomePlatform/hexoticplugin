@@ -21,6 +21,6 @@ Mesh_mghexa_sd4.Triangle(smeshBuilder.MG_CADSurf)
 Mesh_mghexa_sd4.Hexahedron(smeshBuilder.MG_Hexa).SetMinMaxHexes(4, 8).SetHexoticSdMode( 4 )
 
 # Compute
-Mesh_mghexa_sd4.Compute()
+assert Mesh_mghexa_sd4.Compute(), "Meshing fails"
 
 # End of script

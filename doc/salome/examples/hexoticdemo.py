@@ -41,6 +41,6 @@ MG_Hexa.SetMinMaxSize(10, 20)
 MG_Hexa.SetSizeMap(faces[0], 10)
 
 # compute the mesh
-mghexaMesh.Compute()
+assert mghexaMesh.Compute(), "Meshing fails"
 
 # End of script
