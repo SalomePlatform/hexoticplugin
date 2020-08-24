@@ -107,9 +107,9 @@ public:
   typedef std::set< std::string >              TOptionNames;
 
   void SetOptionValue(const std::string& optionName,
-                      const std::string& optionValue) throw (std::invalid_argument);
+                      const std::string& optionValue);
   std::string GetOptionValue(const std::string& optionName,
-                             bool*              isDefault=0) const throw (std::invalid_argument);
+                             bool*              isDefault=0) const;
   bool HasOptionDefined( const std::string& optionName ) const;
   void ClearOption(const std::string& optionName);
   TOptionValues        GetOptionValues()       const;
@@ -117,9 +117,9 @@ public:
   std::string GetAdvancedOption( bool customOnly = false ) const;
   void SetAdvancedOption(const std::string& theOptions); // obsolete
 
-  static bool  ToBool(const std::string& str, bool* isOk=0) throw (std::invalid_argument);
-  static double ToDbl(const std::string& str, bool* isOk=0) throw (std::invalid_argument);
-  static int    ToInt(const std::string& str, bool* isOk=0) throw (std::invalid_argument);
+  static bool  ToBool(const std::string& str, bool* isOk=0);
+  static double ToDbl(const std::string& str, bool* isOk=0);
+  static int    ToInt(const std::string& str, bool* isOk=0);
 
 
   // Size Maps

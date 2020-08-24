@@ -58,7 +58,6 @@ extern "C"
     else if (strcmp(aHypName, "Hexotic_Parameters") == 0 ||
              strcmp(aHypName, "MG-Hexa Parameters") == 0)
       aCreator = new HexoticPlugin_Creator_i<HexoticPlugin_Hypothesis_i>;
-    else ;
 
     return aCreator;
   }

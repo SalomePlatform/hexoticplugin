@@ -81,7 +81,7 @@ static void removeFile( const TCollection_AsciiString& fileName )
   try {
     OSD_File( fileName ).Remove();
   }
-  catch ( Standard_ProgramError ) {
+  catch ( Standard_ProgramError& ) {
     MESSAGE("Can't remove file: " << fileName.ToCString() << " ; file does not exist or permission denied");
   }
 }
@@ -988,7 +988,7 @@ std::vector<std::string> HexoticPlugin_Hexotic::writeSizeMapFile( MG_Hexotic_API
 //=============================================================================
 
 bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
-                                    const TopoDS_Shape& aShape)
+                                    const TopoDS_Shape& /*aShape*/)
 {
   _computeCanceled = false;
   bool Ok = true;

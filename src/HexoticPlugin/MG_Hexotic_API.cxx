@@ -373,7 +373,7 @@ struct MG_Hexotic_API::LibData
     _nbRequiredTria = nb;
   }
 
-  void AddNode( double x, double y, double z, int domain )
+  void AddNode( double x, double y, double z, int /*domain*/ )
   {
     _xyz.push_back( x );
     _xyz.push_back( y );
@@ -701,6 +701,14 @@ bool MG_Hexotic_API::LibData::Compute()
   return true;
 }
 
+#else // ifdef USE_MG_LIBS
+
+struct MG_Hexotic_API::LibData // to avoid compiler warnings
+{
+  volatile bool& _cancelled_flag;
+  double& _progress;
+  LibData(volatile bool& cancelled_flag, double& progress): _cancelled_flag{cancelled_flag}, _progress{progress} {}
+};
 
 #endif // ifdef USE_MG_LIBS
 
@@ -714,9 +722,9 @@ bool MG_Hexotic_API::LibData::Compute()
 MG_Hexotic_API::MG_Hexotic_API(volatile bool& cancelled_flag, double& progress)
 {
   _useLib = false;
+  _libData = new LibData( cancelled_flag, progress );
 #ifdef USE_MG_LIBS
   _useLib = true;
-  _libData = new LibData( cancelled_flag, progress );
   _libData->Init();
   if ( getenv("MG_HEXA_USE_EXE"))
     _useLib = false;
@@ -901,7 +909,7 @@ void MG_Hexotic_API::GmfGotoKwd( int iMesh, GmfKwdCod what )
  */
 //================================================================================
 
-void MG_Hexotic_API::GmfGetLin( int iMesh, GmfKwdCod what, int* nbNodes, int* faceInd, int* ori, int* domain, int dummy )
+void MG_Hexotic_API::GmfGetLin( int iMesh, GmfKwdCod what, int* nbNodes, int* faceInd, int* ori, int* domain, int /*dummy*/ )
 {
   if ( _useLib ) {
 #ifdef USE_MG_LIBS

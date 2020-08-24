@@ -74,7 +74,7 @@ class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
   void SetHexoticNbProc(CORBA::Long theVal);
   CORBA::Long GetHexoticNbProc();
 
-  void SetHexoticWorkingDirectory(const char* path) throw ( SALOME::SALOME_Exception );
+  void SetHexoticWorkingDirectory(const char* path);
   char* GetHexoticWorkingDirectory();
 
   void SetKeepFiles(::CORBA::Boolean toKeep);
@@ -95,19 +95,19 @@ class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
   void SetHexoticMaxMemory(CORBA::Long theVal);
   CORBA::Long GetHexoticMaxMemory();
 
-  void SetAdvancedOption(const char* theOptions) throw (SALOME::SALOME_Exception);
+  void SetAdvancedOption(const char* theOptions);
   char* GetAdvancedOption();
   void SetTextOptions(const char* theOptions); // obsolete
   char* GetTextOptions();
 
-  void SetOptionValue(const char* optionName, const char* optionValue) throw (SALOME::SALOME_Exception);
-  char* GetOptionValue(const char* optionName) throw (SALOME::SALOME_Exception);
+  void SetOptionValue(const char* optionName, const char* optionValue);
+  char* GetOptionValue(const char* optionName);
   void UnsetOption(const char* optionName);
 
   HexoticPlugin::string_array* GetOptionValues();
   HexoticPlugin::string_array* GetAdvancedOptionValues();
 
-  void SetOptionValues(const HexoticPlugin::string_array& options) throw (SALOME::SALOME_Exception);
+  void SetOptionValues(const HexoticPlugin::string_array& options);
   void SetAdvancedOptionValues(const HexoticPlugin::string_array& options);
 
   void AddOption(const char* optionName, const char* optionValue);

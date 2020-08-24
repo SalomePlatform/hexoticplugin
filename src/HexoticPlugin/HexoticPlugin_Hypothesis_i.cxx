@@ -167,7 +167,7 @@ void HexoticPlugin_Hypothesis_i::SetHexoticNbProc (CORBA::Long theValue)
     SMESH::TPythonDump() << _this() << ".SetHexoticNbProc( " << theValue << " )";
 }
 
-void HexoticPlugin_Hypothesis_i::SetHexoticWorkingDirectory(const char* path) throw ( SALOME::SALOME_Exception )
+void HexoticPlugin_Hypothesis_i::SetHexoticWorkingDirectory(const char* path)
 {
   if (!path )
     THROW_SALOME_CORBA_EXCEPTION( "Null working directory",SALOME::BAD_PARAM );
@@ -263,7 +263,6 @@ void HexoticPlugin_Hypothesis_i::SetHexoticMaxMemory (CORBA::Long theValue)
 }
 
 void HexoticPlugin_Hypothesis_i::SetOptionValue(const char* optionName, const char* optionValue)
-  throw (SALOME::SALOME_Exception)
 {
   ASSERT(myBaseImpl);
   try {
@@ -313,7 +312,7 @@ void HexoticPlugin_Hypothesis_i::SetOptionValue(const char* optionName, const ch
       try {
         valueChanged = ( this->GetImpl()->GetOptionValue( name, &isDefault ) != optionValue );
       }
-      catch ( std::invalid_argument ) {
+      catch ( std::invalid_argument& ) {
       }
       if ( valueChanged )
       {
@@ -331,7 +330,6 @@ void HexoticPlugin_Hypothesis_i::SetOptionValue(const char* optionName, const ch
 //=============================================================================
 
 char* HexoticPlugin_Hypothesis_i::GetOptionValue(const char* optionName)
-  throw (SALOME::SALOME_Exception)
 {
   ASSERT(myBaseImpl);
   try {
@@ -409,7 +407,6 @@ HexoticPlugin::string_array* HexoticPlugin_Hypothesis_i::GetAdvancedOptionValues
 //=============================================================================
 
 void HexoticPlugin_Hypothesis_i::SetOptionValues(const HexoticPlugin::string_array& options)
-  throw (SALOME::SALOME_Exception)
 {
   for (CORBA::ULong i = 0; i < options.length(); ++i)
   {
@@ -470,7 +467,6 @@ void HexoticPlugin_Hypothesis_i::SetAdvancedOptionValues(const HexoticPlugin::st
 //=============================================================================
 
 void HexoticPlugin_Hypothesis_i::SetAdvancedOption(const char* optionsAndValues)
-  throw (SALOME::SALOME_Exception)
 {
   if ( !optionsAndValues ) return;
 

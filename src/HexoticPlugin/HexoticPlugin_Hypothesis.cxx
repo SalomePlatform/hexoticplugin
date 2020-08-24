@@ -265,7 +265,6 @@ void HexoticPlugin_Hypothesis::SetRemoveLogOnSuccess(bool removeLogOnSuccess)
 
 void HexoticPlugin_Hypothesis::SetOptionValue(const std::string& optionName,
                                               const std::string& optionValue)
-  throw (std::invalid_argument)
 {
   TOptionValues::iterator op_val = _option2value.find(optionName);
   if (op_val == _option2value.end())
@@ -330,7 +329,6 @@ void HexoticPlugin_Hypothesis::SetOptionValue(const std::string& optionName,
 //  empty if it equals a default one.
 std::string HexoticPlugin_Hypothesis::GetOptionValue(const std::string& optionName,
                                                      bool*              isDefault) const
-  throw (std::invalid_argument)
 {
   TOptionValues::const_iterator op_val = _option2value.find(optionName);
   if (op_val == _option2value.end())
@@ -363,7 +361,7 @@ bool HexoticPlugin_Hypothesis::HasOptionDefined( const std::string& optionName )
   {
     GetOptionValue( optionName, &isDefault );
   }
-  catch ( std::invalid_argument )
+  catch ( std::invalid_argument& )
   {
     return false;
   }
@@ -401,7 +399,6 @@ HexoticPlugin_Hypothesis::TOptionValues HexoticPlugin_Hypothesis::GetOptionValue
 //================================================================================
 
 bool HexoticPlugin_Hypothesis::ToBool(const std::string& str, bool* isOk )
-  throw (std::invalid_argument)
 {
   std::string s = str;
   if ( isOk ) *isOk = true;
@@ -431,7 +428,6 @@ bool HexoticPlugin_Hypothesis::ToBool(const std::string& str, bool* isOk )
 //================================================================================
 
 double HexoticPlugin_Hypothesis::ToDbl(const std::string& str, bool* isOk )
-  throw (std::invalid_argument)
 {
   if ( str.empty() ) throw std::invalid_argument("Empty value provided");
 
@@ -456,7 +452,6 @@ double HexoticPlugin_Hypothesis::ToDbl(const std::string& str, bool* isOk )
 //================================================================================
 
 int HexoticPlugin_Hypothesis::ToInt(const std::string& str, bool* isOk )
-  throw (std::invalid_argument)
 {
   if ( str.empty() ) throw std::invalid_argument("Empty value provided");
 
@@ -859,8 +854,8 @@ std::istream& operator >>(std::istream& load, HexoticPlugin_Hypothesis& hyp)
  * \retval bool - always false
  */
 //================================================================================
-bool HexoticPlugin_Hypothesis::SetParametersByMesh(const SMESH_Mesh*   theMesh,
-                                                   const TopoDS_Shape& theShape)
+bool HexoticPlugin_Hypothesis::SetParametersByMesh(const SMESH_Mesh*   /*theMesh*/,
+                                                   const TopoDS_Shape& /*theShape*/)
 {
   return false;
 }
