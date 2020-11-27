@@ -455,15 +455,17 @@ static bool readResult(MG_Hexotic_API*       theHexaOutput,
   int ver, dim;
   int meshID = theHexaOutput->GmfOpenMesh( theFile, GmfRead, &ver, &dim );
 
+  int nbVerticesInShape = countShape( theMesh, TopAbs_VERTEX );
   int nbVertices  = getNbShape(theHexaOutput, meshID, GmfVertices );
-  int nbCorners   = getNbShape(theHexaOutput, meshID, GmfCorners, countShape( theMesh, TopAbs_VERTEX ));
+  int nbCorners   = getNbShape(theHexaOutput, meshID, GmfCorners, nbVerticesInShape);
   if ( nbVertices == 0 )
     return false;
 
   tabCorner.resize( nbCorners );
   HexoticNode.resize( nbVertices + 1 );
 
-  if ( nbCorners > 0 )
+  // get the shape vertices if the mesh lies on a shape (and this shape has corners)
+  if ( nbCorners > 0 && nbVerticesInShape > 0 )
     getShape( theMeshDS, TopAbs_VERTEX, tabCorner.data() );
 
   int nbNodes = theHexaOutput->GmfStatKwd( meshID, GmfVertices );
