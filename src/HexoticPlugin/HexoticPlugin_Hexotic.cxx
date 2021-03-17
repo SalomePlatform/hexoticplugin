@@ -351,7 +351,8 @@ static void writeInput(MG_Hexotic_API*     theHexaInput,
   int meshID = theHexaInput->GmfOpenMesh( theFile, GmfWrite, GMFVERSION, GMFDIMENSION);
   
   // nodes
-  int iN = 0, nbNodes = theMeshDS->NbNodes();
+  int iN = 0;
+  smIdType nbNodes = theMeshDS->NbNodes();
   theHexaInput->GmfSetKwd( meshID, GmfVertices, nbNodes );
   std::map< const SMDS_MeshNode*, int, TIDCompare > node2IdMap;
   SMDS_NodeIteratorPtr nodeIt = theMeshDS->nodesIterator();
@@ -367,7 +368,7 @@ static void writeInput(MG_Hexotic_API*     theHexaInput,
   SMDS_ElemIteratorPtr elemIt = theMeshDS->elementsIterator( SMDSAbs_Edge );
   if ( elemIt->more() )
   {
-    int nbEdges = theMeshDS->GetMeshInfo().NbElements( SMDSAbs_Edge );
+    smIdType nbEdges = theMeshDS->GetMeshInfo().NbElements( SMDSAbs_Edge );
     theHexaInput->GmfSetKwd(meshID, GmfEdges, nbEdges );
     for ( int gmfID = 1; elemIt->more(); ++gmfID )
     {
@@ -383,7 +384,7 @@ static void writeInput(MG_Hexotic_API*     theHexaInput,
   elemIt = theMeshDS->elementGeomIterator( SMDSGeom_TRIANGLE );
   if ( elemIt->more() )
   {
-    int nbTria = theMeshDS->GetMeshInfo().NbElements( SMDSGeom_TRIANGLE );
+    smIdType nbTria = theMeshDS->GetMeshInfo().NbElements( SMDSGeom_TRIANGLE );
     theHexaInput->GmfSetKwd(meshID, GmfTriangles, nbTria );
     for ( int gmfID = 1; elemIt->more(); ++gmfID )
     {
@@ -1297,8 +1298,8 @@ bool HexoticPlugin_Hexotic::Evaluate(SMESH_Mesh&         aMesh,
                                      const TopoDS_Shape& aShape,
                                      MapShapeNbElems&    aResMap)
 {
-  std::vector<int> aResVec(SMDSEntity_Last);
-  for(int i=SMDSEntity_Node; i<SMDSEntity_Last; i++) aResVec[i] = 0;
+  std::vector<smIdType> aResVec(SMDSEntity_Last);
+  for(smIdType i=SMDSEntity_Node; i<SMDSEntity_Last; i++) aResVec[i] = 0;
   SMESH_subMesh * sm = aMesh.GetSubMesh(aShape);
   aResMap.insert(std::make_pair(sm,aResVec));
 
