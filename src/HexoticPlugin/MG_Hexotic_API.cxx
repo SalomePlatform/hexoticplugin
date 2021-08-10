@@ -23,6 +23,7 @@
 #define NOMINMAX
 #endif
 
+#include <DriverGMF_Read.hxx>
 #include <SMESH_Comment.hxx>
 #include <SMESH_File.hxx>
 #include <SMESH_MGLicenseKeyGen.hxx>
@@ -1108,9 +1109,9 @@ void MG_Hexotic_API::GmfSetKwd(int iMesh, GmfKwdCod what, int nb )
   if ( iMesh == 1 && _isMesh )
   {
     switch ( what ) {
-    case GmfVertices:  _nbNodes = nb; break;
-    case GmfEdges:     _nbEdges = nb; break;
-    case GmfTriangles: _nbFaces = nb; break;
+    case GmfVertices:  _nbNodes += nb; break;
+    case GmfEdges:     _nbEdges += nb; break;
+    case GmfTriangles: _nbFaces += nb; break;
     default:;
     }
   }
@@ -1129,6 +1130,26 @@ void MG_Hexotic_API::GmfSetKwd(int iMesh, GmfKwdCod what, int nb )
 #endif
   }
   ::GmfSetKwd(iMesh, what, nb );
+}
+
+//================================================================================
+/*!
+ * \brief Set GMF file made by MG-CADSurf to get nb of mesh entities from it
+ */
+//================================================================================
+
+void MG_Hexotic_API::SetInputFile( const std::string mesh2DFile )
+{
+  DriverGMF_Read fileReader;
+  fileReader.SetFile( mesh2DFile );
+
+  smIdType nbVertex, nbEdge, nbFace, nbVol;
+  if ( fileReader.GetMeshInfo(nbVertex, nbEdge, nbFace, nbVol))
+  {
+    _nbNodes += nbVertex;
+    _nbEdges += nbEdge;
+    _nbFaces += nbFace;
+  }
 }
 
 //================================================================================
@@ -1297,5 +1318,5 @@ std::string MG_Hexotic_API::GetLog()
 #endif
   }
   SMESH_File file( _logFile );
-  return file.getPos();
+  return file.exists() ? file.getPos() : "";
 }

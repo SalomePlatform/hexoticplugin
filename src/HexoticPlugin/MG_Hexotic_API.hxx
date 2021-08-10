@@ -41,6 +41,7 @@ public:
   bool IsLibrary();
   bool IsExecutable() { return !IsLibrary(); }
   void SetUseExecutable();
+  void SetInputFile( const std::string mesh2DFile );
 
   // IN to MESHGEMS
   int  GmfOpenMesh(const char* theFile, int rdOrWr, int ver, int dim);

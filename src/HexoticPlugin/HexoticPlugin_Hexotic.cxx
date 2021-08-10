@@ -67,6 +67,7 @@
 #include <TopoDS_Vertex.hxx>
 #include <gp_Pnt.hxx>
 
+#include <Basics_DirUtils.hxx>
 #include <Basics_Utils.hxx>
 #include <GEOMImpl_Types.hxx>
 #include <GEOM_wrap.hxx>
@@ -788,7 +789,7 @@ HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiString& Hexotic_
   TCollection_AsciiString minl         = " --min_level ", maxl = " --max_level ", angle = " --ridge_angle ";
   TCollection_AsciiString mins         = " --min_size ", maxs = " --max_size ";
   TCollection_AsciiString in           = " --in ",   out  = " --out ";
-  TCollection_AsciiString sizeMap      = " --read_sizemap ";
+  TCollection_AsciiString sizeMap      = " --sizemap ";
   TCollection_AsciiString ignoreRidges = " --compute_ridges no ", invalideElements = " --allow_invalid_elements yes ";
   TCollection_AsciiString subdom       = " --components ";
 #ifndef WIN32
@@ -870,7 +871,7 @@ HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiString& Hexotic_
     run_Hexotic +=  angle + sharpAngle;
   
   if (_sizeMaps.begin() != _sizeMaps.end() && forExecutable )
-    run_Hexotic += sizeMap + Hexotic_SizeMap_Prefix;
+    run_Hexotic += sizeMap + Hexotic_SizeMap_Prefix + ".sol";
 
   if (_nbLayers       > 0 &&
       _firstLayerSize > 0 &&
@@ -1025,7 +1026,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
 
     SetParameters(_hypothesis);
 
-    TCollection_AsciiString aTmpDir = _hexoticWorkingDirectory.c_str();
+    TCollection_AsciiString aTmpDir = Kernel_Utils::GetTmpDirByPath(_hexoticWorkingDirectory).c_str();
     TCollection_AsciiString aQuote("");
 #ifdef WIN32
     aQuote = "\"";
@@ -1052,6 +1053,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
       {
         MESSAGE("Use output file from blsurf as input file from hexotic: " << Hexotic_In);
         mgHexa.SetUseExecutable();
+        mgHexa.SetInputFile( _blsurfHypo->GetGMFFile() );
         defaultInputFile = false;
       }
     }
