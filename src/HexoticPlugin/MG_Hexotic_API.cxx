@@ -23,13 +23,16 @@
 #define NOMINMAX
 #endif
 
+#include <DriverGMF_Read.hxx>
 #include <SMESH_Comment.hxx>
 #include <SMESH_File.hxx>
+#include <SMESH_MGLicenseKeyGen.hxx>
 #include <Utils_SALOME_Exception.hxx>
 
-#include <vector>
-#include <iterator>
 #include <cstring>
+#include <iostream>
+#include <iterator>
+#include <vector>
 
 #ifdef USE_MG_LIBS
 
@@ -667,6 +670,14 @@ void MG_Hexotic_API::LibData::Init()
 
 bool MG_Hexotic_API::LibData::Compute()
 {
+  // MG license
+  std::string errorTxt;
+  if ( !SMESHUtils_MGLicenseKeyGen::SignMesh( _tria_mesh, errorTxt ))
+  {
+    AddError( SMESH_Comment( "Problem with library SalomeMeshGemsKeyGenerator: ") << errorTxt );
+    return false;
+  }
+
   // Set surface mesh
   status_t ret = hexa_set_surface_mesh( _session, _tria_mesh );
   if ( ret != STATUS_OK ) MG_Error( "unable to set surface mesh");
@@ -719,7 +730,8 @@ struct MG_Hexotic_API::LibData // to avoid compiler warnings
  */
 //================================================================================
 
-MG_Hexotic_API::MG_Hexotic_API(volatile bool& cancelled_flag, double& progress)
+MG_Hexotic_API::MG_Hexotic_API(volatile bool& cancelled_flag, double& progress):
+  _isMesh(true), _nbNodes(0), _nbEdges(0), _nbFaces(0), _nbVolumes(0)
 {
   _useLib = false;
   _libData = new LibData( cancelled_flag, progress );
@@ -813,13 +825,27 @@ bool MG_Hexotic_API::Compute( const std::string& cmdLine, std::string& errStr )
     }
 
     // compute
-    bool ok =  _libData->Compute();
+    bool ok = _libData->Compute();
 
     GetLog(); // write a log file
     _logFile = ""; // not to write it again
 
     return ok;
 #endif
+  }
+  // add MG license key
+  {
+    std::string errorTxt, meshIn;
+    std::string key = SMESHUtils_MGLicenseKeyGen::GetKey( meshIn,
+                                                          _nbNodes, _nbEdges, _nbFaces, _nbVolumes,
+                                                          errorTxt );
+    if ( key.empty() )
+    {
+      errStr = "Problem with library SalomeMeshGemsKeyGenerator: " + errorTxt;
+      return false;
+    }
+
+    const_cast< std::string& >( cmdLine ) += " --key " + key;
   }
 
   int err = system( cmdLine.c_str() ); // run
@@ -927,7 +953,7 @@ void MG_Hexotic_API::GmfGetLin( int iMesh, GmfKwdCod what, int* nbNodes, int* fa
 //================================================================================
 
 void MG_Hexotic_API::GmfGetLin(int iMesh, GmfKwdCod what,
-                             double* x, double* y, double *z, int* domain )
+                               double* x, double* y, double *z, int* domain )
 {
   if ( _useLib ) {
 #ifdef USE_MG_LIBS
@@ -945,7 +971,7 @@ void MG_Hexotic_API::GmfGetLin(int iMesh, GmfKwdCod what,
 //================================================================================
 
 void MG_Hexotic_API::GmfGetLin(int iMesh, GmfKwdCod what,
-                             float* x, float* y, float *z, int* domain )
+                               float* x, float* y, float *z, int* domain )
 {
   if ( _useLib ) {
 #ifdef USE_MG_LIBS
@@ -1001,7 +1027,7 @@ void MG_Hexotic_API::GmfGetLin(int iMesh, GmfKwdCod what, int* node1, int* node2
 //================================================================================
 
 void MG_Hexotic_API::GmfGetLin(int iMesh, GmfKwdCod what,
-                             int* node1, int* node2, int* node3, int* domain )
+                               int* node1, int* node2, int* node3, int* domain )
 {
   if ( _useLib ) {
 #ifdef USE_MG_LIBS
@@ -1019,7 +1045,7 @@ void MG_Hexotic_API::GmfGetLin(int iMesh, GmfKwdCod what,
 //================================================================================
 
 void MG_Hexotic_API::GmfGetLin(int iMesh, GmfKwdCod what,
-                             int* node1, int* node2, int* node3, int* node4, int* domain )
+                               int* node1, int* node2, int* node3, int* node4, int* domain )
 {
   if ( _useLib ) {
 #ifdef USE_MG_LIBS
@@ -1040,9 +1066,9 @@ void MG_Hexotic_API::GmfGetLin(int iMesh, GmfKwdCod what,
 //================================================================================
 
 void MG_Hexotic_API::GmfGetLin(int iMesh, GmfKwdCod what,
-                             int* node1, int* node2, int* node3, int* node4,
-                             int* node5, int* node6, int* node7, int* node8,
-                             int* domain )
+                               int* node1, int* node2, int* node3, int* node4,
+                               int* node5, int* node6, int* node7, int* node8,
+                               int* domain )
 {
   if ( _useLib ) {
 #ifdef USE_MG_LIBS
@@ -1080,6 +1106,16 @@ int  MG_Hexotic_API::GmfOpenMesh(const char* theFile, int rdOrWr, int ver, int d
 
 void MG_Hexotic_API::GmfSetKwd(int iMesh, GmfKwdCod what, int nb )
 {
+  if ( iMesh == 1 && _isMesh )
+  {
+    switch ( what ) {
+    case GmfVertices:  _nbNodes += nb; break;
+    case GmfEdges:     _nbEdges += nb; break;
+    case GmfTriangles: _nbFaces += nb; break;
+    default:;
+    }
+  }
+
   if ( _useLib ) {
 #ifdef USE_MG_LIBS
     switch ( what ) {
@@ -1094,6 +1130,26 @@ void MG_Hexotic_API::GmfSetKwd(int iMesh, GmfKwdCod what, int nb )
 #endif
   }
   ::GmfSetKwd(iMesh, what, nb );
+}
+
+//================================================================================
+/*!
+ * \brief Set GMF file made by MG-CADSurf to get nb of mesh entities from it
+ */
+//================================================================================
+
+void MG_Hexotic_API::SetInputFile( const std::string mesh2DFile )
+{
+  DriverGMF_Read fileReader;
+  fileReader.SetFile( mesh2DFile );
+
+  smIdType nbVertex, nbEdge, nbFace, nbVol;
+  if ( fileReader.GetMeshInfo(nbVertex, nbEdge, nbFace, nbVol))
+  {
+    _nbNodes += nbVertex;
+    _nbEdges += nbEdge;
+    _nbFaces += nbFace;
+  }
 }
 
 //================================================================================
@@ -1212,6 +1268,9 @@ void MG_Hexotic_API::GmfSetLin(int iMesh, GmfKwdCod what, int node1, int node2, 
 
 void MG_Hexotic_API::GmfCloseMesh( int iMesh )
 {
+  if ( iMesh == 1 )
+    _isMesh = false;
+
   if ( _useLib ) {
 #ifdef USE_MG_LIBS
     return;
@@ -1259,5 +1318,5 @@ std::string MG_Hexotic_API::GetLog()
 #endif
   }
   SMESH_File file( _logFile );
-  return file.getPos();
+  return file.exists() ? file.getPos() : "";
 }

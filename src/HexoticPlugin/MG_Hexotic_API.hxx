@@ -41,6 +41,7 @@ public:
   bool IsLibrary();
   bool IsExecutable() { return !IsLibrary(); }
   void SetUseExecutable();
+  void SetInputFile( const std::string mesh2DFile );
 
   // IN to MESHGEMS
   int  GmfOpenMesh(const char* theFile, int rdOrWr, int ver, int dim);
@@ -81,6 +82,13 @@ private:
   LibData*      _libData;
   std::set<int> _openFiles;
   std::string   _logFile;
+
+  // count mesh entities for MG license key generation
+  bool          _isMesh;
+  int           _nbNodes;
+  int           _nbEdges;
+  int           _nbFaces;
+  int           _nbVolumes;
 };
 
 #endif
