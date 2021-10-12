@@ -350,7 +350,8 @@ static void writeInput(MG_Hexotic_API*     theHexaInput,
                        const SMESHDS_Mesh* theMeshDS)
 {
   int meshID = theHexaInput->GmfOpenMesh( theFile, GmfWrite, GMFVERSION, GMFDIMENSION);
-  
+  theHexaInput->SetIsInputMesh( true ); // it's a mesh file
+
   // nodes
   int iN = 0;
   smIdType nbNodes = theMeshDS->NbNodes();
@@ -953,6 +954,8 @@ std::vector<std::string> HexoticPlugin_Hexotic::writeSizeMapFile( MG_Hexotic_API
     mgInput->GmfOpenMesh( myVerticesFile.c_str(), GmfWrite, GMFVERSION, GMFDIMENSION );  
   int solFileID =
     mgInput->GmfOpenMesh( mySolFile.c_str(), GmfWrite, GMFVERSION, GMFDIMENSION );
+
+  mgInput->SetIsInputMesh( false ); // they are not mesh files
   
   int pointsNumber = points.size();
   

@@ -1268,9 +1268,6 @@ void MG_Hexotic_API::GmfSetLin(int iMesh, GmfKwdCod what, int node1, int node2, 
 
 void MG_Hexotic_API::GmfCloseMesh( int iMesh )
 {
-  if ( iMesh == 1 )
-    _isMesh = false;
-
   if ( _useLib ) {
 #ifdef USE_MG_LIBS
     return;
