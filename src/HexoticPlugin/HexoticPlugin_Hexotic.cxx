@@ -790,7 +790,8 @@ HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiString& Hexotic_
   TCollection_AsciiString minl         = " --min_level ", maxl = " --max_level ", angle = " --ridge_angle ";
   TCollection_AsciiString mins         = " --min_size ", maxs = " --max_size ";
   TCollection_AsciiString in           = " --in ",   out  = " --out ";
-  TCollection_AsciiString sizeMap      = " --sizemap ";
+  TCollection_AsciiString sizeMap      = " --background_sizemap ";
+  TCollection_AsciiString sizeMapMesh  = " --background_mesh ";
   TCollection_AsciiString ignoreRidges = " --compute_ridges no ", invalideElements = " --allow_invalid_elements yes ";
   TCollection_AsciiString subdom       = " --components ";
 #ifndef WIN32
@@ -870,9 +871,10 @@ HexoticPlugin_Hexotic::getHexoticCommand(const TCollection_AsciiString& Hexotic_
 
   if (_hexoticSharpAngleThreshold > 0)
     run_Hexotic +=  angle + sharpAngle;
-  
-  if (_sizeMaps.begin() != _sizeMaps.end() && forExecutable )
-    run_Hexotic += sizeMap + Hexotic_SizeMap_Prefix + ".sol";
+
+  if ( !_sizeMaps.empty() && forExecutable )
+    run_Hexotic += ( sizeMap     + Hexotic_SizeMap_Prefix + ".sol " +
+                     sizeMapMesh + Hexotic_SizeMap_Prefix + ".mesh " );
 
   if (_nbLayers       > 0 &&
       _firstLayerSize > 0 &&
