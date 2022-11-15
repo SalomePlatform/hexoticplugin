@@ -348,7 +348,7 @@ void HexoticPluginGUI_HypothesisCreator::insertLocalSizeInWidget( std::string en
                                                                   double size, 
                                                                   int row ) const
 {
-  MESSAGE("HexoticPluginGUI_HypothesisCreator:insertLocalSizeInWidget")
+  MESSAGE("HexoticPluginGUI_HypothesisCreator:insertLocalSizeInWidget");
   int columnCount = mySmpWidget->tableWidget->columnCount();
   
   // Add a row at the end of the table
@@ -400,7 +400,7 @@ void HexoticPluginGUI_HypothesisCreator::onRemoveLocalSize()
       {
         std::string entry = mySmpWidget->tableWidget->item( row, ENTRY_COL )->text().toStdString();
         mySizeMapsToRemove.push_back(entry);
-        MESSAGE("ADDING entry : "<<entry<<"to the Size Maps to remove")
+        MESSAGE("ADDING entry : "<<entry<<"to the Size Maps to remove");
       }
       mySmpWidget->tableWidget->model()->removeRows(it->topRow(), it->rowCount());
     }
@@ -481,7 +481,7 @@ void HexoticPluginGUI_HypothesisCreator::retrieveParams() const
     GEOM::GEOM_Object_var anObject = entryToObject( entry );
     std::string shapeName = anObject->GetName();
 
-    MESSAGE(" Insert local size, entry : "<<entry<<", size : "<<size<<", at row : "<<row) 
+    MESSAGE(" Insert local size, entry : "<<entry<<", size : "<<size<<", at row : "<<row);
     insertLocalSizeInWidget( entry, shapeName, size , row );
   }
 
@@ -607,7 +607,7 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromHypo( HexoticHypothesisDa
     std::string entry = CORBA::string_dup(aSizeMap.entry.in());
     double size = aSizeMap.size;
     h_data.mySizeMaps[ entry ] = size;
-    MESSAGE("READING Size map : entry "<<entry<<" size : "<<size)
+    MESSAGE("READING Size map : entry "<<entry<<" size : "<<size);
   }
   
   // Viscous layers
@@ -652,7 +652,7 @@ bool HexoticPluginGUI_HypothesisCreator::storeParamsToHypo( const HexoticHypothe
     for ( it =  h_data.mySizeMaps.begin(); it !=  h_data.mySizeMaps.end(); it++ )
     {
       h->SetSizeMapEntry( it->first.c_str(), it->second );
-      MESSAGE("STORING Size map : entry "<<it->first.c_str()<<" size : "<<it->second)
+      MESSAGE("STORING Size map : entry "<<it->first.c_str()<<" size : "<<it->second);
     }
     std::vector< std::string >::const_iterator entry_it;
     for ( entry_it = mySizeMapsToRemove.begin(); entry_it!= mySizeMapsToRemove.end(); entry_it++ )
@@ -740,7 +740,7 @@ bool HexoticPluginGUI_HypothesisCreator::readSizeMapsFromWidgets( HexoticHypothe
     
     // Set the size maps
     h_data.mySizeMaps[ entry ] = size;
-    MESSAGE("READING Size map from WIDGET: entry "<<entry<<" size : "<<size)
+    MESSAGE("READING Size map from WIDGET: entry "<<entry<<" size : "<<size);
   }
   return true;
 }
