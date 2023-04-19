@@ -41,9 +41,6 @@ extern "C"{
 #include <meshgems/hexa.h>
 }
 
-#define MESHGEMS_VERSION_HEX (MESHGEMS_VERSION_MAJOR << 16 | MESHGEMS_VERSION_MINOR << 8 | MESHGEMS_VERSION_PATCH)
-#define MESHGEMS_215 (2 << 16 | 15 << 8 | 0)
-
 struct MG_Hexotic_API::LibData
 {
   // MG objects
@@ -677,24 +674,11 @@ bool MG_Hexotic_API::LibData::Compute()
   std::string errorTxt;
   status_t ret;
 
-#if MESHGEMS_VERSION_HEX > MESHGEMS_215
-  // unlock Hexa license only once
-  std::string SPATIAL_LICENSE = SMESHUtils_MGLicenseKeyGen::GetKey(errorTxt);
-  ret = meshgems_hexa_unlock_product(SPATIAL_LICENSE.c_str());
-  if STATUS_IS_ERROR( ret )
-    {
-    AddError( SMESH_Comment( "Problem with SPATIAL_LICENSE to unlock Hexa: ") << errorTxt );
-    return false;
-    }
-  else
-    MESSAGE("SPATIAL_LICENSE unlock Hexa: " << ret);
-#else
-  if ( !SMESHUtils_MGLicenseKeyGen::SignMesh( _tria_mesh, errorTxt ))
+  if ( !SMESHUtils_MGLicenseKeyGen::SignMesh( _tria_mesh, "hexa", errorTxt ))
   {
     AddError( SMESH_Comment( "Problem with library SalomeMeshGemsKeyGenerator: ") << errorTxt );
     return false;
   }
-#endif
 
   // Set surface mesh
   ret = hexa_set_surface_mesh( _session, _tria_mesh );
