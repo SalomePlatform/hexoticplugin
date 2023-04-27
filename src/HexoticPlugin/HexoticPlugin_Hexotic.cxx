@@ -72,6 +72,9 @@
 #include <GEOMImpl_Types.hxx>
 #include <GEOM_wrap.hxx>
 
+#include <boost/filesystem.hpp>
+namespace boofs = boost::filesystem;
+
 #define GMFVERSION GmfDouble
 #define GMFDIMENSION 3
 
@@ -85,6 +88,13 @@ static void removeFile( const TCollection_AsciiString& fileName )
   catch ( Standard_ProgramError& ) {
     MESSAGE("Can't remove file: " << fileName.ToCString() << " ; file does not exist or permission denied");
   }
+}
+
+// change results files permissions to user only (using boost to be used without C++17)
+static void chmodUserOnly(const char* filename)
+{
+  if (boofs::exists(filename))
+    boofs::permissions(filename, boofs::remove_perms | boofs::group_all | boofs::others_all );
 }
 
 //=============================================================================
@@ -979,7 +989,9 @@ std::vector<std::string> HexoticPlugin_Hexotic::writeSizeMapFile( MG_Hexotic_API
 
   // Close Files
   mgInput->GmfCloseMesh( verticesFileID );
+  chmodUserOnly(myVerticesFile.c_str());
   mgInput->GmfCloseMesh( solFileID );
+  chmodUserOnly(mySolFile.c_str());
 
   std::vector<std::string> fileNames(2);
   fileNames[0] = myVerticesFile;
@@ -1040,7 +1052,6 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     if ( aTmpDir.Value(aTmpDir.Length()) != '/' ) aTmpDir += '/';
 #endif
     TCollection_AsciiString Hexotic_In(""), Hexotic_Out, Hexotic_SizeMap_Prefix;
-    TCollection_AsciiString modeFile_In( "chmod 666 " ), modeFile_Out( "chmod 666 " );
     TCollection_AsciiString aLogFileName = aTmpDir + "Hexotic"+getSuffix()+".log";    // log
 
     std::map <int,int> aSmdsToHexoticIdMap;
@@ -1093,10 +1104,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
 
     if ( mgHexa.IsExecutable() )
     {
-#ifndef WIN32    
-      modeFile_In += Hexotic_In;
-      system( modeFile_In.ToCString() );
-#endif
+      chmodUserOnly(Hexotic_In.ToCString());
     }
     aSmdsToHexoticIdMap.clear();
     aHexoticIdToNodeMap.clear();
@@ -1107,17 +1115,15 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     std::string errStr;
     Ok = mgHexa.Compute( run_Hexotic, errStr ); // run
 
+    chmodUserOnly(aLogFileName.ToCString());
 
     // --------------
     // read a result
     // --------------
 
-    if ( mgHexa.IsExecutable() && SMESH_File( Hexotic_Out.ToCString() ).exists() )
+    if ( mgHexa.IsExecutable() )
     {
-#ifndef WIN32
-      modeFile_Out += Hexotic_Out;
-      system( modeFile_Out.ToCString() );
-#endif
+      chmodUserOnly( Hexotic_Out.ToCString() );
     }
     SMESH_MesherHelper aHelper( aMesh );
 
@@ -1211,7 +1217,6 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
 
   TCollection_AsciiString aTmpDir = _hexoticWorkingDirectory.c_str();//getTmpDir();
   TCollection_AsciiString Hexotic_In, Hexotic_Out, Hexotic_SizeMap_Prefix;
-  TCollection_AsciiString modeFile_In( "chmod 666 " ), modeFile_Out( "chmod 666 " );
   TCollection_AsciiString aLogFileName = aTmpDir + "Hexotic"+getSuffix()+".log";    // log
 
   std::map <int,int> aSmdsToHexoticIdMap;
@@ -1239,10 +1244,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   writeInput( &mgHexa, Hexotic_In.ToCString(), aHelper->GetMeshDS() );
   if ( mgHexa.IsExecutable() )
   {
-#ifndef WIN32    
-    modeFile_In += Hexotic_In;
-    system( modeFile_In.ToCString() );
-#endif
+    chmodUserOnly( Hexotic_In.ToCString() );
   }
   aSmdsToHexoticIdMap.clear();
   aHexoticIdToNodeMap.clear();
@@ -1255,14 +1257,15 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   std::string errStr;
   Ok = mgHexa.Compute( run_Hexotic, errStr ); // run
 
+  chmodUserOnly(aLogFileName.ToCString());
+
   // --------------
   // read a result
   // --------------
 
-  if ( mgHexa.IsExecutable() && SMESH_File( Hexotic_Out.ToCString() ).exists() )
+  if ( mgHexa.IsExecutable() )
   {
-    modeFile_Out += Hexotic_Out;
-    system( modeFile_Out.ToCString() );
+    chmodUserOnly(Hexotic_Out.ToCString());
   }
 
   Ok = Ok && readResult( &mgHexa, Hexotic_Out.ToCString(), this, aHelper );
