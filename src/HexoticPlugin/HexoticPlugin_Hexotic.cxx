@@ -1140,10 +1140,16 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
       else
       {
         // get problem description from the log file
-        char msgLic[] = " Dlim ";
+        char msgLic1[] = "connection to server failed";
+        char msgLic2[] = " Dlim ";
+        char msgLic3[] = "license is not valid";
         const char* fileBeg = &log[0], *fileEnd = fileBeg + log.size();
-        if ( std::search( fileBeg, fileEnd, msgLic, msgLic+strlen(msgLic)) != fileEnd )
-          error("Licence problems.");
+        if ( std::search( fileBeg, fileEnd, msgLic1, msgLic1+strlen(msgLic1)) != fileEnd ||
+             std::search( fileBeg, fileEnd, msgLic2, msgLic2+strlen(msgLic2)) != fileEnd
+            )
+          error("Network license problem.");
+        else if ( std::search( fileBeg, fileEnd, msgLic3, msgLic3 + strlen(msgLic3)) != fileEnd )
+          error("License is not valid.");
       }
     }
     else if ( !errStr.empty() )
