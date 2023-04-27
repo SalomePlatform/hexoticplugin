@@ -1171,8 +1171,6 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
 
     if ( !_keepFiles )
     {
-      if (! Ok && _computeCanceled )
-        removeFile( aLogFileName );
       removeFile(Hexotic_Out);
       removeFile(Hexotic_In);
       for ( size_t i = 0; i < sizeMapFiles.size(); i++ )
@@ -1291,16 +1289,19 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh & aMesh, SMESH_MesherHelper* aHel
   std::cout << "Hexahedra meshing " << hexahedraMessage << std::endl;
   std::cout << std::endl;
 
-  if(_computeCanceled)
+  if (_computeCanceled)
     return error(SMESH_Comment("interruption initiated by user"));
-  removeFile(Hexotic_Out);
-  removeFile(Hexotic_In);
-  if ( Ok )
-    removeFile(aLogFileName);
-  for( size_t i=0; i<sizeMapFiles.size(); i++)
+  if ( !_keepFiles )
   {
-    removeFile( TCollection_AsciiString(sizeMapFiles[i].c_str()) );
+    removeFile(Hexotic_Out);
+    removeFile(Hexotic_In);
+    for( size_t i=0; i<sizeMapFiles.size(); i++)
+    {
+      removeFile( TCollection_AsciiString(sizeMapFiles[i].c_str()) );
+    }
   }
+  if ( Ok && _removeLogOnSuccess )
+    removeFile(aLogFileName);
   return Ok;
 }
 
