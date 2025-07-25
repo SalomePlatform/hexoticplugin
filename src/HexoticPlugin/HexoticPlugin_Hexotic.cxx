@@ -724,14 +724,17 @@ static TCollection_AsciiString getSuffix()
   TCollection_AsciiString aSuffix = "";
   aSuffix += "_";
 #ifndef WIN32
-  aSuffix += getenv("USER");
+  const char* user = getenv("USER");
+  aSuffix += (user ? user : "unknown");
 #else
-  std::string uname = std::string(getenv("USERNAME"));
+  const char* username = getenv("USERNAME");
+  std::string uname = std::string(username ? username : "unknown");
   replace(uname.begin(), uname.end(), ' ', '_');
   aSuffix += uname.c_str();
 #endif
   aSuffix += "_";
-  aSuffix += Kernel_Utils::GetHostname().c_str();
+  std::string hostname = Kernel_Utils::GetHostname();
+  aSuffix += (!hostname.empty() ? hostname.c_str() : "localhost");
   aSuffix += "_";
 #ifndef WIN32
   aSuffix += getpid();
@@ -1093,7 +1096,7 @@ bool HexoticPlugin_Hexotic::Compute(SMESH_Mesh&          aMesh,
     
     Hexotic_SizeMap_Prefix = aTmpDir + "Hexotic_SizeMap" + getSuffix();
     std::vector<std::string> sizeMapFiles = writeSizeMapFile( &mgHexa, Hexotic_SizeMap_Prefix.ToCString() );
-    
+  
     std::string run_Hexotic = getHexoticCommand(aQuote + Hexotic_In + aQuote, aQuote + Hexotic_Out + aQuote, Hexotic_SizeMap_Prefix, mgHexa.IsExecutable() );
     run_Hexotic += std::string(" 1> ") + aQuote.ToCString() + aLogFileName.ToCString() + aQuote.ToCString();  // dump into file
     mgHexa.SetLogFile( aLogFileName.ToCString() );
