@@ -28,7 +28,7 @@ from salome.geom import geomBuilder
 # import HexoticPlugin module if possible
 noHexoticPlugin = 0
 try:
-    import HexoticPlugin
+    from salome.kernel import HexoticPlugin
 except ImportError:
     noHexoticPlugin = 1
     pass
@@ -155,7 +155,7 @@ class Hexotic_Algorithm(Mesh_Algorithm):
         self.Parameters().SetGrowth(growth)
         self.Parameters().SetDirection(direction)
         if facesWithLayers and isinstance( facesWithLayers[0], geomBuilder.GEOM._objref_GEOM_Object ):
-          import GEOM
+          from salome.kernel import GEOM
           facesWithLayersIDs = []
           for f in facesWithLayers:
             if self.mesh.geompyD.ShapeIdToType( f.GetType() ) == "GROUP":
@@ -165,7 +165,7 @@ class Hexotic_Algorithm(Mesh_Algorithm):
           facesWithLayers = facesWithLayersIDs
           
         if imprintedFaces and isinstance( imprintedFaces[0], geomBuilder.GEOM._objref_GEOM_Object ):
-          import GEOM
+          from salome.kernel import GEOM
           imprintedFacesIDs = []
           for f in imprintedFaces:
             if self.mesh.geompyD.ShapeIdToType( f.GetType() ) == "GROUP":
