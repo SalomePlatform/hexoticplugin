@@ -85,7 +85,7 @@ module HexoticPlugin
     void SetHexoticNbProc(in long value);
     long GetHexoticNbProc();
 
-    void SetHexoticWorkingDirectory(in string path) raises (SALOME::SALOME_Exception);
+    void SetHexoticWorkingDirectory(in string path) raises (SALOME_CMOD::SALOME_Exception);
     string GetHexoticWorkingDirectory();
 
     void SetHexoticSdMode(in long value);
@@ -110,14 +110,14 @@ module HexoticPlugin
      * Set advanced option value
      */
     void SetOptionValue(in string optionName,
-                        in string optionValue) raises (SALOME::SALOME_Exception);
-    string GetOptionValue(in string optionName) raises (SALOME::SALOME_Exception);
+                        in string optionValue) raises (SALOME_CMOD::SALOME_Exception);
+    string GetOptionValue(in string optionName) raises (SALOME_CMOD::SALOME_Exception);
     void UnsetOption(in string optionName);
     /*!
      * Adds custom advanced option and its value
      */
     void SetAdvancedOption(in string optionsAndValues) // in a form "option_1 v1 option_2 v2'"
-      raises (SALOME::SALOME_Exception);
+      raises (SALOME_CMOD::SALOME_Exception);
     string GetAdvancedOption();
     void AddOption(in string optionName, in string optionValue);
     string GetOption(in string optionName);
@@ -136,7 +136,7 @@ module HexoticPlugin
      * Set option values each in the form "option_name[:option_value][:option_type]".
      * Note: the method is mostly for interaction with GUI.
      */
-    void SetOptionValues(in string_array options) raises (SALOME::SALOME_Exception);
+    void SetOptionValues(in string_array options) raises (SALOME_CMOD::SALOME_Exception);
     void SetAdvancedOptionValues(in string_array options);
 
 

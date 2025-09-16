@@ -170,7 +170,7 @@ void HexoticPlugin_Hypothesis_i::SetHexoticNbProc (CORBA::Long theValue)
 void HexoticPlugin_Hypothesis_i::SetHexoticWorkingDirectory(const char* path)
 {
   if (!path )
-    THROW_SALOME_CORBA_EXCEPTION( "Null working directory",SALOME::BAD_PARAM );
+    THROW_SALOME_CORBA_EXCEPTION( "Null working directory",SALOME_CMOD::BAD_PARAM );
 
   ASSERT(myBaseImpl);
   std::string file(path);
@@ -321,9 +321,9 @@ void HexoticPlugin_Hypothesis_i::SetOptionValue(const char* optionName, const ch
       }
     }
   } catch (const std::invalid_argument& ex) {
-    THROW_SALOME_CORBA_EXCEPTION( ex.what() ,SALOME::BAD_PARAM );
+    THROW_SALOME_CORBA_EXCEPTION( ex.what() ,SALOME_CMOD::BAD_PARAM );
   } catch (SALOME_Exception& ex) {
-    THROW_SALOME_CORBA_EXCEPTION( ex.what() ,SALOME::BAD_PARAM );
+    THROW_SALOME_CORBA_EXCEPTION( ex.what() ,SALOME_CMOD::BAD_PARAM );
   }
 }
 
@@ -336,9 +336,9 @@ char* HexoticPlugin_Hypothesis_i::GetOptionValue(const char* optionName)
     bool isDefault;
     return CORBA::string_dup(this->GetImpl()->GetOptionValue(optionName,&isDefault).c_str());
   } catch (const std::invalid_argument& ex) {
-    THROW_SALOME_CORBA_EXCEPTION( ex.what() ,SALOME::BAD_PARAM );
+    THROW_SALOME_CORBA_EXCEPTION( ex.what() ,SALOME_CMOD::BAD_PARAM );
   } catch (SALOME_Exception& ex) {
-    THROW_SALOME_CORBA_EXCEPTION( ex.what() ,SALOME::BAD_PARAM );
+    THROW_SALOME_CORBA_EXCEPTION( ex.what() ,SALOME_CMOD::BAD_PARAM );
   }
   return 0;
 }
@@ -486,7 +486,7 @@ void HexoticPlugin_Hypothesis_i::SetAdvancedOption(const char* optionsAndValues)
     else
     {
       if ( nbPairs > 0 )
-        THROW_SALOME_CORBA_EXCEPTION( "Uneven number of options and values" ,SALOME::BAD_PARAM );
+        THROW_SALOME_CORBA_EXCEPTION( "Uneven number of options and values" ,SALOME_CMOD::BAD_PARAM );
       AddOption( option.c_str(), "" );
     }
   }

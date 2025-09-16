@@ -156,7 +156,7 @@ bool HexoticPluginGUI_HypothesisCreator::checkParams(QString& msg) const
     try {
       h->SetOptionValue( name.toLatin1().constData(), value.toLatin1().constData() );
     }
-    catch ( const SALOME::SALOME_Exception& ex )
+    catch ( const SALOME_CMOD::SALOME_Exception& ex )
     {
       msg = ex.details.text.in();
       ok = false;
@@ -680,7 +680,7 @@ bool HexoticPluginGUI_HypothesisCreator::storeParamsToHypo( const HexoticHypothe
       aVec[i]=vector.at(i);
     h->SetImprintedFaces( aVec );
   }
-  catch(const SALOME::SALOME_Exception& ex)
+  catch(const SALOME_CMOD::SALOME_Exception& ex)
   {
     SalomeApp_Tools::QtCatchCorbaException(ex);
     ok = false;
