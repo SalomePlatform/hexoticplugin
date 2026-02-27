@@ -87,11 +87,11 @@ protected:
   virtual QFrame*  buildFrame    ();
   virtual void     retrieveParams() const;
   virtual QString  storeParams   () const;
-  
+
   virtual QString  caption() const;
   virtual QPixmap  icon() const;
   virtual QString  type() const;
-  
+
 private:
   bool readParamsFromHypo( HexoticHypothesisData& ) const;
   bool readParamsFromWidgets( HexoticHypothesisData& ) const;
@@ -100,7 +100,7 @@ private:
   bool storeParamsToHypo( const HexoticHypothesisData& ) const;
   void resizeEvent(QResizeEvent *event);
   void printData(HexoticHypothesisData&) const;
-  
+
   GEOM::GEOM_Object_var entryToObject( std::string entry) const;
 
 private:
@@ -109,7 +109,7 @@ private:
   QLineEdit*                              myName;
   HexoticPluginGUI_StdWidget*             myStdWidget;
   HexoticPluginGUI_AdvWidget*             myAdvWidget;
-  mutable HexoticPlugin::string_array_var myOptions, myCustomOptions;
+  mutable HexoticPLUGIN::string_array_var myOptions, myCustomOptions;
   HexoticPluginGUI_SizeMapsWidget*        mySmpWidget;
   HexoticPluginGUI_ViscousLayersWidget*   myVLWidget;
   StdMeshersGUI_ObjectReferenceParamWdg*  myGeomSelWdg;
@@ -117,7 +117,7 @@ private:
   bool                           myIs3D;
   std::vector< std::string >     mySizeMapsToRemove;
   QVariant                       myNotModifiedSize;
- 
+
 protected slots:
   void             onAddLocalSize();
   void             onRemoveLocalSize();
@@ -133,18 +133,18 @@ class SizeMapsTableWidgetDelegate : public QItemDelegate
 public:
   SizeMapsTableWidgetDelegate(QObject *parent = 0);
 
-  QWidget *createEditor(QWidget *parent, 
+  QWidget *createEditor(QWidget *parent,
                         const QStyleOptionViewItem &option,
                         const QModelIndex &index) const;
 
-  void setEditorData(QWidget *editor, 
+  void setEditorData(QWidget *editor,
                      const QModelIndex &index) const;
-                     
-  void setModelData(QWidget *editor, 
+
+  void setModelData(QWidget *editor,
                     QAbstractItemModel *model,
                     const QModelIndex &index) const;
 
-  void updateEditorGeometry(QWidget *editor, 
+  void updateEditorGeometry(QWidget *editor,
                             const QStyleOptionViewItem &option,
                             const QModelIndex &index) const;
 };

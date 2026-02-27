@@ -36,7 +36,7 @@
 // MG-Hexa 3d algorithm
 // ======================================================
 class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hexotic_i:
-  public virtual POA_HexoticPlugin::HexoticPlugin_Hexotic,
+  public virtual POA_HexoticPLUGIN::HexoticPlugin_Hexotic,
   public virtual SMESH_3D_Algo_i
 {
 public:
@@ -45,7 +45,7 @@ public:
                            ::SMESH_Gen*            theGenImpl );
   // Destructor
   virtual ~HexoticPlugin_Hexotic_i();
- 
+
   // Get implementation
   ::HexoticPlugin_Hexotic* GetImpl();
 };

@@ -36,7 +36,7 @@ class SMESH_Gen;
 // HexoticPlugin parameters hypothesis
 
 class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
-  public virtual POA_HexoticPlugin::HexoticPlugin_Hypothesis,
+  public virtual POA_HexoticPLUGIN::HexoticPlugin_Hypothesis,
   public virtual SMESH_Hypothesis_i
 {
  public:
@@ -104,11 +104,11 @@ class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
   char* GetOptionValue(const char* optionName);
   void UnsetOption(const char* optionName);
 
-  HexoticPlugin::string_array* GetOptionValues();
-  HexoticPlugin::string_array* GetAdvancedOptionValues();
+  HexoticPLUGIN::string_array* GetOptionValues();
+  HexoticPLUGIN::string_array* GetAdvancedOptionValues();
 
-  void SetOptionValues(const HexoticPlugin::string_array& options);
-  void SetAdvancedOptionValues(const HexoticPlugin::string_array& options);
+  void SetOptionValues(const HexoticPLUGIN::string_array& options);
+  void SetAdvancedOptionValues(const HexoticPLUGIN::string_array& options);
 
   void AddOption(const char* optionName, const char* optionValue);
   char* GetOption(const char* optionName);
@@ -117,7 +117,7 @@ class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
 
   void SetSizeMap(GEOM::GEOM_Object_ptr theGeomObj, double theSize);
   void UnsetSizeMap(GEOM::GEOM_Object_ptr theGeomObj);
-  HexoticPlugin::HexoticPluginSizeMapsList* GetSizeMaps ();
+  HexoticPLUGIN::HexoticPluginSizeMapsList* GetSizeMaps ();
 
   void SetNbLayers(CORBA::Long theVal);
   CORBA::Long GetNbLayers();
@@ -139,8 +139,8 @@ class HEXOTICPLUGIN_EXPORT HexoticPlugin_Hypothesis_i:
 
   // Get implementation
   ::HexoticPlugin_Hypothesis* GetImpl();
-  
-  // Verify whether hypothesis supports given entity type 
+
+  // Verify whether hypothesis supports given entity type
   CORBA::Boolean IsDimSupported( SMESH::Dimension type );
 
   // Methods for copying mesh definition to other geometry

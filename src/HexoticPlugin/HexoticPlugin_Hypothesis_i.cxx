@@ -40,7 +40,7 @@
 HexoticPlugin_Hypothesis_i::
 HexoticPlugin_Hypothesis_i (PortableServer::POA_ptr thePOA,
                             ::SMESH_Gen*            theGenImpl)
-  : SALOME::GenericObj_i( thePOA ), 
+  : SALOME::GenericObj_i( thePOA ),
     SMESH_Hypothesis_i( thePOA )
 {
   myBaseImpl = new ::HexoticPlugin_Hypothesis (theGenImpl->GetANewId(),
@@ -67,8 +67,8 @@ HexoticPlugin_Hypothesis_i::~HexoticPlugin_Hypothesis_i()
  *  HexoticPlugin_Hypothesis_i::SetHexoticIgnoreRidges
  *  HexoticPlugin_Hypothesis_i::SetHexoticInvalidElements
  *  HexoticPlugin_Hypothesis_i::SetHexoticSharpAngleThreshold
- *  HexoticPlugin_Hypothesis_i::SetHexoticNbProc 
- *  HexoticPlugin_Hypothesis_i::SetHexoticWorkingDirectory 
+ *  HexoticPlugin_Hypothesis_i::SetHexoticNbProc
+ *  HexoticPlugin_Hypothesis_i::SetHexoticWorkingDirectory
  *  HexoticPlugin_Hypothesis_i::SetHexoticSdMode
  *  HexoticPlugin_Hypothesis_i::SetVerbosity
  *  HexoticPlugin_Hypothesis_i::SetHexoticMaxMemory
@@ -356,9 +356,9 @@ void HexoticPlugin_Hypothesis_i::UnsetOption(const char* optionName) {
 
 //=============================================================================
 
-HexoticPlugin::string_array* HexoticPlugin_Hypothesis_i::GetOptionValues()
+HexoticPLUGIN::string_array* HexoticPlugin_Hypothesis_i::GetOptionValues()
 {
-  HexoticPlugin::string_array_var result = new HexoticPlugin::string_array();
+  HexoticPLUGIN::string_array_var result = new HexoticPLUGIN::string_array();
 
   const ::HexoticPlugin_Hypothesis::TOptionValues & opts = this->GetImpl()->GetOptionValues();
   result->length(opts.size());
@@ -383,9 +383,9 @@ HexoticPlugin::string_array* HexoticPlugin_Hypothesis_i::GetOptionValues()
 
 //=============================================================================
 
-HexoticPlugin::string_array* HexoticPlugin_Hypothesis_i::GetAdvancedOptionValues()
+HexoticPLUGIN::string_array* HexoticPlugin_Hypothesis_i::GetAdvancedOptionValues()
 {
-  HexoticPlugin::string_array_var result = new HexoticPlugin::string_array();
+  HexoticPLUGIN::string_array_var result = new HexoticPLUGIN::string_array();
 
   const ::HexoticPlugin_Hypothesis::TOptionValues & custom_opts = this->GetImpl()->GetCustomOptionValues();
   result->length(custom_opts.size());
@@ -406,7 +406,7 @@ HexoticPlugin::string_array* HexoticPlugin_Hypothesis_i::GetAdvancedOptionValues
 
 //=============================================================================
 
-void HexoticPlugin_Hypothesis_i::SetOptionValues(const HexoticPlugin::string_array& options)
+void HexoticPlugin_Hypothesis_i::SetOptionValues(const HexoticPLUGIN::string_array& options)
 {
   for (CORBA::ULong i = 0; i < options.length(); ++i)
   {
@@ -434,7 +434,7 @@ void HexoticPlugin_Hypothesis_i::SetOptionValues(const HexoticPlugin::string_arr
 
 //=============================================================================
 
-void HexoticPlugin_Hypothesis_i::SetAdvancedOptionValues(const HexoticPlugin::string_array& options)
+void HexoticPlugin_Hypothesis_i::SetAdvancedOptionValues(const HexoticPLUGIN::string_array& options)
 {
   SMESH::TPythonDump dump;
 
@@ -523,18 +523,18 @@ void HexoticPlugin_Hypothesis_i::SetTextOptions(const char* theOptions)
     SMESH::TPythonDump() << _this() << ".SetAdvancedOption( '" << theOptions << "' )";
 }
 
-HexoticPlugin::HexoticPluginSizeMapsList* HexoticPlugin_Hypothesis_i::GetSizeMaps ()
+HexoticPLUGIN::HexoticPluginSizeMapsList* HexoticPlugin_Hypothesis_i::GetSizeMaps ()
 {
   // Get the std::map < std::string entry, double size >
-  HexoticPlugin::HexoticPluginSizeMapsList_var result = new HexoticPlugin::HexoticPluginSizeMapsList();
+  HexoticPLUGIN::HexoticPluginSizeMapsList_var result = new HexoticPLUGIN::HexoticPluginSizeMapsList();
   const ::HexoticPlugin_Hypothesis::THexoticSizeMaps sizeMaps = this->GetImpl()->GetSizeMaps();
   result->length( sizeMaps.size() );
-  
+
   // Write the content into a CORBA sequence of struct{ entry=anEntry; size=aSize; }
-  ::HexoticPlugin_Hypothesis::THexoticSizeMaps::const_iterator it = sizeMaps.begin(); 
+  ::HexoticPlugin_Hypothesis::THexoticSizeMaps::const_iterator it = sizeMaps.begin();
   for ( int i = 0; it != sizeMaps.end(); i++, it++ )
   {
-    HexoticPlugin::HexoticPluginSizeMap_var aSizeMap = new HexoticPlugin::HexoticPluginSizeMap();
+    HexoticPLUGIN::HexoticPluginSizeMap_var aSizeMap = new HexoticPLUGIN::HexoticPluginSizeMap();
     aSizeMap->entry = CORBA::string_dup( it->first.c_str() );
     aSizeMap->size = it->second;
     result[i] = aSizeMap;
@@ -636,9 +636,9 @@ void HexoticPlugin_Hypothesis_i::SetImprintedFaces(const ::SMESH::long_array& th
  *  HexoticPlugin_Hypothesis_i::GetMaxSize
  *  HexoticPlugin_Hypothesis_i::GetHexoticIgnoreRidges
  *  HexoticPlugin_Hypothesis_i::GetHexoticInvalidElements
- *  HexoticPlugin_Hypothesis_i::GetHexoticSharpAngleThreshold 
- *  HexoticPlugin_Hypothesis_i::GetHexoticNbProc 
- *  HexoticPlugin_Hypothesis_i::GetHexoticWorkingDirectory 
+ *  HexoticPlugin_Hypothesis_i::GetHexoticSharpAngleThreshold
+ *  HexoticPlugin_Hypothesis_i::GetHexoticNbProc
+ *  HexoticPlugin_Hypothesis_i::GetHexoticWorkingDirectory
  *  HexoticPlugin_Hypothesis_i::GetHexoticSdMode
  *  HexoticPlugin_Hypothesis_i::GetVerbosity
  *  HexoticPlugin_Hypothesis_i::GetHexoticMaxMemory

@@ -28,7 +28,7 @@ from salome.geom import geomBuilder
 # import HexoticPlugin module if possible
 noHexoticPlugin = 0
 try:
-    from salome.kernel import HexoticPlugin
+    from salome.kernel import HexoticPLUGIN
 except ImportError:
     noHexoticPlugin = 1
     pass
@@ -92,7 +92,7 @@ class Hexotic_Algorithm(Mesh_Algorithm):
         self.Parameters().SetMinSize(min)
         self.Parameters().SetMaxSize(max)
         return self.Parameters()
-         
+
     ## Sets a size map
     #  @param theObject geometrical object to assign local size to
     #  @param theSize local size on the given object
@@ -103,7 +103,7 @@ class Hexotic_Algorithm(Mesh_Algorithm):
           raise ValueError("The size must be > 0")
         self.Parameters().SetSizeMap(theObject, theSize)
         return self.Parameters()
-      
+
     ## Unsets a size map : this is meant to be used only by the dump
     #  @param theObject geometrical object to unassign local size
     #  @return hypothesis object
@@ -127,7 +127,7 @@ class Hexotic_Algorithm(Mesh_Algorithm):
     def MinMaxQuad(self, min=3, max=8, quad=True):
         print("WARNING: Function MinMaxQuad is deprecated, use SetMinMaxHexes instead")
         return self.SetMinMaxHexes(min, max)
-      
+
     ## Set advanced option value
     #  @param optionName option name
     #  @param optionValue option value
@@ -139,7 +139,7 @@ class Hexotic_Algorithm(Mesh_Algorithm):
     #  @param numberOfLayers number of boundary layers
     #  @param firstLayerSize height of the first layer
     #  @param growth geometric progression for the boundary layer growth
-    #  @param direction describes whether the layers grow inwards or outwards. 
+    #  @param direction describes whether the layers grow inwards or outwards.
     #         Possible values are:
     #         - \c smeshBuilder.Inward : means the layers grow inwards,
     #         - \c smeshBuilder.Outward : means the layers grow outwards
@@ -148,8 +148,8 @@ class Hexotic_Algorithm(Mesh_Algorithm):
     #  @param imprintedFaces list of surfaces that can be imprinted by
     #         boundary layers
     #  @return hypothesis object
-    def SetViscousLayers(self, numberOfLayers, firstLayerSize, growth, 
-                          facesWithLayers, imprintedFaces=[], direction=Inward): 
+    def SetViscousLayers(self, numberOfLayers, firstLayerSize, growth,
+                          facesWithLayers, imprintedFaces=[], direction=Inward):
         self.Parameters().SetNbLayers(numberOfLayers)
         self.Parameters().SetFirstLayerSize(firstLayerSize)
         self.Parameters().SetGrowth(growth)
@@ -163,7 +163,7 @@ class Hexotic_Algorithm(Mesh_Algorithm):
             else:
               facesWithLayersIDs += [self.mesh.geompyD.GetSubShapeID(self.mesh.geom, f)]
           facesWithLayers = facesWithLayersIDs
-          
+
         if imprintedFaces and isinstance( imprintedFaces[0], geomBuilder.GEOM._objref_GEOM_Object ):
           from salome.kernel import GEOM
           imprintedFacesIDs = []
@@ -175,7 +175,7 @@ class Hexotic_Algorithm(Mesh_Algorithm):
           imprintedFaces = imprintedFacesIDs
         self.Parameters().SetFacesWithLayers(facesWithLayers)
         self.Parameters().SetImprintedFaces(imprintedFaces)
-        
+
         return self.Parameters()
 
     ## To keep working files or remove them.
@@ -183,16 +183,16 @@ class Hexotic_Algorithm(Mesh_Algorithm):
     def SetKeepFiles(self, toKeep):
         self.Parameters().SetKeepFiles(toKeep)
         pass
-    
+
     ## Remove or not the log file (if any) in case of successful computation.
-    #  The log file remains in case of errors anyway. If 
+    #  The log file remains in case of errors anyway. If
     #  the "keep working files" flag is set to true, this option
     #  has no effect.
     #  @param toRemove "remove log on success" flag value
     def SetRemoveLogOnSuccess(self, toRemove):
         self.Parameters().SetRemoveLogOnSuccess(toRemove)
         pass
-    
+
     ## Print the the log in a file. If set to false, the
     # log is printed on the standard output
     #  @param toPrintLogInFile "print log in a file" flag value

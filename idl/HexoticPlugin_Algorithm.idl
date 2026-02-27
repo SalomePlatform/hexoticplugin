@@ -32,7 +32,7 @@
 /*!
  * HexoticPlugin: interfaces to Hexotic related hypotheses and algorithms
  */
-module HexoticPlugin
+module HexoticPLUGIN
 {
   typedef sequence<string> string_array;
 
@@ -63,7 +63,7 @@ module HexoticPlugin
 
     void SetHexesMaxLevel(in long value);
     long GetHexesMaxLevel();
-    
+
     void SetMinSize(in double value);
     double GetMinSize();
 

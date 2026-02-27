@@ -101,14 +101,14 @@ void SizeMapsTableWidgetDelegate::setModelData(QWidget *editor, QAbstractItemMod
   SMESHGUI_SpinBox *spinBox = static_cast<SMESHGUI_SpinBox*>(editor);
   spinBox->interpretText();
   double value = spinBox->value();
-  if ( value == 0 ) 
-    SUIT_MessageBox::critical( spinBox, tr( "SMESH_ERROR" ), tr( "Hexotic_NULL_LOCAL_SIZE" ) ); 
+  if ( value == 0 )
+    SUIT_MessageBox::critical( spinBox, tr( "SMESH_ERROR" ), tr( "Hexotic_NULL_LOCAL_SIZE" ) );
   else
     model->setData(index, value, Qt::EditRole);
 }
 
 void SizeMapsTableWidgetDelegate::updateEditorGeometry(QWidget *editor,
-                                                       const QStyleOptionViewItem &option, 
+                                                       const QStyleOptionViewItem &option,
                                                        const QModelIndex &/* index */) const
 {
   editor->setGeometry(option.rect);
@@ -133,8 +133,8 @@ bool HexoticPluginGUI_HypothesisCreator::checkParams(QString& msg) const
 {
   msg.clear();
 
-  HexoticPlugin::HexoticPlugin_Hypothesis_var h =
-    HexoticPlugin::HexoticPlugin_Hypothesis::_narrow( hypothesis() );
+  HexoticPLUGIN::HexoticPlugin_Hypothesis_var h =
+    HexoticPLUGIN::HexoticPlugin_Hypothesis::_narrow( hypothesis() );
 
   myAdvWidget->myOptionTable->setFocus();
   QApplication::instance()->processEvents();
@@ -178,7 +178,7 @@ bool HexoticPluginGUI_HypothesisCreator::checkParams(QString& msg) const
     return res;
   }
 
-  
+
   res = data_old.myMinSize <= data_old.myMaxSize;
   if ( !res ) {
     msg = tr(QString("Min size (%1) is higher than max size (%2)").arg(data_old.myMinSize).arg(data_old.myMaxSize).toStdString().c_str());
@@ -330,7 +330,7 @@ void HexoticPluginGUI_HypothesisCreator::onAddLocalSize()
                                         ->findItems( QString(entry.c_str()), Qt::MatchExactly );
   if ( !listFound.isEmpty() )
     return;
-  
+
   // Get the size value
   double size = mySmpWidget->doubleSpinBox->value();
   if (size == 0)
@@ -338,22 +338,22 @@ void HexoticPluginGUI_HypothesisCreator::onAddLocalSize()
     SUIT_MessageBox::critical( mySmpWidget, tr( "SMESH_ERROR" ), tr( "Hexotic_NULL_LOCAL_SIZE" ) );
     return;
   }
-  
+
   // Set items for the inserted row
   insertLocalSizeInWidget( entry, shapeName, size, rowCount );
 }
 
-void HexoticPluginGUI_HypothesisCreator::insertLocalSizeInWidget( std::string entry, 
-                                                                  std::string shapeName, 
-                                                                  double size, 
+void HexoticPluginGUI_HypothesisCreator::insertLocalSizeInWidget( std::string entry,
+                                                                  std::string shapeName,
+                                                                  double size,
                                                                   int row ) const
 {
   MESSAGE("HexoticPluginGUI_HypothesisCreator:insertLocalSizeInWidget");
   int columnCount = mySmpWidget->tableWidget->columnCount();
-  
+
   // Add a row at the end of the table
   mySmpWidget->tableWidget->insertRow(row);
-  
+
   QVariant value;
   for (int col = 0; col<columnCount; col++)
   {
@@ -364,7 +364,7 @@ void HexoticPluginGUI_HypothesisCreator::insertLocalSizeInWidget( std::string en
         item->setFlags( 0 );
         value = QVariant( entry.c_str() );
         item->setData(Qt::DisplayRole, value );
-        break;  
+        break;
       case NAME_COL:
         item->setFlags( Qt::ItemIsSelectable | Qt::ItemIsEnabled );
         value = QVariant( shapeName.c_str() );
@@ -375,7 +375,7 @@ void HexoticPluginGUI_HypothesisCreator::insertLocalSizeInWidget( std::string en
         value = QVariant( size );
         item->setData(Qt::EditRole, value );
         break;
-    }       
+    }
     mySmpWidget->tableWidget->setItem(row,col,item);
   }
 }
@@ -389,7 +389,7 @@ void HexoticPluginGUI_HypothesisCreator::onRemoveLocalSize()
     int lastRow = mySmpWidget->tableWidget->rowCount() - 1;
     std::string entry = mySmpWidget->tableWidget->item( lastRow, ENTRY_COL )->text().toStdString();
     mySizeMapsToRemove.push_back(entry);
-    mySmpWidget->tableWidget->removeRow( lastRow ); 
+    mySmpWidget->tableWidget->removeRow( lastRow );
   }
   else
   {
@@ -572,8 +572,8 @@ QString HexoticPluginGUI_HypothesisCreator::storeParams() const
 
 bool HexoticPluginGUI_HypothesisCreator::readParamsFromHypo( HexoticHypothesisData& h_data ) const
 {
-  HexoticPlugin::HexoticPlugin_Hypothesis_var h =
-    HexoticPlugin::HexoticPlugin_Hypothesis::_narrow( initParamsHypothesis() );
+  HexoticPLUGIN::HexoticPlugin_Hypothesis_var h =
+    HexoticPLUGIN::HexoticPlugin_Hypothesis::_narrow( initParamsHypothesis() );
 
   HypothesisData* data = SMESH::GetHypothesisData( hypType() );
   h_data.myName = isCreation() && data ? data->Label : "";
@@ -600,16 +600,16 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromHypo( HexoticHypothesisDa
   that->myCustomOptions = h->GetAdvancedOptionValues();
 
   // Size maps
-  HexoticPlugin::HexoticPluginSizeMapsList_var sizeMaps = h->GetSizeMaps();
+  HexoticPLUGIN::HexoticPluginSizeMapsList_var sizeMaps = h->GetSizeMaps();
   for ( CORBA::ULong i = 0 ; i < sizeMaps->length() ; i++)
   {
-    HexoticPlugin::HexoticPluginSizeMap aSizeMap = sizeMaps[i];
+    HexoticPLUGIN::HexoticPluginSizeMap aSizeMap = sizeMaps[i];
     std::string entry = CORBA::string_dup(aSizeMap.entry.in());
     double size = aSizeMap.size;
     h_data.mySizeMaps[ entry ] = size;
     MESSAGE("READING Size map : entry "<<entry<<" size : "<<size);
   }
-  
+
   // Viscous layers
   h_data.myNbLayers = h->GetNbLayers();
   h_data.myFirstLayerSize = h->GetFirstLayerSize();
@@ -627,8 +627,8 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromHypo( HexoticHypothesisDa
 
 bool HexoticPluginGUI_HypothesisCreator::storeParamsToHypo( const HexoticHypothesisData& h_data ) const
 {
-  HexoticPlugin::HexoticPlugin_Hypothesis_var h =
-    HexoticPlugin::HexoticPlugin_Hypothesis::_narrow( hypothesis() );
+  HexoticPLUGIN::HexoticPlugin_Hypothesis_var h =
+    HexoticPLUGIN::HexoticPlugin_Hypothesis::_narrow( hypothesis() );
 
   bool ok = true;
 
@@ -646,9 +646,9 @@ bool HexoticPluginGUI_HypothesisCreator::storeParamsToHypo( const HexoticHypothe
     h->SetKeepFiles( h_data.myKeepFiles );
     h->SetStandardOutputLog( h_data.myLogInStandardOutput );
     h->SetRemoveLogOnSuccess( h_data.myRemoveLogOnSuccess );
-    
+
     HexoticPlugin_Hypothesis::THexoticSizeMaps::const_iterator it;
-    
+
     for ( it =  h_data.mySizeMaps.begin(); it !=  h_data.mySizeMaps.end(); it++ )
     {
       h->SetSizeMapEntry( it->first.c_str(), it->second );
@@ -665,14 +665,14 @@ bool HexoticPluginGUI_HypothesisCreator::storeParamsToHypo( const HexoticHypothe
     h->SetFirstLayerSize( h_data.myFirstLayerSize );
     h->SetDirection( h_data.myDirection );
     h->SetGrowth( h_data.myGrowth );
-    
+
     std::vector<int> vector = h_data.myFacesWithLayers;
     SMESH::long_array_var aVec = new SMESH::long_array;
     aVec->length(vector.size());
     for ( size_t i = 0; i < vector.size(); i++)
       aVec[i]=vector.at(i);
     h->SetFacesWithLayers( aVec );
-    
+
     vector = h_data.myImprintedFaces;
     aVec = new SMESH::long_array;
     aVec->length(vector.size());
@@ -707,7 +707,7 @@ bool HexoticPluginGUI_HypothesisCreator::readParamsFromWidgets( HexoticHypothesi
   bool ok = readSizeMapsFromWidgets( h_data );
   if ( !ok )
     return false;
-  
+
   h_data.myNbLayers = myVLWidget->myNbLayers->text().isEmpty() ? 0.0 : myVLWidget->myNbLayers->value();
   h_data.myFirstLayerSize = myVLWidget->myFirstLayerSize->text().isEmpty() ? 0.0 : myVLWidget->myFirstLayerSize->value();
   h_data.myDirection = myVLWidget->myDirection->currentIndex() == 0 ? true : false;
@@ -731,13 +731,13 @@ bool HexoticPluginGUI_HypothesisCreator::readSizeMapsFromWidgets( HexoticHypothe
   {
     std::string entry     = mySmpWidget->tableWidget->item( row, ENTRY_COL )->text().toStdString();
     QVariant size_variant = mySmpWidget->tableWidget->item( row, SIZE_COL )->data(Qt::DisplayRole);
-    
+
     // Convert the size to double
     bool ok = false;
     double size = size_variant.toDouble(&ok);
     if (!ok)
       return false;
-    
+
     // Set the size maps
     h_data.mySizeMaps[ entry ] = size;
     MESSAGE("READING Size map from WIDGET: entry "<<entry<<" size : "<<size);

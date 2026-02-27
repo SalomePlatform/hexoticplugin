@@ -35,7 +35,7 @@ INCLUDE_DIRECTORIES(
 )
 
 # additional preprocessor / compiler flags
-ADD_DEFINITIONS(  
+ADD_DEFINITIONS(
   ${OMNIORB_DEFINITIONS}
   ${OpenCASCADE_DEFINITIONS}
   ${BOOST_DEFINITIONS}
@@ -96,7 +96,7 @@ SET(HexoticEngine_SOURCES
 
 # scripts / static
 SET(_python_SCRIPTS
-  __init__.py
+  #__init__.py
   HexoticPLUGINBuilder.py
 )
 
